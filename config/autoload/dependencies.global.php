@@ -20,5 +20,8 @@ return [
             Application::class => ApplicationFactory::class,
             Helper\UrlHelper::class => Helper\UrlHelperFactory::class,
         ],
+        'abstract_factories' => [
+            \Zend\Db\Adapter\AdapterAbstractServiceFactory::class,
+        ]
     ],
 ];

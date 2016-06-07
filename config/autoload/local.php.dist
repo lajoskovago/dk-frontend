@@ -4,4 +4,18 @@ return [
     'debug' => true,
 
     'config_cache_enabled' => false,
+
+    //zend-db database adapters
+    'db' => [
+        'adapters' => [
+            'database' => [
+                'driver' => 'Pdo_Mysql',
+                'hostname' => 'localhost',
+                'database' => '',
+                'username' => '',
+                'password' => '',
+                'charset' => 'utf8'
+            ]
+        ]
+    ]
 ];

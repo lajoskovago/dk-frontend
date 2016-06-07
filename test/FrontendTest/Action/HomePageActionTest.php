@@ -1,8 +1,8 @@
 <?php
 
-namespace AppTest\Action;
+namespace FrontendTest\Action;
 
-use App\Action\HomePageAction;
+use Frontend\Action\HomePageAction;
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequest;
 use Zend\Expressive\Router\RouterInterface;
