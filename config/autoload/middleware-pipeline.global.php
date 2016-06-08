@@ -48,6 +48,11 @@ return [
             'middleware' => [
                 ApplicationFactory::ROUTING_MIDDLEWARE,
                 Helper\UrlHelperMiddleware::class,
+
+                //dk3 after routing middlewares
+                \N3vrax\DkRbacGuard\Middleware\RbacGuardMiddleware::class,
+                \N3vrax\DkNavigation\NavigationMiddleware::class,
+
                 // Add more middleware here that needs to introspect the routing
                 // results; this might include:
                 // - route-based authentication

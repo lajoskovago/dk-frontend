@@ -30,18 +30,18 @@ return [
 
         'role_provider_manager' => [],
 
-        //example for a flat RBAC model using the InMemoryRoleProvider
+        //example for a flat RBAC model using the InMemoryRoleProvider, hierarchical is also supported
         'role_provider' => [
             \N3vrax\DkRbac\Role\InMemoryRoleProvider::class => [
-                'admin' => [
+                'member' => [
                     'permissions' => [
-                        'admin',
-                        'user',
+                        'premium-content',
+                        'authenticated',
                     ]
                 ],
                 'user' => [
                     'permissions' => [
-                        'user',
+                        'authenticated',
                     ]
                 ],
                 'guest' => []
