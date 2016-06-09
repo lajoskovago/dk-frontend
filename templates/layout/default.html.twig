@@ -27,7 +27,7 @@
                     </a>
                 </div>
                 <div class="collapse navbar-collapse">
-                    {{ navigationMenu('default') | raw }}
+                    {{ navigationPartial('default', 'partial::navigation', {'ulClass' : 'nav navbar-nav', 'depth' : 0}) | raw }}
                 </div>
             </div>
         </nav>

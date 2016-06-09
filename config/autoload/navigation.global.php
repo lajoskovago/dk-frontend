@@ -12,14 +12,6 @@ return [
         //enable menu item active if any child is active
         'active_recursion' => true,
 
-        //depths between the menu hierarchy is iterated
-        'min_depth' => -1,
-        'max_depth' => -1,
-
-        //css classes to use for menu rendering
-        'active_class' => 'active',
-        'ul_class' => 'nav navbar-nav',
-
         //map a provider name to a provider type
         'providers_map' => [
             'default' => \N3vrax\DkNavigation\Provider\ArrayProvider::class,
@@ -30,14 +22,37 @@ return [
             'default' => [
                 [
                     'options' => [
-                        'label' => 'Home',
-                        'route' => 'home',
+                        'label' => 'Contribute',
+                        'uri' => 'https://github.com/n3vrax/dk-frontend',
+                        'icon' => 'fa fa-users',
+                    ],
+                    'attributes' => [
+                        'target' => '_blank'
+                    ],
+                ],
+                [
+                    'options' => [
+                        'label' => 'Pages',
+                        'uri' => '#',
+                        'icon' => 'fa fa-book',
                     ],
                     'pages' => [
                         [
                             'options' => [
-                                'label' => 'Logout',
-                                'route' => 'logout'
+                                'label' => 'Home',
+                                'route' => 'home',
+                            ]
+                        ],
+                        [
+                            'options' => [
+                                'label' => 'About Us',
+                                'uri' => '#',
+                            ]
+                        ],
+                        [
+                            'options' => [
+                                'label' => 'Contact',
+                                'uri' => '#',
                             ]
                         ]
                     ]
@@ -46,6 +61,16 @@ return [
                     'options' => [
                         'label' => 'Login',
                         'route' => 'login',
+                        'icon' => 'fa fa-user',
+                        'permission' => 'unauthenticated'
+                    ],
+                ],
+                [
+                    'options' => [
+                        'label' => 'Logout',
+                        'route' => 'logout',
+                        'icon' => 'fa fa-user',
+                        'permission' => 'authenticated'
                     ],
                 ]
             ]

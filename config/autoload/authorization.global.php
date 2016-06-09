@@ -44,7 +44,11 @@ return [
                         'authenticated',
                     ]
                 ],
-                'guest' => []
+                'guest' => [
+                    'permissions' => [
+                        'unauthenticated'
+                    ]
+                ]
             ]
         ],
     ]

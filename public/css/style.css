@@ -8,6 +8,8 @@ body { padding-top: 80px; }
     padding-top: 0;
 }
 
+.dropdown-menu > li > a { height: 50px; line-height: 50px; }
+
 .jumbotron { padding: 5px; }
 .app { display: flex; min-height: 100vh; flex-direction: column; }
 .app-content { flex: 1; }
