@@ -48,9 +48,24 @@ return [
                         ],
                         [
                             'options' => [
+                                'label' => 'separator',
+                                'type' => 'separator',
+                            ]
+                        ],
+                        [
+                            'options' => [
                                 'label' => 'About Us',
-                                'uri' => '#',
+                                'route' => 'pages',
+                                'params' => ['action' => 'about-us'],
                                 'icon' => 'fa fa-info-circle'
+                            ]
+                        ],
+                        [
+                            'options' => [
+                                'label' => 'Who we are',
+                                'route' => 'pages',
+                                'params' => ['action' => 'who-we-are'],
+                                'icon' => 'fa fa-copyright'
                             ]
                         ],
                     ]

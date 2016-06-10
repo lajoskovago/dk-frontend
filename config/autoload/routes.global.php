@@ -17,5 +17,10 @@ return [
             'middleware' => Frontend\Action\HomePageAction::class,
             'allowed_methods' => ['GET'],
         ],
+        [
+            'name' => 'pages',
+            'path' => '/page[/{action}]',
+            'middleware' => \Frontend\Controller\PageController::class,
+        ]
     ],
 ];

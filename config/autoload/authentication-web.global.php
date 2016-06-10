@@ -22,7 +22,7 @@ return [
             'logout_route' => 'logout',
 
             //template name to use for the login form
-            'login_template_name' => 'app::login-page',
+            'login_template_name' => 'app::login',
 
             //where to redirect after login success
             'after_login_route' => ['name' => 'home', 'params' => []],

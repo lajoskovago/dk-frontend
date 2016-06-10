@@ -21,6 +21,7 @@ return [
         'extension' => 'html.twig',
         'paths'     => [
             'app'       => ['templates/app'],
+            'page'      => ['templates/app/page'],
             'partial'   => ['templates/partial'],
             'layout'    => ['templates/layout'],
             'error'     => ['templates/error'],

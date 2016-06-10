@@ -30,6 +30,6 @@ class HomePageAction
         $data['templateName'] = 'Twig';
         $data['templateDocs'] = 'http://twig.sensiolabs.org/documentation';
 
-        return new HtmlResponse($this->template->render('app::home-page', $data));
+        return new HtmlResponse($this->template->render('app::home', $data));
     }
 }
