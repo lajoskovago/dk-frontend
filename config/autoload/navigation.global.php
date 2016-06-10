@@ -73,6 +73,9 @@ return [
                         'icon' => 'fa fa-user',
                         'permission' => 'authenticated'
                     ],
+                    'attributes' => [
+                        'class' => 'navbar-colored-item',
+                    ],
                     'pages' => [
                         [
                             'options' => [
@@ -104,6 +107,9 @@ return [
                         'icon' => 'fa fa-sign-in',
                         'permission' => 'unauthenticated'
                     ],
+                    'attributes' => [
+                        'class' => 'navbar-colored-item',
+                    ]
                 ],
             ]
         ],

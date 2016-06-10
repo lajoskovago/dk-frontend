@@ -24,3 +24,7 @@ body { padding-top: 80px; }
         display: none;
     }
 }
+
+.navbar-colored-item {
+    color: coral !important;
+}
