@@ -11,40 +11,49 @@
             {% endif %}
 
             {% if page.hasChildren() %}
-                {% if depth == 0 %}
-                    {% set liClass = liClass ~ ' dropdown' %}
-                    {% set extraAttributes = ' class=dropdown-toggle data-toggle=dropdown role=button aria-haspopup=true aria-expanded=false' %}
-                {% else %}
-                    {% set liClass = liClass ~ ' dropdown-submenu' %}
-                {% endif %}
+                {% set extraAttributes = ' class=dropdown-toggle data-toggle=dropdown' %}
+                {% set liClass = liClass ~ ' dropdown' %}
             {% endif %}
 
 
-            <li class="{{ liClass }}">
-                <a href="{{ navigation.getHref(page) }}" {{ navigationPageAttributes(page) ~ extraAttributes }} >
-                    {% if page.getOption('icon') %}
+            {% if page.getOption('type') and page.getOption('type') == 'separator' %}
+                <li role="separator" class="divider"></li>
+            {% elseif page.getOption('type') and page.getOption('type') == 'text' %}
+                <li><p class="navbar-text">{{ page.getOption('label') }}</p></li>
+            {% else %}
+                <li class="{{ liClass }}">
+                    <a href="{{ navigation.getHref(page) }}" {{ navigationPageAttributes(page) ~ extraAttributes }} >
+                        {% if page.getOption('icon') %}
 
-                        <i class="{{ page.getOption('icon') }}" ></i>&nbsp;
+                            <i class="{{ page.getOption('icon') }}" ></i>&nbsp;
 
-                    {% endif %}
+                        {% endif %}
 
-                    {{ page.getOption('label') }}
+                        {% set username = '' %}
+                        {% if page.getOption('id') and page.getOption('id') == 'account' %}
+                            {% if hasIdentity() %}
+                                {% set username = getIdentity().getName() %}
+                            {% endif %}
+                        {% endif %}
+
+                        {{ page.getOption('label') ~ username }}
+
+                        {% if page.hasChildren() and depth == 0 %}
+
+                            <span class="caret"></span>
+
+                        {% endif %}
+                    </a>
 
                     {% if page.hasChildren() %}
 
-                        <span class="caret"></span>
+                        {{ navigationPartial(page, 'partial::navigation', {'ulClass' : 'dropdown-menu', 'depth' : depth + 1}) | raw }}
 
                     {% endif %}
-                </a>
 
-                {% if page.hasChildren() %}
+                </li>
 
-                    {{ navigationPartial(page, 'partial::navigation', {'ulClass' : 'dropdown-menu', 'depth' : depth + 1}) | raw }}
-
-                {% endif %}
-
-            </li>
-
+            {% endif %}
         {% endif %}
 
     {% endfor %}

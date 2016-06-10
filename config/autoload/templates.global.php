@@ -8,6 +8,12 @@ return [
 
             Zend\Expressive\Template\TemplateRendererInterface::class =>
                 Zend\Expressive\Twig\TwigRendererFactory::class,
+
+            \Frontend\Twig\AuthenticationExtension::class =>
+                \Frontend\Twig\Factory\AuthenticationExtensionFactory::class,
+
+            \Frontend\Twig\AuthorizationExtension::class =>
+                \Frontend\Twig\Factory\AuthorizationExtensionFactory::class,
         ],
     ],
 
@@ -27,6 +33,8 @@ return [
         'assets_version' => null,
         'extensions'     => [
             // extension service names or instances
+            \Frontend\Twig\AuthenticationExtension::class,
+            \Frontend\Twig\AuthorizationExtension::class,
         ],
         'globals' => [
             //global variables passed to twig templates

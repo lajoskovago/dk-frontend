@@ -14,12 +14,14 @@ return [
 
         //map a provider name to a provider type
         'providers_map' => [
-            'default' => \N3vrax\DkNavigation\Provider\ArrayProvider::class,
+            'main_menu' => \N3vrax\DkNavigation\Provider\ArrayProvider::class,
+            'account_menu' => \N3vrax\DkNavigation\Provider\ArrayProvider::class,
         ],
 
         //map a provider name to its config
+        //this is for bootstrap navbar - even if we support multi-level menus, bootstrap is limited to one level
         'containers' => [
-            'default' => [
+            'main_menu' => [
                 [
                     'options' => [
                         'label' => 'Contribute',
@@ -41,38 +43,68 @@ return [
                             'options' => [
                                 'label' => 'Home',
                                 'route' => 'home',
+                                'icon' => 'fa fa-home'
                             ]
                         ],
                         [
                             'options' => [
                                 'label' => 'About Us',
                                 'uri' => '#',
+                                'icon' => 'fa fa-info-circle'
+                            ]
+                        ],
+                    ]
+                ],
+                [
+                    'options' => [
+                        'label' => 'Contact',
+                        'uri' => '#',
+                        'icon' => 'fa fa-envelope',
+                    ]
+                ],
+            ],
+
+            'account_menu' => [
+                [
+                    'options' => [
+                        'label' => 'Welcome, ',
+                        'id' => 'account',
+                        'uri' => '#',
+                        'icon' => 'fa fa-user',
+                        'permission' => 'authenticated'
+                    ],
+                    'pages' => [
+                        [
+                            'options' => [
+                                'label' => 'Settings',
+                                'uri' => '#',
+                                'icon' => 'fa fa-wrench',
                             ]
                         ],
                         [
                             'options' => [
-                                'label' => 'Contact',
-                                'uri' => '#',
+                                'label' => 'Sign Out',
+                                'route' => 'logout',
+                                'icon' => 'fa fa-sign-out'
                             ]
                         ]
                     ]
                 ],
                 [
                     'options' => [
-                        'label' => 'Login',
-                        'route' => 'login',
-                        'icon' => 'fa fa-user',
-                        'permission' => 'unauthenticated'
+                        'label' => 'Already registered?',
+                        'type' => 'text',
+                        'permission' => 'unauthenticated',
                     ],
                 ],
                 [
                     'options' => [
-                        'label' => 'Logout',
-                        'route' => 'logout',
-                        'icon' => 'fa fa-user',
-                        'permission' => 'authenticated'
+                        'label' => 'Login',
+                        'route' => 'login',
+                        'icon' => 'fa fa-sign-in',
+                        'permission' => 'unauthenticated'
                     ],
-                ]
+                ],
             ]
         ],
 

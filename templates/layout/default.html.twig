@@ -27,7 +27,18 @@
                     </a>
                 </div>
                 <div class="collapse navbar-collapse">
-                    {{ navigationPartial('default', 'partial::navigation', {'ulClass' : 'nav navbar-nav', 'depth' : 0}) | raw }}
+                    <!-- parse the main menu -->
+                    {{ navigationPartial('main_menu', 'partial::navigation', {'ulClass' : 'nav navbar-nav', 'depth' : 0}) | raw }}
+
+                    <!-- navbar-right with login form or account menu -->
+                    {{ navigationPartial('account_menu', 'partial::navigation', {'ulClass' : 'nav navbar-nav navbar-right', 'depth' : 0}) | raw }}
+
+                    {% if not hasIdentity() %}
+                        <div class="signup-btn navbar-right" >
+                            <a href="#" class="btn btn-primary navbar-btn btn-block btn-lg">Sign In</a>
+                        </div>
+                    {% endif %}
+
                 </div>
             </div>
         </nav>
@@ -44,14 +55,14 @@
             <hr />
             {% block footer %}
                 <p>
-                    &copy; 2005 - {{ "now"|date("Y") }} by DotBoost Technologies Ltd. All rights reserved.
+                    &copy; 2009 - {{ "now"|date("Y") }} by DotBoost Technologies Ltd. All rights reserved.
                 </p>
             {% endblock %}
         </div>
     </footer>
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
     <script src="{{ asset('js/main.js') }}" ></script>
 
