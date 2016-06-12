@@ -6,8 +6,12 @@ return [
             'Zend\Expressive\FinalHandler' =>
                 Zend\Expressive\Container\TemplatedErrorHandlerFactory::class,
 
+            //we replaced the default renderer factory with ours to inject the zend view helpers
             Zend\Expressive\Template\TemplateRendererInterface::class =>
-                Zend\Expressive\Twig\TwigRendererFactory::class,
+                \Frontend\Twig\Renderer\TwigRendererFactory::class,
+
+            \Zend\View\HelperPluginManager::class =>
+                \Frontend\Zend\View\HelperPluginManagerFactory::class,
 
             \Frontend\Twig\AuthenticationExtension::class =>
                 \Frontend\Twig\Factory\AuthenticationExtensionFactory::class,
@@ -15,6 +19,9 @@ return [
             \Frontend\Twig\AuthorizationExtension::class =>
                 \Frontend\Twig\Factory\AuthorizationExtensionFactory::class,
         ],
+        'aliases' => [
+            'ViewHelperManager' => \Zend\View\HelperPluginManager::class,
+        ]
     ],
 
     'templates' => [
@@ -41,4 +48,10 @@ return [
             //global variables passed to twig templates
         ],
     ],
+
+    //these are zend view helpers registered under twig
+    //using the twig fallback function to request unknown twig extensions from the view helper plugin manager
+    'view_helpers' => [
+
+    ]
 ];

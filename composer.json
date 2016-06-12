@@ -35,6 +35,9 @@
 
         "zendframework/zend-form": "^2.9",
         "zendframework/zend-inputfilter": "^2.7",
+        "zendframework/zend-view": "^2.7",
+        "zendframework/zend-i18n": "^2.7",
+        "zendframework/zend-i18n-resources": "^2.5",
 
         "mtymek/expressive-config-manager": "^0.4",
 

@@ -15,6 +15,7 @@ use N3vrax\DkZendAuthentication\Adapter\CallbackCheck\DbCredentials;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\HtmlResponse;
+use Zend\Expressive\Helper\UrlHelper;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
 class PreAuthCallback
@@ -25,15 +26,23 @@ class PreAuthCallback
     /** @var LoginForm  */
     protected $loginForm;
 
+    /** @var  UrlHelper */
+    protected $urlHelper;
+
     /**
      * PreAuthCallback constructor.
      * @param TemplateRendererInterface $template
      * @param LoginForm $loginForm
+     * @param UrlHelper $urlHelper
      */
-    public function __construct(TemplateRendererInterface $template, LoginForm $loginForm)
+    public function __construct(
+        TemplateRendererInterface $template,
+        LoginForm $loginForm,
+        UrlHelper $urlHelper)
     {
         $this->template = $template;
         $this->loginForm = $loginForm;
+        $this->urlHelper = $urlHelper;
     }
 
     /**
@@ -44,12 +53,28 @@ class PreAuthCallback
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next = null)
     {
-        //add some extra data to the template
         $form = $this->loginForm;
+
+        $session = $request->getAttribute('session', null);
+        if($session && isset($session->loginData)) {
+            $data = $session->loginData;
+            if(isset($data['credential']))
+                unset($data['credential']);
+
+            $form->setData($data);
+        }
+
+        /** @var ServerRequestInterface $request */
+        $request = $request->withAttribute(LoginAction::LOGIN_TEMPLATE_DATA, ['form' => $form]);
 
         if($request->getMethod() === 'POST')
         {
             $data = $request->getParsedBody();
+            $form->setData($data);
+            /*if(!$form->isValid())
+            {
+
+            }*/
             $identity = '';
             $credential = '';
             if(is_array($data)) {
@@ -58,18 +83,23 @@ class PreAuthCallback
             }
 
             if(empty($identity) || empty($credential)) {
-                return new HtmlResponse($this->template->render('app::login',
-                    ['messages' => ['Authentication failure. Credentials are required and cannot be empty'],
-                        'identity' => $identity]));
+
+                if(isset($data['credential']))
+                    unset($data['credential']);
+
+                if($session) {
+                    $session->loginData = $data;
+                }
+
+                return new PreAuthCallbackResult(
+                    $request,
+                    $response,
+                    ['Credentials are required and cannot be empty']);
             }
 
             $credentials = new DbCredentials($identity, $credential);
             $request = $request->withAttribute(DbCredentials::class, $credentials);
         }
-
-        //add the form to the requestm so that the login action would inject it into the template
-        /** @var ServerRequestInterface $request */
-        $request = $request->withAttribute(LoginAction::LOGIN_TEMPLATE_DATA, ['form' => $form]);
 
         return new PreAuthCallbackResult($request, $response);
     }

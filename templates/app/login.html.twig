@@ -10,26 +10,32 @@
         <div class="col-sm-6 col-md-5 col-md-offset-3">
 
             <h3>Please sign in</h3>
-
+            {# we have moved the flash messages here to match with the form width #}
             {% include '@partial/flashmessages.html.twig' %}
 
-            <form method="post" >
+            {% set dummy = form.setAttribute('method', 'post') %}
+            {% set dummy = form.prepare() %}
+
+            {{ form().openTag(form) | raw }}
                 <div class="form-group">
-                    <input type="text" name="identity" class="form-control" placeholder="Username or email..." value="{{ identity }}" required autofocus />
+                    {% set dummy = form.get('identity').setAttribute('class', 'form-control') %}
+                    {{ formRow(form.get('identity')) }}
                 </div>
                 <div class="form-group">
-                    <input type="password" name="credential" class="form-control" placeholder="Password..." required />
+                    {% set dummy = form.get('credential').setAttribute('class', 'form-control') %}
+                    {{ formRow(form.get('credential')) }}
                 </div>
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" name="remember"> Remember Me
+                        {{ formCheckbox(form.get('remember')) }} {{ form.get('remember').getLabel() }}
                     </label>
                 </div>
-                <input type="submit" class="btn btn-lg btn-primary btn-block" value="Sign In">
+                {% set dummy = form.get('submit').setAttribute('class', 'btn btn-lg btn-primary btn-block') %}
+                {{ formSubmit(form.get('submit')) }}
                 <div style="margin-top: 5px;">
                     <a href="/forgot-password" >Forgot Password?</a>
                 </div>
-            </form>
+            {{ form().closeTag() | raw }}
         </div>
     </div>
 

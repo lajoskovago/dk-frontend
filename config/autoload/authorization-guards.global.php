@@ -28,9 +28,7 @@ return [
 
             //the RoutePermissionGuard allows you to restrict access to routes based on permissions
             /*\N3vrax\DkRbacGuard\Route\RoutePermissionGuard::class => [
-                'premium' => ['premium'],
-                'account' => ['my-account'],
-                'logout' => ['only-logged'],
+                'pages' => ['authenticated'],
             ]*/
         ],
 

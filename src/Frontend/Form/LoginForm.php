@@ -23,17 +23,28 @@ class LoginForm extends Form
         $this->add(array(
             'name' => 'identity',
             'type' => 'text',
-            'options' => array(
-                'placeholder' => 'Username or Email',
+            'attributes' => array(
+                'placeholder' => 'Username or Email...',
+                'required' => true,
+                'autofocus' => true,
             ),
 
         ));
         $this->add(array(
             'type' => 'password',
             'name' => 'credential',
-            'options' => array(
-                'placeholder' => 'Password',
+            'attributes' => array(
+                'placeholder' => 'Password...',
+                'required' => true,
             ),
+        ));
+        $this->add(array(
+            'type' => 'checkbox',
+            'name' => 'remember',
+            'options' => [
+                'label' => 'Remember Me',
+                'use_hidden_element' => false,
+            ],
         ));
         $this->add(array(
             'type' => 'submit',
