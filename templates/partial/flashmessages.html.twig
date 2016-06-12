@@ -1,0 +1,23 @@
+{% set classes = {'errors': 'danger'} %}
+
+{% if messages is defined and messages is iterable %}
+    {% for namespace in messages|keys %}
+
+        {% if attribute(classes, namespace) is defined %}
+
+            <div class="alert alert-{{ attribute(classes, namespace) }}" role="alert" >
+                <ul>
+                    {% if attribute(messages, namespace) is iterable %}
+                        {% for message in attribute(messages, namespace) %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    {% else %}
+                        <li>{{ attribute(messages, namespace) }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+        {% endif %}
+
+    {% endfor %}
+{% endif %}

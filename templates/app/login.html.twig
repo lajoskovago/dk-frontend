@@ -2,6 +2,8 @@
 
 {% block title %}Sign-In{% endblock %}
 
+{% block flash_messages %}{% endblock %}
+
 {% block content %}
 
     <div class="row">
@@ -9,15 +11,7 @@
 
             <h3>Please sign in</h3>
 
-            {% if messages is defined and messages %}
-                <div class="alert alert-danger" role="alert">
-                    <ul>
-                        {% for message in messages %}
-                            <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
+            {% include '@partial/flashmessages.html.twig' %}
 
             <form method="post" >
                 <div class="form-group">

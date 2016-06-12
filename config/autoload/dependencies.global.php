@@ -14,14 +14,13 @@ return [
         'invokables' => [
             // Fully\Qualified\InterfaceName::class => Fully\Qualified\ClassName::class,
             Helper\ServerUrlHelper::class => Helper\ServerUrlHelper::class,
+
+            \Frontend\Form\LoginForm::class => \Frontend\Form\LoginForm::class,
         ],
         // Use 'factories' for services provided by callbacks/factory classes.
         'factories' => [
             Application::class => ApplicationFactory::class,
             Helper\UrlHelper::class => Helper\UrlHelperFactory::class,
         ],
-        'abstract_factories' => [
-            \Zend\Db\Adapter\AdapterAbstractServiceFactory::class,
-        ]
     ],
 ];

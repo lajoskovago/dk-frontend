@@ -46,6 +46,13 @@
 
     <div class="app-content">
         <main class="container">
+
+            {% block page_title %}{% endblock %}
+
+            {% block flash_messages %}
+                {% include '@partial/flashmessages.html.twig' %}
+            {% endblock %}
+
             {% block content %}{% endblock %}
         </main>
     </div>

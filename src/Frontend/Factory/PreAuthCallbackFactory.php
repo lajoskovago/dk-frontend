@@ -9,6 +9,7 @@
 namespace Frontend\Factory;
 
 use Frontend\Authentication\PreAuthCallback;
+use Frontend\Form\LoginForm;
 use Interop\Container\ContainerInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
@@ -16,6 +17,8 @@ class PreAuthCallbackFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        return new PreAuthCallback($container->get(TemplateRendererInterface::class));
+        return new PreAuthCallback(
+            $container->get(TemplateRendererInterface::class),
+            $container->get(LoginForm::class));
     }
 }
