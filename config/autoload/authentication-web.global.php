@@ -10,7 +10,8 @@ return [
     'dependencies' => [
         //whatever dependencies you need additionally
         'factories' => [
-            \Frontend\Authentication\PreAuthCallback::class => \Frontend\Factory\PreAuthCallbackFactory::class,
+            \Frontend\Authentication\PreAuthentication::class => \Frontend\Factory\PreAuthenticationFactory::class,
+            \Frontend\Authentication\PostAuthentication::class => \Zend\ServiceManager\Factory\InvokableFactory::class,
         ]
     ],
 
@@ -32,15 +33,17 @@ return [
             //callback to call before authentication happens(closure or service name of a callable etc.)
             //this is useful to extract credentials from the request, possibly validating them
             //then prepare them for the authentication adapter
-            'pre_auth_callback' => \Frontend\Authentication\PreAuthCallback::class,
+            'pre_authentication_strategy' => \Frontend\Authentication\PreAuthentication::class,
+            'post_authentication_strategy' => \Frontend\Authentication\PostAuthentication::class,
 
             //enable the wanted url feature, to login to the previously requested uri after login
             'allow_redirect' => true,
-
             'redirect_query_name' => 'redirect',
 
             //enable the default unauthorized(401) error handler, to make the redirects
             'enable_unauthorized_handler' => true,
+
+            'enable_prg_form' => true,
         ]
     ]
 ];

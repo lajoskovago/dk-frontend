@@ -1,23 +1,11 @@
-{% set classes = {'errors': 'danger'} %}
-{% set messages = flashMessages() %}
+{% set classes = {'error': 'danger', 'info': 'sd', 'warning': 'sd'} %}
 
-{% if messages is defined and messages is iterable %}
-    {% for namespace in flashNamespaces() %}
-        {% if classes[namespace] is defined %}
-
-            <div class="alert alert-{{ classes[namespace] }}" role="alert" >
-                <ul>
-                    {% if messages[namespace] is iterable %}
-                        {% for message in messages[namespace] %}
-                            <li>{{ message }}</li>
-                        {% endfor %}
-                    {% else %}
-                        <li>{{ messages[namespace] }}</li>
-                    {% endif %}
-                </ul>
-            </div>
-
-        {% endif %}
-
-    {% endfor %}
-{% endif %}
+{% for namespace in messages|keys %}
+<div class="alert alert-{{ classes[namespace] }}" role="alert">
+    <ul>
+        {% for message in messages[namespace] %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endfor %}

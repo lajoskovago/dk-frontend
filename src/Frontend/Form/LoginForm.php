@@ -25,7 +25,7 @@ class LoginForm extends Form
             'type' => 'text',
             'attributes' => array(
                 'placeholder' => 'Username or Email...',
-                'required' => true,
+                //'required' => true,
                 'autofocus' => true,
             ),
 
@@ -35,7 +35,7 @@ class LoginForm extends Form
             'name' => 'credential',
             'attributes' => array(
                 'placeholder' => 'Password...',
-                'required' => true,
+                //'required' => true,
             ),
         ));
         $this->add(array(

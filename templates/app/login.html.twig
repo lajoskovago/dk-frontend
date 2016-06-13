@@ -11,7 +11,7 @@
 
             <h3>Please sign in</h3>
             {# we have moved the flash messages here to match with the form width #}
-            {% include '@partial/flashmessages.html.twig' %}
+            {{ flashMessagesPartial('partial::flashmessages') }}
 
             {% set dummy = form.setAttribute('method', 'post') %}
             {% set dummy = form.prepare() %}
