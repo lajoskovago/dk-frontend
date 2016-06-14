@@ -10,8 +10,9 @@
         <div class="col-sm-6 col-md-5 col-md-offset-3">
 
             <h3>Please sign in</h3>
-            {# we have moved the flash messages here to match with the form width #}
-            {{ flashMessagesPartial('partial::flashmessages') }}
+            {# we parse the messages here, as we dont use flash messages
+             we can use the same partial though, due to the same messages structure #}
+            {% include '@partial/alerts.html.twig' %}
 
             {% set dummy = form.setAttribute('method', 'post') %}
             {% set dummy = form.prepare() %}

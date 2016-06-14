@@ -8,18 +8,18 @@
 
 namespace Frontend\Factory;
 
-use Frontend\Authentication\PreAuthentication;
+use Frontend\Authentication\WebPreAuthenticationListener;
 use Frontend\Form\LoginForm;
 use Interop\Container\ContainerInterface;
 use N3vrax\DkWebAuthentication\Options\ModuleOptions;
 use Zend\Expressive\Helper\UrlHelper;
 use Zend\Expressive\Template\TemplateRendererInterface;
 
-class PreAuthenticationFactory
+class WebPreAuthenticationListenerFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        return new PreAuthentication(
+        return new WebPreAuthenticationListener(
             $container->get(TemplateRendererInterface::class),
             $container->get(LoginForm::class),
             $container->get(UrlHelper::class),

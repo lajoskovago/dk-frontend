@@ -47,7 +47,7 @@
 
                     {% if page.hasChildren() %}
 
-                        {{ navigationPartial(page, 'partial::navigation', {'ulClass' : 'dropdown-menu', 'depth' : depth + 1}) | raw }}
+                        {{ navigationPartial(page, 'partial::navigation', {'ulClass' : 'dropdown-menu', 'depth' : depth + 1}) }}
 
                     {% endif %}
 
