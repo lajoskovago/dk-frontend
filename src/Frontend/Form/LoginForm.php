@@ -8,6 +8,7 @@
 
 namespace Frontend\Form;
 
+use Frontend\Form\InputFilter\LoginInputFilter;
 use Zend\Form\Form;
 
 class LoginForm extends Form
@@ -53,5 +54,14 @@ class LoginForm extends Form
                 'value' => 'Sign In',
             ),
         ));
+    }
+
+    public function getInputFilter()
+    {
+        if(!$this->filter) {
+            $this->filter = new LoginInputFilter();
+        }
+
+        return $this->filter;
     }
 }

@@ -63,20 +63,15 @@ class WebPreAuthenticationListener
         {
             $data = $request->getParsedBody();
             $form->setData($data);
-
-            $identity = '';
-            $credential = '';
-            if(is_array($data)) {
-                $identity = isset($data['identity']) ? $data['identity'] : '';
-                $credential = isset($data['credential']) ? $data['credential'] : '';
-            }
-
-            if(empty($identity) || empty($credential)) {
-                $e->addError('Credentials are required and cannot be empty');
+            if(!$form->isValid())
+            {
+                $e->addError('Credentials are invalid. Check errors below');
                 return false;
             }
-
-            $credentials = new DbCredentials($identity, $credential);
+            $credentials = new DbCredentials(
+                $form->getInputFilter()->getValue('identity'),
+                $form->getInputFilter()->getValue('credential')
+            );
             $request = $request->withAttribute(DbCredentials::class, $credentials);
             $e->setRequest($request);
         }

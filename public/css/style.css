@@ -28,3 +28,7 @@ body { padding-top: 80px; }
 .navbar-colored-item {
     color: coral !important;
 }
+
+.element-errors {
+    color: red;
+}

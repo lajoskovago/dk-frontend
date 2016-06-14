@@ -14,8 +14,6 @@ return [
         'invokables' => [
             // Fully\Qualified\InterfaceName::class => Fully\Qualified\ClassName::class,
             Helper\ServerUrlHelper::class => Helper\ServerUrlHelper::class,
-
-            \Frontend\Form\LoginForm::class => \Frontend\Form\LoginForm::class,
         ],
         // Use 'factories' for services provided by callbacks/factory classes.
         'factories' => [

@@ -16,5 +16,13 @@ return [
 
         'plugin_manager' => []
 
+    ],
+
+    'routes' => [
+        [
+            'name' => 'pages',
+            'path' => '/page[/{action}]',
+            'middleware' => \Frontend\Controller\PageController::class,
+        ],
     ]
 ];

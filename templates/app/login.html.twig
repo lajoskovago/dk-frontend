@@ -18,13 +18,15 @@
             {% set dummy = form.prepare() %}
 
             {{ form().openTag(form) | raw }}
-                <div class="form-group">
+                <div class="form-group {% if form.get('identity').getMessages() %}has-error{% endif %}">
                     {% set dummy = form.get('identity').setAttribute('class', 'form-control') %}
-                    {{ formRow(form.get('identity')) }}
+                    {{ formInput(form.get('identity')) }}
+                    {{ formElementErrors(form.get('identity'), {'class': 'element-errors'}) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group {% if form.get('credential').getMessages() %}has-error{% endif %}">
                     {% set dummy = form.get('credential').setAttribute('class', 'form-control') %}
-                    {{ formRow(form.get('credential')) }}
+                    {{ formInput(form.get('credential')) }}
+                    {{ formElementErrors(form.get('credential'), {'class': 'element-errors'}) }}
                 </div>
                 <div class="checkbox">
                     <label>

@@ -14,6 +14,10 @@ class WebPostAuthenticationListener
 {
     public function __invoke(WebAuthenticationEvent $e)
     {
-        //TODO: do nothing for now
+        $authResult = $e->getResult();
+        if($authResult->isValid())
+        {
+            //TODO: do nothing for now
+        }
     }
 }
