@@ -11,5 +11,10 @@
             You are looking for something that doesn't exist or may have moved. Check out one of the links on this page
             or head back to <a href="{{ path('home') }}">Home</a>.
         </p>
+    {% elseif status == 403 %}
+        <p>
+            You don't have enough permissions to view this page. You can <a href="{{ path('logout') }}">Sign out</a>
+            and try with a more permissive user.
+        </p>
     {% endif %}
 {% endblock %}

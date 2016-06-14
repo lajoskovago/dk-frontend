@@ -28,7 +28,7 @@ return [
 
             //the RoutePermissionGuard allows you to restrict access to routes based on permissions
             /*\N3vrax\DkRbacGuard\Route\RoutePermissionGuard::class => [
-                'pages' => ['authenticated'],
+                'pages' => ['premium-content'],
             ]*/
         ],
 
@@ -48,9 +48,9 @@ return [
         //'redirect_route' => '['name' => 'route name', 'params' => []]',
 
         //if redirect enabled, this will append the wanted url to the link
-        //'enable_wanted_url' => true,
+        //'enable_redirect' => true,
 
         //query param name for the above wanted url, if enabled
-        //'wanted_url_query_name' => 'redirect',
+        //'redirect_query_name' => 'redirect',
     ]
 ];
