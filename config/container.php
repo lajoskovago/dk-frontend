@@ -13,4 +13,16 @@ $container = new ServiceManager();
 // Inject config
 $container->setService('config', $config);
 
+$eventManager = $container->get(\Zend\EventManager\EventManagerInterface::class);
+/**
+ * Register event listeners
+ */
+/** @var \Frontend\Authentication\AuthenticationEventListener $authenticationListeners */
+$authenticationListeners = $container->get(\Frontend\Authentication\AuthenticationEventListener::class);
+$authenticationListeners->attach($eventManager);
+
+/**
+ * ################################
+ */
+
 return $container;

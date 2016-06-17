@@ -21,7 +21,7 @@ $configManager = new ConfigManager([
     //dk modules config providers, these are required
     \N3vrax\DkBase\ModuleConfig::class,
     \N3vrax\DkZendAuthentication\ModuleConfig::class,
-    \N3vrax\DkWebAuthentication\ModuleConfig::class,
+    \N3vrax\DkWebAuthentication\ConfigProvider::class,
     \N3vrax\DkRbac\ModuleConfig::class,
     \N3vrax\DkRbacGuard\ModuleConfig::class,
     \N3vrax\DkNavigation\ModuleConfig::class,
