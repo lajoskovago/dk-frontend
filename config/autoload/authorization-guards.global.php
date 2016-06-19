@@ -37,20 +37,13 @@ return [
         //define custom guards here
         'guard_manager' => [],
 
-
-        //whether to enable the default forbidden handler
-        'enable_forbidden_handler' => true,
-
-        //how to handle forbidden exceptions(currently 2 options)
-        //pass-through - passes a 403 response to the next middleware
-        //redirect - goes to a named route
-        'forbidden_handler_strategy' => \N3vrax\DkRbacGuard\Middleware\ForbiddenHandler::PASSTHROUGH_STRATEGY,
-
-        //redirect route in case the forbidden handler strategy is redirection
+        //if enabled, use a default listener that will redirect on forbidden exception to a predefined route
+        //'enable_redirect_forbidden_listener' => false,
+        //redirect route in case the redirect listener is enabled
         //'redirect_route' => '['name' => 'route name', 'params' => []]',
 
         //if redirect enabled, this will append the wanted url to the link
-        //'enable_redirect' => true,
+        //'allow_redirect' => true,
 
         //query param name for the above wanted url, if enabled
         //'redirect_query_name' => 'redirect',

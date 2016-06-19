@@ -49,9 +49,9 @@ return [
                 ApplicationFactory::ROUTING_MIDDLEWARE,
                 Helper\UrlHelperMiddleware::class,
 
-                //dk3 after routing middlewares
-                \N3vrax\DkRbacGuard\Middleware\RbacGuardMiddleware::class,
+                //dk3 after routing middleware
                 \N3vrax\DkNavigation\NavigationMiddleware::class,
+                \N3vrax\DkRbacGuard\Middleware\RbacGuardMiddleware::class,
 
                 // Add more middleware here that needs to introspect the routing
                 // results; this might include:

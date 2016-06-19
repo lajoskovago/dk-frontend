@@ -60,6 +60,7 @@ class AuthenticationEventListener extends AbstractListenerAggregate
             $form->setData($data);
             if(!$form->isValid()) {
                 $e->addError('Invalid credential data. See errors below');
+                return;
             }
 
             //insert a DbCredential object as request attribute as required by the auth adapter in use

@@ -96,10 +96,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/n3vrax/dk-navigation"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/n3vrax/web-auth-test"
         }
     ],
     "scripts": {

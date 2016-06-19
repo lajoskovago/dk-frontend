@@ -23,7 +23,7 @@ $configManager = new ConfigManager([
     \N3vrax\DkZendAuthentication\ModuleConfig::class,
     \N3vrax\DkWebAuthentication\ConfigProvider::class,
     \N3vrax\DkRbac\ModuleConfig::class,
-    \N3vrax\DkRbacGuard\ModuleConfig::class,
+    \N3vrax\DkRbacGuard\ConfigProvider::class,
     \N3vrax\DkNavigation\ModuleConfig::class,
 
     //*************************************
