@@ -1,30 +1,24 @@
 <?php
 
 use Zend\Stdlib\ArrayUtils;
-use Zend\Stdlib\Glob;
-
-/**
- * Configuration files are loaded in a specific order. First ``global.php``, then ``*.global.php``.
- * then ``local.php`` and finally ``*.local.php``. This way local settings overwrite global settings.
- *
- * The configuration can be cached. This can be done by setting ``config_cache_enabled`` to ``true``.
- *
- * Obviously, if you use closures in your config you can't cache it.
- */
-
-$cachedConfigFile = 'data/cache/app_config.php';
-
 use Zend\Expressive\ConfigManager\ConfigManager;
 use Zend\Expressive\ConfigManager\PhpFileProvider;
 
+
+$cachedConfigFile = __DIR__ . '/../data/cache/app_config.php';
+if(!is_dir(__DIR__ . '/../data/cache')) {
+    mkdir(__DIR__ . '/../data/cache');
+    chmod(__DIR__ . '/../data/cache', 755);
+}
+
 $configManager = new ConfigManager([
     //dk modules config providers, these are required
-    \N3vrax\DkBase\ModuleConfig::class,
-    \N3vrax\DkZendAuthentication\ModuleConfig::class,
+    \N3vrax\DkBase\ConfigProvider::class,
+    \N3vrax\DkZendAuthentication\ConfigProvider::class,
     \N3vrax\DkWebAuthentication\ConfigProvider::class,
-    \N3vrax\DkRbac\ModuleConfig::class,
+    \N3vrax\DkRbac\ConfigProvider::class,
     \N3vrax\DkRbacGuard\ConfigProvider::class,
-    \N3vrax\DkNavigation\ModuleConfig::class,
+    \N3vrax\DkNavigation\ConfigProvider::class,
 
     //*************************************
     //zend framework enabled modules, might come in handy to have all these services in the DI
@@ -49,7 +43,7 @@ $configManager = new ConfigManager([
     //needed mainly for the form view helpers
     \Zend\Form\ConfigProvider::class,
 
-    new PhpFileProvider('config/autoload/{{,*.}global,{,*.}local}.php'),
+    new PhpFileProvider(__DIR__ . '/autoload/{{,*.}global,{,*.}local}.php'),
 ], $cachedConfigFile);
 
 return new ArrayObject($configManager->getMergedConfig());

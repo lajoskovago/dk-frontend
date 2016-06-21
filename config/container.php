@@ -13,16 +13,10 @@ $container = new ServiceManager();
 // Inject config
 $container->setService('config', $config);
 
-$eventManager = $container->get(\Zend\EventManager\EventManagerInterface::class);
 /**
- * Register event listeners
+ * include the bootstrap script, used to do pre application run setup
+ * like registering event listeners
  */
-/** @var \Frontend\Authentication\AuthenticationEventListener $authenticationListeners */
-$authenticationListeners = $container->get(\Frontend\Authentication\AuthenticationEventListener::class);
-$authenticationListeners->attach($eventManager);
-
-/**
- * ################################
- */
+require __DIR__ . '/bootstrap.php';
 
 return $container;

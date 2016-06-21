@@ -27,16 +27,16 @@ return [
     'templates' => [
         'extension' => 'html.twig',
         'paths'     => [
-            'app'       => ['templates/app'],
-            'page'      => ['templates/app/page'],
-            'partial'   => ['templates/partial'],
-            'layout'    => ['templates/layout'],
-            'error'     => ['templates/error'],
+            'app'       => [__DIR__ . '/../../templates/app'],
+            'page'      => [__DIR__ . '/../../templates/app/page'],
+            'partial'   => [__DIR__ . '/../../templates/partial'],
+            'layout'    => [__DIR__ . '/../../templates/layout'],
+            'error'     => [__DIR__ . '/../../templates/error'],
         ],
     ],
 
     'twig' => [
-        'cache_dir'      => 'data/cache/twig',
+        'cache_dir'      => __DIR__ . '/../../data/cache/twig',
         'assets_url'     => '/',
         'assets_version' => null,
         'extensions'     => [

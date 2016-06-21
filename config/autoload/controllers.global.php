@@ -3,12 +3,9 @@
 return [
 
     'dependencies' => [
-        'invokables' => [
-            \Frontend\Controller\PageController::class => \Frontend\Controller\PageController::class,
-        ],
-
         'factories' => [
-
+            \Frontend\Controller\PageController::class =>
+                \Frontend\Controller\Factory\PageControllerFactory::class,
         ]
     ],
 

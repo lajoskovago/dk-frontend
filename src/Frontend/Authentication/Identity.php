@@ -34,7 +34,7 @@ class Identity implements AuthenticationIdentityInterface, AuthorizationIdentity
 
     public function getRoles()
     {
-        return $this->role;
+        return [$this->role];
     }
 
     /**
