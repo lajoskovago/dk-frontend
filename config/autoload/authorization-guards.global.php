@@ -28,8 +28,6 @@ return [
 
             //the RoutePermissionGuard allows you to restrict access to routes based on permissions
             \N3vrax\DkRbacGuard\Route\RoutePermissionGuard::class => [
-                'login' => ['unauthenticated'],
-                'logout' => ['authenticated'],
                 'pages' => ['premium-content'],
             ]
         ],
