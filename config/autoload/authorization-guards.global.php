@@ -30,7 +30,7 @@ return [
             \N3vrax\DkRbacGuard\Route\RoutePermissionGuard::class => [
                 'login' => ['unauthenticated'],
                 'logout' => ['authenticated'],
-                //'pages' => ['premium-content'],
+                'pages' => ['premium-content'],
             ]
         ],
 
@@ -39,8 +39,9 @@ return [
 
         //if enabled, use a default listener that will redirect on forbidden exception to a predefined route
         //'enable_redirect_forbidden_listener' => false,
-        //redirect route in case the redirect listener is enabled
-        //'redirect_route' => '['name' => 'route name', 'params' => []]',
+
+        //where to redirect if forbidden redirect listener is used
+        'redirect_route' => ['name' => 'login', 'params' => []],
 
         //if redirect enabled, this will append the wanted url to the link
         //'allow_redirect' => true,
