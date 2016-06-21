@@ -45,6 +45,7 @@
         "n3vrax/dk-base": "dev-master",
         "n3vrax/dk-zend-authentication": "dev-master",
         "n3vrax/dk-web-authentication": "dev-master",
+        "n3vrax/dk-user": "dev-master",
         "n3vrax/dk-rbac": "dev-master",
         "n3vrax/dk-rbac-guard": "dev-master",
         "n3vrax/dk-navigation": "dev-master"
@@ -84,6 +85,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/n3vrax/dk-web-authentication"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/n3vrax/dk-user"
         },
         {
             "type": "vcs",

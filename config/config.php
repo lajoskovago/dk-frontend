@@ -19,6 +19,7 @@ $configManager = new ConfigManager([
     \N3vrax\DkRbac\ConfigProvider::class,
     \N3vrax\DkRbacGuard\ConfigProvider::class,
     \N3vrax\DkNavigation\ConfigProvider::class,
+    \N3vrax\DkUser\ConfigProvider::class,
 
     //*************************************
     //zend framework enabled modules, might come in handy to have all these services in the DI

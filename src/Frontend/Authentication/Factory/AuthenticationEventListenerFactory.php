@@ -9,13 +9,12 @@
 namespace Frontend\Authentication\Factory;
 
 use Frontend\Authentication\AuthenticationEventListener;
-use Frontend\Form\LoginForm;
 use Interop\Container\ContainerInterface;
 
 class AuthenticationEventListenerFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        return new AuthenticationEventListener($container->get(LoginForm::class));
+        return new AuthenticationEventListener();
     }
 }
