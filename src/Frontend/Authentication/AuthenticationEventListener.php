@@ -25,8 +25,8 @@ class AuthenticationEventListener extends AbstractListenerAggregate
         $this->listeners[] = $sharedEvents->attach(
             LoginAction::class,
             AuthenticationEvent::EVENT_AUTHENTICATE,
-            [$this, 'preAuthentication'],
-            20);
+            [$this, 'prepareAdapter'],
+            10);
 
         //more listeners if you want to customize the flow...
     }
@@ -37,12 +37,12 @@ class AuthenticationEventListener extends AbstractListenerAggregate
      *
      * @param AuthenticationEvent $e
      */
-    public function preAuthentication(AuthenticationEvent $e)
+    public function prepareAdapter(AuthenticationEvent $e)
     {
         $request = $e->getRequest();
         if($request->getMethod() === 'POST') {
-            $identity = $e->getParam('validated_identity', '');
-            $credential = $e->getParam('validated_credential', '');
+            $identity = $e->getParam('identity', '');
+            $credential = $e->getParam('credential', '');
             $dbCredentials = new DbCredentials($identity, $credential);
 
             $e->setRequest($request->withAttribute(DbCredentials::class, $dbCredentials));
