@@ -22,8 +22,13 @@ return [
     'dk_authentication' => [
         //this package specific configuration template
         'web' => [
+            //template name to use for the login form
+            'login_template' => 'dk-user::login',
+
             //where to redirect after login success
             'after_login_route' => 'home',
+            //where to redirect after logging out
+            'after_logout_route' => 'login',
         ]
     ],
 

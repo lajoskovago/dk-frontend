@@ -40,11 +40,17 @@ class AuthenticationEventListener extends AbstractListenerAggregate
     public function prepareAdapter(AuthenticationEvent $e)
     {
         $request = $e->getRequest();
-        if($request->getMethod() === 'POST') {
+        $errors = $e->getErrors();
+
+        if($request->getMethod() === 'POST' && empty($errors)) {
             $identity = $e->getParam('identity', '');
             $credential = $e->getParam('credential', '');
-            $dbCredentials = new DbCredentials($identity, $credential);
+            if(empty($identity) || empty($credential)) {
+                $e->addError('Credentials are required and cannot be empty');
+                return;
+            }
 
+            $dbCredentials = new DbCredentials($identity, $credential);
             $e->setRequest($request->withAttribute(DbCredentials::class, $dbCredentials));
         }
     }

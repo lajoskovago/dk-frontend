@@ -35,7 +35,7 @@
 
                     {% if not hasIdentity() %}
                         <div class="signup-btn navbar-right" >
-                            <a href="#" class="btn btn-primary navbar-btn btn-block btn-lg">Sign In</a>
+                            <a href="{{ path('user', {'action' : 'register'}) }}" class="btn btn-primary navbar-btn btn-block btn-lg">Sign Up</a>
                         </div>
                     {% endif %}
 
