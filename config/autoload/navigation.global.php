@@ -68,14 +68,6 @@ return [
                                 'icon' => 'fa fa-copyright'
                             ]
                         ],
-                        [
-                            'options' => [
-                                'label' => 'Users',
-                                'route' => 'pages',
-                                'params' => ['action' => 'user-list'],
-                                'icon' => 'fa fa-users'
-                            ]
-                        ],
                     ]
                 ],
                 [

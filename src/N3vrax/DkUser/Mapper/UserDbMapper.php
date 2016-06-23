@@ -2,15 +2,15 @@
 /**
  * Created by PhpStorm.
  * User: n3vra
- * Date: 6/19/2016
- * Time: 7:11 PM
+ * Date: 6/20/2016
+ * Time: 7:55 PM
  */
 
-namespace Frontend\User;
+namespace N3vrax\DkUser\Mapper;
 
+use N3vrax\DkUser\Entity\UserEntity;
 use Zend\Db\ResultSet\HydratingResultSet;
 use Zend\Db\TableGateway\TableGateway;
-
 
 class UserDbMapper extends TableGateway implements UserMapperInterface
 {

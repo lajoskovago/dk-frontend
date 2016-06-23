@@ -1,19 +1,27 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: n3vra
- * Date: 6/12/2016
- * Time: 1:46 AM
+ * User: n3vrax
+ * Date: 6/21/2016
+ * Time: 9:33 PM
  */
 
-namespace Frontend\Form\InputFilter;
+namespace N3vrax\DkUser\Form\InputFilter;
 
+use N3vrax\DkUser\Options\LoginOptions;
+use Zend\EventManager\EventManagerAwareTrait;
 use Zend\InputFilter\InputFilter;
 
 class LoginInputFilter extends InputFilter
 {
-    public function __construct()
+    use EventManagerAwareTrait;
+
+    /** @var  LoginOptions */
+    protected $loginOptions;
+
+    public function __construct(LoginOptions $options)
     {
+        $this->loginOptions = $options;
         $this->init();
     }
 
@@ -22,19 +30,6 @@ class LoginInputFilter extends InputFilter
         $this->add([
             'name' => 'identity',
             'required' => true,
-            'filters' => [
-                ['name' => 'StringTrim'],
-                ['name' => 'HtmlEntities'],
-            ],
-            'validators' => [
-                [
-                    'name' => 'StringLength',
-                    'options' => [
-                        'min' => 3,
-                        'max' => 255,
-                    ]
-                ]
-            ],
         ]);
 
         $this->add([
@@ -46,10 +41,11 @@ class LoginInputFilter extends InputFilter
                     'name' => 'StringLength',
                     'options' => [
                         'min' => 4,
-                        'max' => 255,
                     ]
                 ]
             ],
         ]);
+
+        $this->getEventManager()->trigger('init', $this);
     }
 }

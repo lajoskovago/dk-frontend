@@ -22,8 +22,6 @@ return [
             Helper\UrlHelper::class => Helper\UrlHelperFactory::class,
             
             \Zend\EventManager\EventManagerInterface::class => \Frontend\Event\EventManagerFactory::class,
-
-            \Frontend\User\UserMapperInterface::class => \Frontend\User\UserDbMapperFactory::class,
         ],
 
         'shared' => [

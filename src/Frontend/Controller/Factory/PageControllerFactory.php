@@ -16,8 +16,6 @@ class PageControllerFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        return new PageController(
-            $container->get(UserMapperInterface::class)
-        );
+        return new PageController();
     }
 }

@@ -1,0 +1,27 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}Sign-In{% endblock %}
+
+{% block flash_messages %}{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm-6 col-md-5 col-md-offset-3">
+
+            <h3>Sign In</h3>
+
+            {% include '@dk-user/alerts.html.twig' %}
+
+            {% set dummy = form.setAttribute('method', 'post') %}
+            {% set dummy = form.prepare() %}
+
+            {% include '@dk-user/_form.html.twig' %}
+
+            <div style="margin-top: 5px;">
+                <a href="/forgot-password" >Forgot Password?</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

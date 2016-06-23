@@ -45,7 +45,6 @@
         "n3vrax/dk-base": "dev-master",
         "n3vrax/dk-zend-authentication": "dev-master",
         "n3vrax/dk-web-authentication": "dev-master",
-        "n3vrax/dk-user": "dev-master",
         "n3vrax/dk-rbac": "dev-master",
         "n3vrax/dk-rbac-guard": "dev-master",
         "n3vrax/dk-navigation": "dev-master"
@@ -57,7 +56,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Frontend\\": "src/Frontend/"
+            "Frontend\\": "src/Frontend/",
+            "N3vrax\\DkUser\\": "src/N3vrax/DkUser/"
         }
     },
     "autoload-dev": {
