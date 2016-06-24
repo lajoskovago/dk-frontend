@@ -8,12 +8,19 @@
 
 namespace N3vrax\DkUser\Service;
 
+use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Options\ModuleOptions;
+use Zend\EventManager\EventManagerAwareTrait;
 use Zend\Form\Form;
 
 class UserService
 {
+    use EventManagerAwareTrait;
+
+    const EVENT_REGISTER = 'register';
+    const EVENT_REGISTER_POST = 'register.post';
+
     /** @var  UserMapperInterface */
     protected $userMapper;
 
@@ -23,7 +30,7 @@ class UserService
     /** @var  Form */
     protected $registerForm;
 
-    /** @var  object */
+    /** @var  UserEntityInterface */
     protected $userEntityPrototype;
 
 
@@ -31,7 +38,7 @@ class UserService
         UserMapperInterface $userMapper,
         ModuleOptions $options,
         Form $registerForm,
-        $userEntityPrototype
+        UserEntityInterface $userEntityPrototype
     )
     {
         $this->userMapper = $userMapper;
@@ -70,6 +77,11 @@ class UserService
     {
         return $this->userMapper->removeUser($id);
     }
+    
+    public function getLastInsertValue()
+    {
+        return $this->userMapper->lastInsertValue();
+    }
 
     public function register($data)
     {
@@ -81,12 +93,22 @@ class UserService
             return false;
         }
 
+        /** @var UserEntityInterface $user */
         $user = $form->getData();
 
         //TODO: hash password before inserting
 
-        //TODO: trigger pre and post register events
+        $this->getEventManager()->trigger(static::EVENT_REGISTER, $this,
+            ['user' => $user, 'form' => $form]);
+
         $this->saveUser($user);
+        $id = $this->userMapper->lastInsertValue();
+        if($id) {
+            $user->setId($id);
+        }
+
+        $this->getEventManager()->trigger(static::EVENT_REGISTER_POST, $this,
+            ['user' => $user, 'form' => $form]);
 
         return $user;
     }
@@ -110,7 +132,7 @@ class UserService
     }
 
     /**
-     * @return object
+     * @return UserEntityInterface
      */
     public function getUserEntityPrototype()
     {
@@ -118,7 +140,7 @@ class UserService
     }
 
     /**
-     * @param object $userEntityPrototype
+     * @param UserEntityInterface $userEntityPrototype
      * @return UserService
      */
     public function setUserEntityPrototype($userEntityPrototype)

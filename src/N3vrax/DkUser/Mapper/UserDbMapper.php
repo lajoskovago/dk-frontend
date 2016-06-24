@@ -8,7 +8,7 @@
 
 namespace N3vrax\DkUser\Mapper;
 
-use N3vrax\DkUser\Entity\UserEntity;
+use N3vrax\DkUser\Entity\UserEntityInterface;
 use Zend\Db\ResultSet\HydratingResultSet;
 use Zend\Db\TableGateway\TableGateway;
 
@@ -34,7 +34,7 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
 
     public function saveUser($data)
     {
-        if($data instanceof UserEntity) {
+        if($data instanceof UserEntityInterface) {
             /** @var HydratingResultSet $resultSetPrototype */
             $resultSetPrototype = $this->resultSetPrototype;
             $hydrator = $resultSetPrototype->getHydrator();
@@ -56,6 +56,11 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
     public function removeUser($id)
     {
         return $this->delete([$this->idColumn => $id]);
+    }
+
+    public function lastInsertValue()
+    {
+        return $this->getLastInsertValue();
     }
 
 }

@@ -14,6 +14,7 @@
             {{ flashMessagesPartial('partial::alerts') }}
 
             {% set dummy = form.setAttribute('method', 'post') %}
+            {% set dummy = form.setAttribute('autocomplete', 'off') %}
             {% set dummy = form.prepare() %}
 
             {% include '@dk-user/_form.html.twig' %}

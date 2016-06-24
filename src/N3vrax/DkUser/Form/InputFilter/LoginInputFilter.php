@@ -30,6 +30,14 @@ class LoginInputFilter extends InputFilter
         $this->add([
             'name' => 'identity',
             'required' => true,
+            'validators' => [
+                [
+                    'name' => 'NotEmpty',
+                    'options' => [
+                        'message' => 'Identity is required and cannot be empty'
+                    ]
+                ]
+            ]
         ]);
 
         $this->add([
@@ -38,9 +46,16 @@ class LoginInputFilter extends InputFilter
             'filters' => [],
             'validators' => [
                 [
+                    'name' => 'NotEmpty',
+                    'options' => [
+                        'message' => 'Password is required and cannot be empty'
+                    ]
+                ],
+                [
                     'name' => 'StringLength',
                     'options' => [
                         'min' => 4,
+                        'message' => 'Password must be at least 4 characters'
                     ]
                 ]
             ],

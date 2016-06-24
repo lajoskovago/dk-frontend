@@ -8,6 +8,8 @@
 
 namespace N3vrax\DkUser\Listener;
 
+use N3vrax\DkAuthentication\AuthenticationResult;
+use N3vrax\DkBase\Session\FlashMessenger;
 use N3vrax\DkWebAuthentication\Action\LoginAction;
 use N3vrax\DkWebAuthentication\Event\AuthenticationEvent;
 use Zend\EventManager\AbstractListenerAggregate;
@@ -19,9 +21,13 @@ class AuthenticationListener extends AbstractListenerAggregate
     /** @var  Form */
     protected $loginForm;
 
-    public function __construct(Form $form)
+    /** @var  FlashMessenger */
+    protected $flashMessenger;
+
+    public function __construct(Form $form, FlashMessenger $flashMessenger)
     {
         $this->loginForm = $form;
+        $this->flashMessenger = $flashMessenger;
     }
 
     public function attach(EventManagerInterface $events, $priority = 1)
@@ -41,11 +47,29 @@ class AuthenticationListener extends AbstractListenerAggregate
             AuthenticationEvent::EVENT_AUTHENTICATE,
             [$this, 'preAuthentication'],
             400);
+
+        $this->listeners[] = $sharedEvents->attach(
+            LoginAction::class,
+            AuthenticationEvent::EVENT_AUTHENTICATE,
+            [$this, 'postAuthentication'],
+            -50
+        );
     }
 
+    /**
+     * We'll use this to inject our form into the event, consequently into the template
+     *
+     * @param AuthenticationEvent $e
+     */
     public function injectData(AuthenticationEvent $e)
     {
         $form = $this->loginForm;
+        $data = $this->flashMessenger->getData('loginFormData') ?: [];
+        $messages = $this->flashMessenger->getData('loginFormMessages') ?: [];
+
+        $form->setData($data);
+        $form->setMessages($messages);
+
         $e->setParam('form', $form);
     }
 
@@ -68,13 +92,40 @@ class AuthenticationListener extends AbstractListenerAggregate
 
             if($form instanceof Form) {
                 $form->setData($data);
+
                 if(!$form->isValid()) {
-                    $e->addError('Invalid or missing credentials. Please try again');
+                    foreach ($form->getMessages() as $message) {
+                        $e->addError(current($message));
+                    }
+
+                    $this->flashMessenger->addData('loginFormData', $data);
+                    $this->flashMessenger->addData('loginFormMessages', $form->getMessages());
                     return;
                 }
 
-                $data = array_merge($e->getParams(), $data, $form->getInputFilter()->getValues());
+                $data = array_merge($e->getParams(), $data, $form->getData());
                 $e->setParams($data);
+            }
+        }
+    }
+
+    /**
+     * In case authentication result is invalid, store form data and messages in session
+     *
+     * @param AuthenticationEvent $e
+     */
+    public function postAuthentication(AuthenticationEvent $e)
+    {
+        $request = $e->getRequest();
+        /** @var Form $form */
+        $form = $e->getParam('form');
+
+        if($request->getMethod() === 'POST') {
+            /** @var AuthenticationResult $result */
+            $result = $e->getAuthenticationResult();
+            if($result && !$result->isValid()) {
+                $data = $form->getData();
+                $this->flashMessenger->addData('loginFormData', $data);
             }
         }
     }

@@ -88,6 +88,10 @@ class ConfigProvider
 
                 'enable_remember_me' => true,
 
+                'enable_registration' => true,
+                'login_after_registration' => false,
+                'enable_username' => true,
+
             ],
 
             'dk_authentication' => [

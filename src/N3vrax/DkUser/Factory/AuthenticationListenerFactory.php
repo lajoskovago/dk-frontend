@@ -9,6 +9,7 @@
 namespace N3vrax\DkUser\Factory;
 
 use Interop\Container\ContainerInterface;
+use N3vrax\DkBase\Session\FlashMessenger;
 use N3vrax\DkUser\Listener\AuthenticationListener;
 use N3vrax\DkUser\Options\ModuleOptions;
 
@@ -18,6 +19,9 @@ class AuthenticationListenerFactory
     {
         /** @var ModuleOptions $options */
         $options = $container->get(ModuleOptions::class);
-        return new AuthenticationListener($container->get($options->getLoginForm()));
+        return new AuthenticationListener(
+            $container->get($options->getLoginForm()),
+            $container->get(FlashMessenger::class)
+        );
     }
 }

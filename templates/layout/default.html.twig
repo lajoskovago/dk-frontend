@@ -46,13 +46,6 @@
 
     <div class="app-content">
         <main class="container">
-
-            {% block page_title %}{% endblock %}
-
-            {% block flash_messages %}
-                {{ flashMessagesPartial('partial::alerts') }}
-            {% endblock %}
-
             {% block content %}{% endblock %}
         </main>
     </div>

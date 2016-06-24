@@ -45,6 +45,12 @@ class RegisterInputFilter extends InputFilter
             ],
             'validators' => [
                 [
+                    'name' => 'NotEmpty',
+                    'options' => [
+                        'message' => 'Email is required and cannot be empty'
+                    ]
+                ],
+                [
                     'name' => 'EmailAddress',
                     'options' => [
                         'message' => 'Email address format is invalid'
@@ -54,7 +60,7 @@ class RegisterInputFilter extends InputFilter
         ];
 
         if($this->emailValidator) {
-            $this->emailValidator->setMessage('Email address is already taken');
+            $this->emailValidator->setMessage('Email address is already registered');
             $email['validators'][] = $this->emailValidator;
         }
 
@@ -68,10 +74,17 @@ class RegisterInputFilter extends InputFilter
             ],
             'validators' => [
                 [
+                    'name' => 'NotEmpty',
+                    'options' => [
+                        'message' => 'Username is required and cannot be empty'
+                    ]
+                ],
+                [
                     'name' => 'StringLength',
                     'options' => [
                         'min' => 3,
                         'max' => 255,
+                        'message' => 'Username must have at least 3 characters'
                     ]
                 ],
                 [
@@ -85,7 +98,7 @@ class RegisterInputFilter extends InputFilter
         ];
 
         if($this->usernameValidator) {
-            $this->usernameValidator->setMessage('Username is already taken');
+            $this->usernameValidator->setMessage('Username is already registered');
             $username['validators'][] = $this->usernameValidator;
         }
 
@@ -131,7 +144,7 @@ class RegisterInputFilter extends InputFilter
                     'name'    => 'Identical',
                     'options' => [
                         'token' => 'password',
-                        'message' => 'Password confirm does not match'
+                        'message' => 'Password confirmation does not match'
                     ],
                 ],
             ],

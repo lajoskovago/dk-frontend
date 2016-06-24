@@ -8,6 +8,7 @@
 
 namespace N3vrax\DkUser\Mapper;
 
+
 interface UserMapperInterface
 {
     public function findUser($id);
@@ -19,4 +20,6 @@ interface UserMapperInterface
     public function saveUser($data);
 
     public function removeUser($id);
+
+    public function lastInsertValue();
 }

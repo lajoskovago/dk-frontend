@@ -51,22 +51,12 @@ class UserController extends AbstractActionController
         /** @var FlashMessenger $messenger */
         $messenger = $this->flashMessenger();
 
-        /** @var Container $session */
-        $session = $request->getAttribute(Container::class);
-
         $form = $this->userService->getRegisterForm();
-        $data = [];
-        $formErrors = [];
-        if($session) {
-            $data = $session->registerData ?: [];
-            $formErrors = $session->registerFormMessages ?: [];
-
-            unset($session->registerData);
-            unset($session->registerFormMessages);
-        }
+        $data = $messenger->getData('registerFormData') ?: [];
+        $formMessages = $messenger->getData('registerFormMessages') ?: [];
 
         $form->setData($data);
-        $form->setMessages($formErrors);
+        $form->setMessages($formMessages);
 
         if($request->getMethod() === 'POST')
         {
@@ -79,15 +69,13 @@ class UserController extends AbstractActionController
                     $messenger->addError(current($error));
                 }
 
-                if($session) {
-                    $session->registerData = $data;
-                    $session->registerFormMessages = $messages;
-                }
+                $messenger->addData('registerFormData', $data);
+                $messenger->addData('registerFormMessages', $messages);
 
                 return new RedirectResponse($request->getUri(), 303);
             }
 
-            $this->flashMessenger()->addInfo('Account successfully created');
+            $messenger->addSuccess('Confirmation email sent. Please check your inbox');
             return new RedirectResponse($this->urlHelper()->generate('login'));
         }
 

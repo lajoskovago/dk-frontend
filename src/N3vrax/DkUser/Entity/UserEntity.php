@@ -8,7 +8,7 @@
 
 namespace N3vrax\DkUser\Entity;
 
-class UserEntity
+class UserEntity implements UserEntityInterface
 {
     /** @var  string|int */
     protected $id;
