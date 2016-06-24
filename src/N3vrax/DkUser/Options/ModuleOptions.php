@@ -37,6 +37,12 @@ class ModuleOptions extends AbstractOptions
     /** @var bool  */
     protected $loginAfterRegistration = false;
 
+    /** @var int  */
+    protected $passwordCost = 11;
+
+    /** @var bool  */
+    protected $enableUserStatus = true;
+
     /** @var bool */
     protected $__strictMode__ = false;
 
@@ -166,5 +172,42 @@ class ModuleOptions extends AbstractOptions
         return $this;
     }
 
+    /**
+     * @return int
+     */
+    public function getPasswordCost()
+    {
+        return $this->passwordCost;
+    }
+
+    /**
+     * @param int $passwordCost
+     * @return ModuleOptions
+     */
+    public function setPasswordCost($passwordCost)
+    {
+        $this->passwordCost = $passwordCost;
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isEnableUserStatus()
+    {
+        return $this->enableUserStatus;
+    }
+
+    /**
+     * @param boolean $enableUserStatus
+     * @return ModuleOptions
+     */
+    public function setEnableUserStatus($enableUserStatus)
+    {
+        $this->enableUserStatus = $enableUserStatus;
+        return $this;
+    }
+
+    
     
 }

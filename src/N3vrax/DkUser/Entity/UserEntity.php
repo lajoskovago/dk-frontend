@@ -22,6 +22,9 @@ class UserEntity implements UserEntityInterface
     /** @var  string */
     protected $password;
 
+    /** @var  string */
+    protected $status;
+
     /** @var  string|int */
     protected $dateCreated;
 
@@ -115,4 +118,23 @@ class UserEntity implements UserEntityInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     * @return UserEntity
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    
 }

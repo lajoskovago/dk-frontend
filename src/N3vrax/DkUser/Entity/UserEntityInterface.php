@@ -52,4 +52,15 @@ interface UserEntityInterface
      * @return UserEntity
      */
     public function setPassword($password);
+
+    /**
+     * @return mixed
+     */
+    public function getStatus();
+
+    /**
+     * @param $status
+     * @return mixed
+     */
+    public function setStatus($status);
 }

@@ -11,6 +11,8 @@ namespace N3vrax\DkUser\Factory;
 use Interop\Container\ContainerInterface;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Options\ModuleOptions;
+use N3vrax\DkUser\Options\RegisterOptions;
+use N3vrax\DkUser\Service\PasswordHashingInterface;
 use N3vrax\DkUser\Service\UserService;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerInterface;
@@ -29,8 +31,10 @@ class UserServiceFactory
         $service = new UserService(
             $container->get(UserMapperInterface::class),
             $options,
+            $container->get(RegisterOptions::class),
             $container->get($options->getRegisterForm()),
-            $container->get($options->getUserEntityClass())
+            $container->get($options->getUserEntityClass()),
+            $container->get(PasswordHashingInterface::class)
         );
 
         $service->setEventManager($eventManager);

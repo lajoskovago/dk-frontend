@@ -11,6 +11,7 @@ namespace N3vrax\DkUser\Service;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Options\ModuleOptions;
+use N3vrax\DkUser\Options\RegisterOptions;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\Form\Form;
 
@@ -27,24 +28,34 @@ class UserService
     /** @var  ModuleOptions */
     protected $options;
 
+    /** @var  RegisterOptions */
+    protected $registerOptions;
+
     /** @var  Form */
     protected $registerForm;
 
     /** @var  UserEntityInterface */
     protected $userEntityPrototype;
 
+    /** @var  PasswordHashingInterface */
+    protected $passwordService;
+
 
     public function __construct(
         UserMapperInterface $userMapper,
         ModuleOptions $options,
+        RegisterOptions $registerOptions,
         Form $registerForm,
-        UserEntityInterface $userEntityPrototype
+        UserEntityInterface $userEntityPrototype,
+        PasswordHashingInterface $passwordService
     )
     {
         $this->userMapper = $userMapper;
         $this->options = $options;
+        $this->registerOptions = $registerOptions;
         $this->registerForm = $registerForm;
         $this->userEntityPrototype = $userEntityPrototype;
+        $this->passwordService = $passwordService;
 
     }
 
@@ -96,7 +107,10 @@ class UserService
         /** @var UserEntityInterface $user */
         $user = $form->getData();
 
-        //TODO: hash password before inserting
+        $user->setPassword($this->passwordService->create($user->getPassword()));
+        if($this->options->isEnableUserStatus()) {
+            $user->setStatus($this->registerOptions->getDefaultUserStatus());
+        }
 
         $this->getEventManager()->trigger(static::EVENT_REGISTER, $this,
             ['user' => $user, 'form' => $form]);
@@ -106,6 +120,7 @@ class UserService
         if($id) {
             $user->setId($id);
         }
+
 
         $this->getEventManager()->trigger(static::EVENT_REGISTER_POST, $this,
             ['user' => $user, 'form' => $form]);

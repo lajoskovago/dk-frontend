@@ -18,6 +18,9 @@ class LoginOptions extends AbstractOptions
     /** @var array  */
     protected $authIdentityFields = ['username', 'email'];
 
+    /** @var  array */
+    protected $allowedLoginStatuses;
+
     /** @var bool  */
     protected $__strictMode__ = false;
 
@@ -54,6 +57,24 @@ class LoginOptions extends AbstractOptions
     public function setAuthIdentityFields($authIdentityFields)
     {
         $this->authIdentityFields = $authIdentityFields;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllowedLoginStatuses()
+    {
+        return $this->allowedLoginStatuses;
+    }
+
+    /**
+     * @param array $allowedLoginStatuses
+     * @return LoginOptions
+     */
+    public function setAllowedLoginStatuses($allowedLoginStatuses)
+    {
+        $this->allowedLoginStatuses = $allowedLoginStatuses;
         return $this;
     }
 

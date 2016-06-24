@@ -10,18 +10,11 @@ namespace Frontend\Authentication;
 
 use N3vrax\DkAuthentication\Identity\IdentityInterface as AuthenticationIdentityInterface;
 use N3vrax\DkAuthorization\Identity\IdentityInterface as AuthorizationIdentityInterface;
+use N3vrax\DkUser\Entity\UserEntity;
 
-class Identity implements AuthenticationIdentityInterface, AuthorizationIdentityInterface
+class Identity extends UserEntity implements AuthenticationIdentityInterface, AuthorizationIdentityInterface
 {
-    protected $id;
-
-    protected $username;
-
-    protected $email;
-
     protected $role;
-
-    protected $dateCreated;
 
     public function getName()
     {
@@ -43,62 +36,6 @@ class Identity implements AuthenticationIdentityInterface, AuthorizationIdentity
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @param mixed $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUsername()
-    {
-        return $this->username;
-    }
-
-    /**
-     * @param mixed $username
-     */
-    public function setUsername($username)
-    {
-        $this->username = $username;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    /**
-     * @param mixed $email
-     */
-    public function setEmail($email)
-    {
-        $this->email = $email;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDateCreated()
-    {
-        return $this->dateCreated;
-    }
-
-    /**
-     * @param mixed $dateCreated
-     */
-    public function setDateCreated($dateCreated)
-    {
-        $this->dateCreated = $dateCreated;
     }
 
     /**

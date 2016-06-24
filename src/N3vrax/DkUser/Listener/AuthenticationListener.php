@@ -10,6 +10,11 @@ namespace N3vrax\DkUser\Listener;
 
 use N3vrax\DkAuthentication\AuthenticationResult;
 use N3vrax\DkBase\Session\FlashMessenger;
+use N3vrax\DkUser\Entity\UserEntityInterface;
+use N3vrax\DkUser\Mapper\UserMapperInterface;
+use N3vrax\DkUser\Options\LoginOptions;
+use N3vrax\DkUser\Options\ModuleOptions;
+use N3vrax\DkUser\Service\PasswordHashingInterface;
 use N3vrax\DkWebAuthentication\Action\LoginAction;
 use N3vrax\DkWebAuthentication\Event\AuthenticationEvent;
 use Zend\EventManager\AbstractListenerAggregate;
@@ -24,10 +29,28 @@ class AuthenticationListener extends AbstractListenerAggregate
     /** @var  FlashMessenger */
     protected $flashMessenger;
 
-    public function __construct(Form $form, FlashMessenger $flashMessenger)
+    /** @var  UserMapperInterface */
+    protected $userMapper;
+
+    /** @var  ModuleOptions */
+    protected $moduleOptions;
+
+    /** @var  LoginOptions */
+    protected $loginOptions;
+
+    public function __construct(
+        Form $form,
+        FlashMessenger $flashMessenger,
+        UserMapperInterface $userMapper,
+        ModuleOptions $moduleOptions,
+        LoginOptions $loginOptions
+    )
     {
         $this->loginForm = $form;
         $this->flashMessenger = $flashMessenger;
+        $this->userMapper = $userMapper;
+        $this->moduleOptions = $moduleOptions;
+        $this->loginOptions = $loginOptions;
     }
 
     public function attach(EventManagerInterface $events, $priority = 1)
@@ -126,6 +149,33 @@ class AuthenticationListener extends AbstractListenerAggregate
             if($result && !$result->isValid()) {
                 $data = $form->getData();
                 $this->flashMessenger->addData('loginFormData', $data);
+            }
+            elseif($result && $result->isValid()) {
+                //check account status and interrupt login process if not active
+                if($this->moduleOptions->isEnableUserStatus())
+                {
+                    $status = null;
+                    $identity = $result->getIdentity();
+                    if($identity instanceof UserEntityInterface) {
+                        $status = $identity->getStatus();
+                    }
+                    else {
+                        /** @var UserEntityInterface $user */
+                        $user = $this->userMapper->findUser($identity->getId());
+                        if($user) {
+                            $status = $user->getStatus();
+                        }
+                    }
+
+                    if($status && !in_array($status, $this->loginOptions->getAllowedLoginStatuses())) {
+                        $data = $form->getData();
+                        $this->flashMessenger->addData('loginFormData', $data);
+
+                        $e->addError('Account is inactive or not confirmed');
+                        $e->getAuthenticationService()->clearIdentity();
+                        return;
+                    }
+                }
             }
         }
     }

@@ -40,6 +40,8 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
             $hydrator = $resultSetPrototype->getHydrator();
 
             $data = $hydrator->extract($data);
+            //remove empty|null keys
+            $data = array_filter($data);
         }
 
         if(isset($data[$this->idColumn])) {

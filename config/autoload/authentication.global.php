@@ -28,7 +28,9 @@ return [
                 'identity_columns' => ['username', 'email'],
 
                 //name of the password db field
-                'credential_column' => 'password'
+                'credential_column' => 'password',
+
+                'callback_check' => \N3vrax\DkUser\Service\PasswordHashingInterface::class,
 
                 //your password checking callback, use a closure, a service name of a callable or a callable class name
                 //we recommend using a service name or class name instead of closures, to be able to cache the config

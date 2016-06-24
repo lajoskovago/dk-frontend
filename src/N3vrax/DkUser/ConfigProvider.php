@@ -18,6 +18,7 @@ use N3vrax\DkUser\Factory\Form\RegisterFormFactory;
 use N3vrax\DkUser\Factory\Options\LoginOptionsFactory;
 use N3vrax\DkUser\Factory\Options\ModuleOptionsFactory;
 use N3vrax\DkUser\Factory\Options\RegisterOptionsFactory;
+use N3vrax\DkUser\Factory\PasswordDefaultServiceFactory;
 use N3vrax\DkUser\Factory\UserControllerFactory;
 use N3vrax\DkUser\Factory\UserDbMapperFactory;
 use N3vrax\DkUser\Factory\UserServiceFactory;
@@ -29,6 +30,7 @@ use N3vrax\DkUser\Middleware\Bootstrap;
 use N3vrax\DkUser\Options\LoginOptions;
 use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
+use N3vrax\DkUser\Service\PasswordHashingInterface;
 use N3vrax\DkUser\Service\UserService;
 use N3vrax\DkUser\Twig\FormElementExtension;
 use Zend\ServiceManager\Factory\InvokableFactory;
@@ -60,6 +62,8 @@ class ConfigProvider
 
                     Bootstrap::class => BootstrapFactory::class,
                     FormElementExtension::class => InvokableFactory::class,
+
+                    PasswordHashingInterface::class => PasswordDefaultServiceFactory::class,
                 ],
 
                 'shared' => [
@@ -91,6 +95,13 @@ class ConfigProvider
                 'enable_registration' => true,
                 'login_after_registration' => false,
                 'enable_username' => true,
+                'use_registration_form_captcha' => true,
+
+                'password_cost' => 11,
+
+                'enable_user_status' => true,
+                'default_user_status' => 'pending',
+                'allowed_login_statuses' => ['active'],
 
             ],
 
