@@ -8,7 +8,7 @@
 
 namespace N3vrax\DkUser\Service;
 
-interface PasswordHashingInterface
+interface PasswordInterface
 {
     public function create($password);
 

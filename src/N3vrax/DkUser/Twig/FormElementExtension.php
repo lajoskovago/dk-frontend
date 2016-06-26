@@ -9,6 +9,7 @@
 namespace N3vrax\DkUser\Twig;
 
 use Zend\Form\Element\Button;
+use Zend\Form\Element\Captcha;
 use Zend\Form\Element\Checkbox;
 use Zend\Form\Element\Submit;
 
@@ -25,6 +26,7 @@ class FormElementExtension extends \Twig_Extension
             new \Twig_SimpleTest('submitElement', [$this, 'isSubmit']),
             new \Twig_SimpleTest('buttonElement', [$this, 'isButton']),
             new \Twig_SimpleTest('checkboxElement', [$this, 'isCheckbox']),
+            new \Twig_SimpleTest('captchaElement', [$this, 'isCaptcha']),
         ];
     }
 
@@ -41,5 +43,10 @@ class FormElementExtension extends \Twig_Extension
     public function isCheckbox($value)
     {
         return ($value instanceof Checkbox);
+    }
+
+    public function isCaptcha($value)
+    {
+        return ($value instanceof Captcha);
     }
 }

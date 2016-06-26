@@ -10,6 +10,7 @@ namespace N3vrax\DkUser\Form;
 
 use N3vrax\DkUser\Options\LoginOptions;
 use Zend\EventManager\EventManagerAwareTrait;
+use Zend\Form\Element\Csrf;
 use Zend\Form\Element\Submit;
 use Zend\Form\Form;
 
@@ -52,7 +53,7 @@ class LoginForm extends Form
         ));
         $this->add(array(
             'type' => 'password',
-            'name' => 'credential',
+            'name' => 'password',
             'options' => [
                 'label' => 'Password'
             ],
@@ -77,6 +78,13 @@ class LoginForm extends Form
                 ],
             ), ['priority' => -90]);
         }
+
+        $csrf = new Csrf('login_csrf', [
+            'csrf_options' => [
+                'timeout' => $this->loginOptions->getLoginFormTimeout()
+            ]
+        ]);
+        $this->add($csrf);
 
         $submitElement = new Submit('submit');
         $submitElement

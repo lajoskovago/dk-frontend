@@ -15,22 +15,24 @@ use N3vrax\DkUser\Factory\AuthenticationListenerFactory;
 use N3vrax\DkUser\Factory\BootstrapFactory;
 use N3vrax\DkUser\Factory\Form\LoginFormFactory;
 use N3vrax\DkUser\Factory\Form\RegisterFormFactory;
+use N3vrax\DkUser\Factory\Form\ResetPasswordFormFactory;
 use N3vrax\DkUser\Factory\Options\LoginOptionsFactory;
 use N3vrax\DkUser\Factory\Options\ModuleOptionsFactory;
 use N3vrax\DkUser\Factory\Options\RegisterOptionsFactory;
-use N3vrax\DkUser\Factory\PasswordDefaultServiceFactory;
+use N3vrax\DkUser\Factory\PasswordDefaultFactory;
 use N3vrax\DkUser\Factory\UserControllerFactory;
 use N3vrax\DkUser\Factory\UserDbMapperFactory;
 use N3vrax\DkUser\Factory\UserServiceFactory;
 use N3vrax\DkUser\Form\LoginForm;
 use N3vrax\DkUser\Form\RegisterForm;
+use N3vrax\DkUser\Form\ResetPasswordForm;
 use N3vrax\DkUser\Listener\AuthenticationListener;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Middleware\Bootstrap;
 use N3vrax\DkUser\Options\LoginOptions;
 use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
-use N3vrax\DkUser\Service\PasswordHashingInterface;
+use N3vrax\DkUser\Service\PasswordInterface;
 use N3vrax\DkUser\Service\UserService;
 use N3vrax\DkUser\Twig\FormElementExtension;
 use Zend\ServiceManager\Factory\InvokableFactory;
@@ -54,6 +56,7 @@ class ConfigProvider
 
                     LoginForm::class => LoginFormFactory::class,
                     RegisterForm::class => RegisterFormFactory::class,
+                    ResetPasswordForm::class => ResetPasswordFormFactory::class,
 
                     UserEntity::class => InvokableFactory::class,
                     UserEntityHydrator::class => InvokableFactory::class,
@@ -63,7 +66,7 @@ class ConfigProvider
                     Bootstrap::class => BootstrapFactory::class,
                     FormElementExtension::class => InvokableFactory::class,
 
-                    PasswordHashingInterface::class => PasswordDefaultServiceFactory::class,
+                    PasswordInterface::class => PasswordDefaultFactory::class,
                 ],
 
                 'shared' => [
@@ -90,18 +93,34 @@ class ConfigProvider
                 'login_form' => LoginForm::class,
                 'register_form' => RegisterForm::class,
 
+                'login_form_timeout' => 300,
+                'user_form_timeout' => 300,
+
                 'enable_remember_me' => true,
+                'auth_identity_fields' => ['username', 'email'],
+                'allowed_login_statuses' => ['active'],
 
                 'enable_registration' => true,
-                'login_after_registration' => false,
+                'enable_password_recovery' => true,
+                'login_after_registration' => true,
+
                 'enable_username' => true,
+
                 'use_registration_form_captcha' => true,
+
+                'form_captcha_options' => [
+                    'class'   => 'Figlet',
+                    'options' => [
+                        'wordLen'    => 5,
+                        'expiration' => 300,
+                        'timeout'    => 300,
+                    ],
+                ],
 
                 'password_cost' => 11,
 
                 'enable_user_status' => true,
-                'default_user_status' => 'pending',
-                'allowed_login_statuses' => ['active'],
+                'default_user_status' => 'active',
 
             ],
 

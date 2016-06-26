@@ -112,7 +112,7 @@ class AuthenticationListener extends AbstractListenerAggregate
 
         if($request->getMethod() === 'POST') {
             $data = $request->getParsedBody();
-
+            
             if($form instanceof Form) {
                 $form->setData($data);
 

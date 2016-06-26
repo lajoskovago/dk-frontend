@@ -10,11 +10,15 @@ namespace N3vrax\DkUser\Mapper;
 
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use Zend\Db\ResultSet\HydratingResultSet;
+use Zend\Db\Sql\Insert;
+use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
 class UserDbMapper extends TableGateway implements UserMapperInterface
 {
     protected $idColumn = 'id';
+
+    protected $userResetTokenTable = 'user_reset_token';
 
     public function findUser($id)
     {
@@ -64,5 +68,45 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
     {
         return $this->getLastInsertValue();
     }
+
+    public function saveResetPasswordToken($userId, $token, $expireAt)
+    {
+        //TODO: remove hardcoded table name
+        $sql = new Sql($this->getAdapter(), $this->userResetTokenTable);
+        $insert = $sql->insert();
+        $insert->columns(['userId', 'token', 'expireAt'])->values([$userId, $token, $expireAt]);
+
+        $stmt = $sql->prepareStatementForSqlObject($insert);
+        return $stmt->execute();
+    }
+
+    public function findResetPasswordToken($userId)
+    {
+        $sql = new Sql($this->getAdapter(), $this->userResetTokenTable);
+        $select = $sql->select()->where(['userId' => $userId]);
+
+        $stmt = $sql->prepareStatementForSqlObject($select);
+        return $stmt->execute()->current();
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserResetTokenTable()
+    {
+        return $this->userResetTokenTable;
+    }
+
+    /**
+     * @param string $userResetTokenTable
+     * @return UserDbMapper
+     */
+    public function setUserResetTokenTable($userResetTokenTable)
+    {
+        $this->userResetTokenTable = $userResetTokenTable;
+        return $this;
+    }
+
+
 
 }

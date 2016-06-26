@@ -11,7 +11,7 @@ namespace N3vrax\DkUser\Service;
 
 use N3vrax\DkUser\Options\ModuleOptions;
 
-class PasswordDefaultService implements PasswordHashingInterface
+class PasswordDefault implements PasswordInterface
 {
     /** @var  ModuleOptions */
     protected $options;

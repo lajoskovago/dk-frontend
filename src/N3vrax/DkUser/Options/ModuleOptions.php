@@ -22,6 +22,9 @@ class ModuleOptions extends AbstractOptions
     /** @var  string */
     protected $userTableName = 'user';
 
+    /** @var string  */
+    protected $userResetTokenTableName = 'user_reset_token';
+
     /** @var  string */
     protected $userEntityClass = UserEntity::class;
 
@@ -36,6 +39,15 @@ class ModuleOptions extends AbstractOptions
 
     /** @var bool  */
     protected $loginAfterRegistration = false;
+
+    /** @var bool  */
+    protected $enableRegistration = true;
+
+    /** @var bool  */
+    protected $enablePasswordRecovery = true;
+
+    /** @var int  */
+    protected $resetPasswordTokenTimeout = 3600;
 
     /** @var int  */
     protected $passwordCost = 11;
@@ -205,6 +217,78 @@ class ModuleOptions extends AbstractOptions
     public function setEnableUserStatus($enableUserStatus)
     {
         $this->enableUserStatus = $enableUserStatus;
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isEnableRegistration()
+    {
+        return $this->enableRegistration;
+    }
+
+    /**
+     * @param boolean $enableRegistration
+     * @return ModuleOptions
+     */
+    public function setEnableRegistration($enableRegistration)
+    {
+        $this->enableRegistration = $enableRegistration;
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isEnablePasswordRecovery()
+    {
+        return $this->enablePasswordRecovery;
+    }
+
+    /**
+     * @param boolean $enablePasswordRecovery
+     * @return ModuleOptions
+     */
+    public function setEnablePasswordRecovery($enablePasswordRecovery)
+    {
+        $this->enablePasswordRecovery = $enablePasswordRecovery;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getResetPasswordTokenTimeout()
+    {
+        return $this->resetPasswordTokenTimeout;
+    }
+
+    /**
+     * @param int $resetPasswordTokenTimeout
+     * @return ModuleOptions
+     */
+    public function setResetPasswordTokenTimeout($resetPasswordTokenTimeout)
+    {
+        $this->resetPasswordTokenTimeout = $resetPasswordTokenTimeout;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserResetTokenTableName()
+    {
+        return $this->userResetTokenTableName;
+    }
+
+    /**
+     * @param string $userResetTokenTableName
+     * @return ModuleOptions
+     */
+    public function setUserResetTokenTableName($userResetTokenTableName)
+    {
+        $this->userResetTokenTableName = $userResetTokenTableName;
         return $this;
     }
 

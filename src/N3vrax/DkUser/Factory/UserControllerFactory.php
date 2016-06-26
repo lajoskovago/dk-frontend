@@ -10,8 +10,10 @@ namespace N3vrax\DkUser\Factory;
 
 use Interop\Container\ContainerInterface;
 use N3vrax\DkUser\Controller\UserController;
+use N3vrax\DkUser\Form\ResetPasswordForm;
 use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Service\UserService;
+use N3vrax\DkWebAuthentication\Action\LoginAction;
 
 class UserControllerFactory
 {
@@ -23,7 +25,14 @@ class UserControllerFactory
         $userService = $container->get(UserService::class);
         $registerForm = $container->get($options->getRegisterForm());
 
-        $controller = new UserController($userService, $options, $registerForm);
+        $controller = new UserController(
+            $userService,
+            $container->get(LoginAction::class),
+            $options,
+            $container->get($options->getLoginForm()),
+            $registerForm,
+            $container->get(ResetPasswordForm::class)
+        );
 
         return $controller;
     }

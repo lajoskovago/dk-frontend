@@ -2,24 +2,25 @@
 
 {% block title %}Sign Up{% endblock %}
 
-{% block flash_messages %}{% endblock %}
-
 {% block content %}
 
-    <div class="row">
-        <div class="col-sm-6 col-md-5 col-md-offset-3">
+    {% if enableRegistration == false %}
+        <h1><img src="{{ asset('img/sign-warning-icon.png') }}" width="64" height="64" />Registration disabled!</h1>
+    {% else %}
+        <div class="row">
+            <div class="col-sm-6 col-md-5 col-md-offset-3">
+                <h3>Sign Up</h3>
 
-            <h3>Sign Up</h3>
+                {{ flashMessagesPartial('partial::alerts') }}
 
-            {{ flashMessagesPartial('partial::alerts') }}
+                {% set dummy = form.setAttribute('method', 'post') %}
+                {% set dummy = form.setAttribute('autocomplete', 'off') %}
+                {% set dummy = form.prepare() %}
 
-            {% set dummy = form.setAttribute('method', 'post') %}
-            {% set dummy = form.setAttribute('autocomplete', 'off') %}
-            {% set dummy = form.prepare() %}
+                {% include '@dk-user/_form.html.twig' %}
 
-            {% include '@dk-user/_form.html.twig' %}
-
+            </div>
         </div>
-    </div>
+    {% endif %}
 
 {% endblock %}

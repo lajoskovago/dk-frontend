@@ -21,6 +21,9 @@ class LoginOptions extends AbstractOptions
     /** @var  array */
     protected $allowedLoginStatuses;
 
+    /** @var int  */
+    protected $loginFormTimeout = 300;
+
     /** @var bool  */
     protected $__strictMode__ = false;
 
@@ -78,6 +81,24 @@ class LoginOptions extends AbstractOptions
         return $this;
     }
 
+    /**
+     * @return int
+     */
+    public function getLoginFormTimeout()
+    {
+        return $this->loginFormTimeout;
+    }
 
+    /**
+     * @param int $loginFormTimeout
+     * @return LoginOptions
+     */
+    public function setLoginFormTimeout($loginFormTimeout)
+    {
+        $this->loginFormTimeout = $loginFormTimeout;
+        return $this;
+    }
+
+    
 
 }

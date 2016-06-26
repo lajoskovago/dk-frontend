@@ -40,6 +40,9 @@
         "zendframework/zend-i18n": "^2.7",
         "zendframework/zend-i18n-resources": "^2.5",
         "zendframework/zend-crypt": "^3.0",
+        "zendframework/zend-captcha": "^2.6",
+        "zendframework/zend-text": "^2.6",
+        "zendframework/zendservice-recaptcha": "^2.0",
 
         "mtymek/expressive-config-manager": "^0.4",
 

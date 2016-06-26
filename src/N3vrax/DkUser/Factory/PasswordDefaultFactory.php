@@ -10,13 +10,13 @@ namespace N3vrax\DkUser\Factory;
 
 use Interop\Container\ContainerInterface;
 use N3vrax\DkUser\Options\ModuleOptions;
-use N3vrax\DkUser\Service\PasswordDefaultService;
+use N3vrax\DkUser\Service\PasswordDefault;
 
-class PasswordDefaultServiceFactory
+class PasswordDefaultFactory
 {
     public function __invoke(ContainerInterface $container)
     {
         $options = $container->get(ModuleOptions::class);
-        return new PasswordDefaultService($options);
+        return new PasswordDefault($options);
     }
 }

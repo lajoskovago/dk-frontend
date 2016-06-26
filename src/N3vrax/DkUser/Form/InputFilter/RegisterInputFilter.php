@@ -102,8 +102,10 @@ class RegisterInputFilter extends InputFilter
             $username['validators'][] = $this->usernameValidator;
         }
 
-        $this->add($username);
-
+        if($this->registerOptions->isEnableUsername()) {
+            $this->add($username);
+        }
+        
         $this->add([
             'name'       => 'password',
             'required'   => true,

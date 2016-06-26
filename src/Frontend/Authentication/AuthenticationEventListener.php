@@ -44,7 +44,7 @@ class AuthenticationEventListener extends AbstractListenerAggregate
 
         if($request->getMethod() === 'POST' && empty($errors)) {
             $identity = $e->getParam('identity', '');
-            $credential = $e->getParam('credential', '');
+            $credential = $e->getParam('password', '');
             if(empty($identity) || empty($credential)) {
                 $e->addError('Credentials are required and cannot be empty');
                 return;

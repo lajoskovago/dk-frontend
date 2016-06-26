@@ -41,7 +41,7 @@ class LoginInputFilter extends InputFilter
         ]);
 
         $this->add([
-            'name' => 'credential',
+            'name' => 'password',
             'required' => true,
             'filters' => [],
             'validators' => [

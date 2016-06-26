@@ -10,8 +10,8 @@ return [
     'dk_authentication' => [
         //required by the auth adapters, it may be optional for your custom adapters
         //specify the identity entity to use and its hydrator
-        'identity_prototype' => \Frontend\Authentication\Identity::class,
-        'identity_hydrator' => \Zend\Hydrator\ClassMethods::class,
+        'identity_prototype' => \N3vrax\DkUser\Entity\UserEntity::class,
+        'identity_hydrator' => \N3vrax\DkUser\Entity\UserEntityHydrator::class,
 
         //this is adapter specific
         //currently we support HTTP basic and digest
@@ -30,7 +30,7 @@ return [
                 //name of the password db field
                 'credential_column' => 'password',
 
-                'callback_check' => \N3vrax\DkUser\Service\PasswordHashingInterface::class,
+                'callback_check' => \N3vrax\DkUser\Service\PasswordInterface::class,
 
                 //your password checking callback, use a closure, a service name of a callable or a callable class name
                 //we recommend using a service name or class name instead of closures, to be able to cache the config

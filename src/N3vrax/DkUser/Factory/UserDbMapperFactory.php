@@ -34,6 +34,7 @@ class UserDbMapperFactory
 
         $eventFeature = new EventFeature($eventManager);
         $mapper = new UserDbMapper($options->getUserTableName(), $dbAdapter, $eventFeature, $resultSetPrototype);
+        $mapper->setUserResetTokenTable($options->getUserResetTokenTableName());
 
         return $mapper;
     }

@@ -14,6 +14,7 @@ use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\Form\Form;
+use Zend\Math\Rand;
 
 class UserService
 {
@@ -21,6 +22,12 @@ class UserService
 
     const EVENT_REGISTER = 'register';
     const EVENT_REGISTER_POST = 'register.post';
+
+    const EVENT_RESET_PASSWORD_REQUEST = 'reset_password_request';
+    const EVENT_RESET_PASSWORD_REQUEST_POST = 'reset_password_request.post';
+
+    const EVENT_RESET_PASSWORD = 'reset_password';
+    const EVENT_RESET_PASSWORD_POST = 'reset_password_post';
 
     /** @var  UserMapperInterface */
     protected $userMapper;
@@ -34,10 +41,13 @@ class UserService
     /** @var  Form */
     protected $registerForm;
 
+    /** @var  Form */
+    protected $resetPasswordForm;
+
     /** @var  UserEntityInterface */
     protected $userEntityPrototype;
 
-    /** @var  PasswordHashingInterface */
+    /** @var  PasswordInterface */
     protected $passwordService;
 
 
@@ -46,8 +56,9 @@ class UserService
         ModuleOptions $options,
         RegisterOptions $registerOptions,
         Form $registerForm,
+        Form $resetPasswordForm,
         UserEntityInterface $userEntityPrototype,
-        PasswordHashingInterface $passwordService
+        PasswordInterface $passwordService
     )
     {
         $this->userMapper = $userMapper;
@@ -56,6 +67,7 @@ class UserService
         $this->registerForm = $registerForm;
         $this->userEntityPrototype = $userEntityPrototype;
         $this->passwordService = $passwordService;
+        $this->resetPasswordForm = $resetPasswordForm;
 
     }
 
@@ -94,6 +106,117 @@ class UserService
         return $this->userMapper->lastInsertValue();
     }
 
+    /**
+     * Based on a user email, generate a token and store a hash of it with and expiration time
+     * trigger a specific event, so mail service can send an email based on it
+     *
+     * @param $email
+     * @return bool
+     */
+    public function resetPasswordRequest($email)
+    {
+        /** @var UserEntityInterface $user */
+        $user = $this->findUserBy('email', $email);
+        if($user) {
+            $data = new \stdClass();
+            $data->userId = $user->getId();
+            $data->token = md5(Rand::getString(32) . time() . $email);
+            $data->expireAt = time() + $this->options->getResetPasswordTokenTimeout();
+
+            $this->getEventManager()->trigger(
+                static::EVENT_RESET_PASSWORD_REQUEST,
+                $this,
+                ['data' => $data]
+            );
+
+            $this->userMapper->saveResetPasswordToken($data->userId, $data->token, $data->expireAt);
+
+            $this->getEventManager()->trigger(
+                static::EVENT_RESET_PASSWORD_REQUEST_POST,
+                $this,
+                ['data' => $data]
+            );
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $email
+     * @param $token
+     * @param $data
+     * @return array
+     */
+    public function resetPassword($email, $token, $data)
+    {
+        $errors = [];
+
+        /** @var UserEntityInterface $user */
+        $user = $this->userMapper->findUserBy('email', $email);
+
+        if(!$user) {
+            $errors[] = 'Reset password error - invalid parameters';
+        }
+        else {
+            $r = $this->userMapper->findResetPasswordToken($user->getId());
+            if($r) {
+                $t = $r['token'];
+                $expireAt = $r['expireAt'];
+
+                if($t === $token) {
+                    if($expireAt >= time()) {
+                        $form = $this->resetPasswordForm;
+                        $form->setData($data);
+
+                        if($form->isValid()) {
+                            $data = $form->getData();
+                            $user->setPassword($this->passwordService->create($data['newPassword']));
+
+                            $this->getEventManager()->trigger(
+                                static::EVENT_RESET_PASSWORD,
+                                $this,
+                                ['user' => $user, 'form' => $form]
+                            );
+
+                            $this->saveUser($user);
+
+                            $this->getEventManager()->trigger(
+                                static::EVENT_RESET_PASSWORD_POST,
+                                $this,
+                                ['user' => $user, 'form' => $form]
+                            );
+                        }
+                        else {
+                            foreach ($form->getMessages() as $error) {
+                                $errors[] = current($error);
+                            }
+                        }
+                    }
+                    else {
+                        $errors[] = 'Reset token expired. Request another password reset';
+                    }
+                }
+                else {
+                    $errors[] = 'Reset password error - invalid token';
+                }
+            }
+            else {
+                $errors[] = 'Reset password error - invalid token';
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Store a new user into the db, after it validates the data
+     * trigger register events
+     *
+     * @param $data
+     * @return bool|UserEntityInterface
+     */
     public function register($data)
     {
         $form = $this->registerForm;
@@ -120,7 +243,6 @@ class UserService
         if($id) {
             $user->setId($id);
         }
-
 
         $this->getEventManager()->trigger(static::EVENT_REGISTER_POST, $this,
             ['user' => $user, 'form' => $form]);

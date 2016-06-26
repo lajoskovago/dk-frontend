@@ -10,16 +10,30 @@ namespace N3vrax\DkUser\Controller;
 
 use N3vrax\DkBase\Controller\AbstractActionController;
 use N3vrax\DkBase\Session\FlashMessenger;
+use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Service\UserService;
+use N3vrax\DkWebAuthentication\Action\LoginAction;
+use N3vrax\DkWebAuthentication\Event\AuthenticationEvent;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\RedirectResponse;
+use Zend\Diactoros\Uri;
+use Zend\Form\Element\Csrf;
 use Zend\Form\Form;
 
 class UserController extends AbstractActionController
 {
     /** @var  ModuleOptions */
     protected $options;
+
+    /** @var  Form */
+    protected $loginForm;
+
+    /** @var  Form */
+    protected $resetPasswordForm;
+
+    /** @var  LoginAction */
+    protected $loginAction;
 
     /** @var  Form */
     protected $registerForm;
@@ -29,13 +43,19 @@ class UserController extends AbstractActionController
 
     public function __construct(
         UserService $userService,
+        LoginAction $loginAction,
         ModuleOptions $options,
-        Form $registerForm
+        Form $loginForm,
+        Form $registerForm,
+        Form $resetPasswordForm
     )
     {
         $this->userService = $userService;
         $this->registerForm = $registerForm;
         $this->options = $options;
+        $this->loginAction = $loginAction;
+        $this->loginForm = $loginForm;
+        $this->resetPasswordForm = $resetPasswordForm;
     }
 
     public function indexAction()
@@ -46,7 +66,13 @@ class UserController extends AbstractActionController
     public function registerAction()
     {
         $request = $this->getRequest();
-        
+
+        if(!$this->options->isEnableRegistration()) {
+            return new HtmlResponse(
+                $this->template()->render('dk-user::register',
+                    ['enableRegistration' => false]));
+        }
+
         /** @var FlashMessenger $messenger */
         $messenger = $this->flashMessenger();
 
@@ -83,22 +109,133 @@ class UserController extends AbstractActionController
             }
 
             if($this->options->isLoginAfterRegistration()) {
-                //TODO: automatically login, directly or through redirection
+                return $this->autoLoginUser($user, $data['password']);
             }
             else
             {
-                $messenger->addSuccess('Confirmation email sent. Please check your inbox');
+                $messenger->addSuccess('Account created successfully');
                 return new RedirectResponse($this->urlHelper()->generate('login'));
             }
         }
 
         return new HtmlResponse(
-            $this->template()->render('dk-user::register', ['form' => $form]));
+            $this->template()->render('dk-user::register',
+                ['form' => $form, 'enableRegistration' => $this->options->isEnableRegistration()]));
     }
+
+    public function resetPasswordAction()
+    {
+        if(!$this->options->isEnablePasswordRecovery()) {
+            $this->flashMessenger()->addError('Password recovery is disabled');
+            return new RedirectResponse($this->urlHelper()->generate('login'));
+        }
+
+        $request = $this->getRequest();
+        $params = $request->getQueryParams();
+        $email = $params['email'] ?: '';
+        $token = $params['token'] ?: '';
+
+        if(empty($email) || empty($token)) {
+            $this->flashMessenger()->addError('Reset password error - invalid parameters');
+            return new RedirectResponse($this->urlHelper()->generate('login'));
+        }
+
+        $form = $this->resetPasswordForm;
+
+        if($request->getMethod() === 'POST') {
+            $data = $request->getParsedBody();
+            
+            $errors = $this->userService->resetPassword($email, $token, $data);
+
+            if(!empty($errors)) {
+                foreach ($errors as $error) {
+                    $this->flashMessenger()->addError($error);
+                }
+                return new RedirectResponse($request->getUri(), 303);
+            }
+
+            $this->flashMessenger()->addSuccess('Password was successfully updated');
+            return new RedirectResponse($this->urlHelper()->generate('login'));
+
+        }
+
+        return new HtmlResponse($this->template()->render('dk-user::reset-password', ['form' => $form]));
+    }
+
 
     public function forgotPasswordAction()
     {
+        if(!$this->options->isEnablePasswordRecovery()) {
+            $this->flashMessenger()->addError('Password recovery is disabled');
+            return new RedirectResponse($this->urlHelper()->generate('login'));
+        }
 
+        $request = $this->getRequest();
+
+        if($request->getMethod() === 'POST') {
+            $data = $request->getParsedBody();
+            $email = $data['email'] ?: '';
+
+            if(empty($email)) {
+                $this->flashMessenger()->addError('Email is required and cannot be empty');
+                return new RedirectResponse($request->getUri(), 303);
+            }
+
+            $this->userService->resetPasswordRequest($email);
+            //we don't check if email was found or not, we don't want to give this info as error
+
+            $this->flashMessenger()->addInfo('Reset password request successfully registered');
+            $this->flashMessenger()->addInfo('You\'ll receive an email with further instructions');
+            return new RedirectResponse($this->urlHelper()->generate('login'));
+        }
+
+        return new HtmlResponse($this->template()->render('dk-user::forgot-password'));
+    }
+
+    /**
+     * Force an auth event using the LoginAction to automatically login the user after registration
+     *
+     * @param UserEntityInterface $user
+     * @param $password
+     * @return mixed
+     */
+    protected function autoLoginUser(UserEntityInterface $user, $password)
+    {
+        $request = $this->getRequest();
+        $response = $this->getResponse();
+        
+        $form = $this->loginForm;
+        $form->init();
+        $csrf = ['name' => '', 'value' => ''];
+        foreach ($form->getElements() as $element) {
+            if($element instanceof Csrf) {
+                $csrf['name'] = $element->getName();
+                $csrf['value'] = $element->getValue();
+            }
+        }
+
+        $loginData = [
+            'identity' => $user->getEmail(),
+            'password' => $password,
+            'remember' => 'no',
+        ];
+
+        if(!empty($csrf['name'])) {
+            $loginData[$csrf['name']] = $csrf['value'];
+        }
+
+        $form->setData($loginData);
+
+        $form->isValid();
+
+        $request = $request->withParsedBody($form->getData())
+            ->withUri(new Uri($this->urlHelper()->generate('login')));
+
+        return $this->loginAction->triggerEvent(
+            AuthenticationEvent::EVENT_AUTHENTICATE,
+            $request->getParsedBody(),
+            $request,
+            $response);
     }
 
 }

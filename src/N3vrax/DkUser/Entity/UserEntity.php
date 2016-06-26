@@ -8,7 +8,13 @@
 
 namespace N3vrax\DkUser\Entity;
 
-class UserEntity implements UserEntityInterface
+use N3vrax\DkAuthentication\Identity\IdentityInterface as AuthenticationIdentityInterface;
+use N3vrax\DkAuthorization\Identity\IdentityInterface as AuthorizationIdentityInterface;
+
+class UserEntity implements
+    UserEntityInterface,
+    AuthenticationIdentityInterface,
+    AuthorizationIdentityInterface
 {
     /** @var  string|int */
     protected $id;
@@ -23,10 +29,25 @@ class UserEntity implements UserEntityInterface
     protected $password;
 
     /** @var  string */
+    protected $roles;
+
+    /** @var  string */
     protected $status;
 
     /** @var  string|int */
     protected $dateCreated;
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        if($this->username) {
+            return $this->username;
+        }
+
+        return $this->email;
+    }
 
     /**
      * @return int|string
@@ -133,6 +154,24 @@ class UserEntity implements UserEntityInterface
     public function setStatus($status)
     {
         $this->status = $status;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRoles()
+    {
+        return $this->roles;
+    }
+
+    /**
+     * @param string $roles
+     * @return UserEntity
+     */
+    public function setRoles($roles)
+    {
+        $this->roles = $roles;
         return $this;
     }
 
