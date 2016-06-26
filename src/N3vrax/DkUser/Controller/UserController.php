@@ -63,6 +63,16 @@ class UserController extends AbstractActionController
 
     }
 
+    public function confirmAccountAction()
+    {
+
+    }
+
+    public function accountAction()
+    {
+        
+    }
+
     public function registerAction()
     {
         $request = $this->getRequest();
