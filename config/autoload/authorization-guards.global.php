@@ -27,8 +27,29 @@ return [
             ],*/
 
             //the RoutePermissionGuard allows you to restrict access to routes based on permissions
-            \N3vrax\DkRbacGuard\Route\RoutePermissionGuard::class => [
+            /*\N3vrax\DkRbacGuard\Route\RoutePermissionGuard::class => [
                 'pages' => ['premium-content'],
+            ],*/
+
+            \N3vrax\DkRbacGuard\Controller\ControllerGuard::class => [
+                [
+                    'route' => 'user',
+                    'actions' => ['register', 'forgot-password', 'reset-password'],
+                    'roles' => ['guest']
+                ],
+            ],
+
+            \N3vrax\DkRbacGuard\Controller\ControllerPermissionGuard::class => [
+                [
+                    'route' => 'pages',
+                    'actions' => ['about-us'],
+                    'permissions' => ['authenticated']
+                ],
+                [
+                    'route' => 'pages',
+                    'actions' => ['who-we-are'],
+                    'permissions' => ['premium-content']
+                ]
             ]
         ],
 

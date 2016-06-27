@@ -29,7 +29,7 @@ class UserEntity implements
     protected $password;
 
     /** @var  string */
-    protected $roles;
+    protected $role;
 
     /** @var  string */
     protected $status;
@@ -157,21 +157,26 @@ class UserEntity implements
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getRoles()
     {
-        return $this->roles;
+        return $this->role;
     }
 
     /**
-     * @param string $roles
+     * @return string
+     */
+    public function getRole()
+    {
+        return $this->role;
+    }
+
+    /**
+     * @param string $role
      * @return UserEntity
      */
-    public function setRoles($roles)
+    public function setRole($role)
     {
-        $this->roles = $roles;
+        $this->role = $role;
         return $this;
     }
 

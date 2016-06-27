@@ -20,12 +20,6 @@ class ModuleOptions extends AbstractOptions
     protected $zendDbAdapter;
 
     /** @var  string */
-    protected $userTableName = 'user';
-
-    /** @var string  */
-    protected $userResetTokenTableName = 'user_reset_token';
-
-    /** @var  string */
     protected $userEntityClass = UserEntity::class;
 
     /** @var  string */
@@ -109,24 +103,6 @@ class ModuleOptions extends AbstractOptions
     public function setUserEntityHydrator($userEntityHydrator)
     {
         $this->userEntityHydrator = $userEntityHydrator;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUserTableName()
-    {
-        return $this->userTableName;
-    }
-
-    /**
-     * @param string $userTableName
-     * @return ModuleOptions
-     */
-    public function setUserTableName($userTableName)
-    {
-        $this->userTableName = $userTableName;
         return $this;
     }
 
@@ -273,25 +249,6 @@ class ModuleOptions extends AbstractOptions
         $this->resetPasswordTokenTimeout = $resetPasswordTokenTimeout;
         return $this;
     }
-
-    /**
-     * @return string
-     */
-    public function getUserResetTokenTableName()
-    {
-        return $this->userResetTokenTableName;
-    }
-
-    /**
-     * @param string $userResetTokenTableName
-     * @return ModuleOptions
-     */
-    public function setUserResetTokenTableName($userResetTokenTableName)
-    {
-        $this->userResetTokenTableName = $userResetTokenTableName;
-        return $this;
-    }
-
     
     
 }

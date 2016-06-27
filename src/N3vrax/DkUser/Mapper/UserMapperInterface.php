@@ -21,9 +21,9 @@ interface UserMapperInterface
 
     public function removeUser($id);
 
-    public function saveResetPasswordToken($userId, $token, $expireAt);
+    public function saveResetToken($data);
 
-    public function findResetPasswordToken($userId);
+    public function findResetToken($userId, $token);
 
     public function lastInsertValue();
 }

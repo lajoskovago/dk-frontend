@@ -14,7 +14,8 @@
     {% elseif status == 403 %}
         <p>
             You don't have enough permissions to view this page. You can <a href="{{ path('logout') }}">Sign out</a>
-            and try with a more permissive user.
+            and try with a more permissive user. <br />
+            Another reason could be the requested page is not accessible if you are authenticated.
         </p>
     {% endif %}
 {% endblock %}

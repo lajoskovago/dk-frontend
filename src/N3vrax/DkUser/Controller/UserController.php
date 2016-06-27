@@ -133,6 +133,11 @@ class UserController extends AbstractActionController
                 ['form' => $form, 'enableRegistration' => $this->options->isEnableRegistration()]));
     }
 
+    /**
+     * Show the reset password form, validate data
+     *
+     * @return HtmlResponse|RedirectResponse
+     */
     public function resetPasswordAction()
     {
         if(!$this->options->isEnablePasswordRecovery()) {
@@ -142,8 +147,8 @@ class UserController extends AbstractActionController
 
         $request = $this->getRequest();
         $params = $request->getQueryParams();
-        $email = $params['email'] ?: '';
-        $token = $params['token'] ?: '';
+        $email = isset($params['email']) ? $params['email'] : '';
+        $token = isset($params['token']) ? $params['token'] : '';
 
         if(empty($email) || empty($token)) {
             $this->flashMessenger()->addError('Reset password error - invalid parameters');
@@ -154,25 +159,34 @@ class UserController extends AbstractActionController
 
         if($request->getMethod() === 'POST') {
             $data = $request->getParsedBody();
-            
-            $errors = $this->userService->resetPassword($email, $token, $data);
 
-            if(!empty($errors)) {
-                foreach ($errors as $error) {
-                    $this->flashMessenger()->addError($error);
+            try {
+                $errors = $this->userService->resetPassword($email, $token, $data);
+
+                if(!empty($errors)) {
+                    foreach ($errors as $error) {
+                        $this->flashMessenger()->addError($error);
+                    }
+                    return new RedirectResponse($request->getUri(), 303);
                 }
+
+                $this->flashMessenger()->addSuccess('Password was successfully updated');
+                return new RedirectResponse($this->urlHelper()->generate('login'));
+            }
+            catch(\Exception $e) {
+                error_log('User reset password exception: ' . $e->getMessage(), E_USER_ERROR);
+
+                $this->flashMessenger()->addError('Reset password error. Please try again');
                 return new RedirectResponse($request->getUri(), 303);
             }
-
-            $this->flashMessenger()->addSuccess('Password was successfully updated');
-            return new RedirectResponse($this->urlHelper()->generate('login'));
-
         }
 
         return new HtmlResponse($this->template()->render('dk-user::reset-password', ['form' => $form]));
     }
 
-
+    /**
+     * @return HtmlResponse|RedirectResponse
+     */
     public function forgotPasswordAction()
     {
         if(!$this->options->isEnablePasswordRecovery()) {
@@ -184,19 +198,28 @@ class UserController extends AbstractActionController
 
         if($request->getMethod() === 'POST') {
             $data = $request->getParsedBody();
-            $email = $data['email'] ?: '';
+            $email = isset($data['email']) ? $data['email'] : '';
 
             if(empty($email)) {
                 $this->flashMessenger()->addError('Email is required and cannot be empty');
                 return new RedirectResponse($request->getUri(), 303);
             }
 
-            $this->userService->resetPasswordRequest($email);
-            //we don't check if email was found or not, we don't want to give this info as error
+            try {
+                $this->userService->resetPasswordRequest($email);
+                //we don't check if email was found or not, we don't want to give this info as error
 
-            $this->flashMessenger()->addInfo('Reset password request successfully registered');
-            $this->flashMessenger()->addInfo('You\'ll receive an email with further instructions');
-            return new RedirectResponse($this->urlHelper()->generate('login'));
+                $this->flashMessenger()->addInfo('Reset password request successfully registered');
+                $this->flashMessenger()->addInfo('You\'ll receive an email with further instructions');
+                return new RedirectResponse($this->urlHelper()->generate('login'));
+            }
+            catch(\Exception $e) {
+                error_log('User reset password request exception: ' . $e->getMessage(), E_USER_ERROR);
+
+                $this->flashMessenger()->addError('Reset password request error. Please try again');
+                return new RedirectResponse($request->getUri(), 303);
+            }
+
         }
 
         return new HtmlResponse($this->template()->render('dk-user::forgot-password'));

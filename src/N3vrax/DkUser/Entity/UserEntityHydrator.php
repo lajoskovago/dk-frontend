@@ -19,5 +19,6 @@ class UserEntityHydrator extends ClassMethods
     {
         parent::__construct($underscoreSeparatedKeys);
         $this->addFilter('name', new MethodMatchFilter('getName'), FilterComposite::CONDITION_AND);
+        $this->addFilter('roles', new MethodMatchFilter('getRoles'), FilterComposite::CONDITION_AND);
     }
 }

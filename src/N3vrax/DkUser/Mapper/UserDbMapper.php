@@ -69,21 +69,20 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
         return $this->getLastInsertValue();
     }
 
-    public function saveResetPasswordToken($userId, $token, $expireAt)
+    public function saveResetToken($data)
     {
-        //TODO: remove hardcoded table name
         $sql = new Sql($this->getAdapter(), $this->userResetTokenTable);
         $insert = $sql->insert();
-        $insert->columns(['userId', 'token', 'expireAt'])->values([$userId, $token, $expireAt]);
+        $insert->columns(array_keys($data))->values($data);
 
         $stmt = $sql->prepareStatementForSqlObject($insert);
         return $stmt->execute();
     }
 
-    public function findResetPasswordToken($userId)
+    public function findResetToken($userId, $token)
     {
         $sql = new Sql($this->getAdapter(), $this->userResetTokenTable);
-        $select = $sql->select()->where(['userId' => $userId]);
+        $select = $sql->select()->where(['userId' => $userId, 'token' => $token]);
 
         $stmt = $sql->prepareStatementForSqlObject($select);
         return $stmt->execute()->current();

@@ -19,6 +19,7 @@ use N3vrax\DkUser\Factory\Form\ResetPasswordFormFactory;
 use N3vrax\DkUser\Factory\Options\LoginOptionsFactory;
 use N3vrax\DkUser\Factory\Options\ModuleOptionsFactory;
 use N3vrax\DkUser\Factory\Options\RegisterOptionsFactory;
+use N3vrax\DkUser\Factory\Options\TableOptionsFactory;
 use N3vrax\DkUser\Factory\PasswordDefaultFactory;
 use N3vrax\DkUser\Factory\UserControllerFactory;
 use N3vrax\DkUser\Factory\UserDbMapperFactory;
@@ -32,6 +33,7 @@ use N3vrax\DkUser\Middleware\Bootstrap;
 use N3vrax\DkUser\Options\LoginOptions;
 use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
+use N3vrax\DkUser\Options\TableOptions;
 use N3vrax\DkUser\Service\PasswordInterface;
 use N3vrax\DkUser\Service\UserService;
 use N3vrax\DkUser\Twig\FormElementExtension;
@@ -48,6 +50,7 @@ class ConfigProvider
                     ModuleOptions::class => ModuleOptionsFactory::class,
                     LoginOptions::class => LoginOptionsFactory::class,
                     RegisterOptions::class => RegisterOptionsFactory::class,
+                    TableOptions::class => TableOptionsFactory::class,
 
                     UserMapperInterface::class => UserDbMapperFactory::class,
                     UserService::class => UserServiceFactory::class,
@@ -83,7 +86,10 @@ class ConfigProvider
 
             'dk_user' => [
 
-                'user_table_name' => 'user',
+                'table_settings' => [
+                    'user_table' => 'user',
+                    'user_reset_token_table' => 'user_reset_token',
+                ],
 
                 'user_entity_class' => UserEntity::class,
                 'user_entity_hydrator' => UserEntityHydrator::class,

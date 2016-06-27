@@ -129,7 +129,8 @@ class UserService
                 ['data' => $data]
             );
 
-            $this->userMapper->saveResetPasswordToken($data->userId, $data->token, $data->expireAt);
+            $data = (array) $data;
+            $this->userMapper->saveResetToken($data);
 
             $this->getEventManager()->trigger(
                 static::EVENT_RESET_PASSWORD_REQUEST_POST,
@@ -160,12 +161,12 @@ class UserService
             $errors[] = 'Reset password error - invalid parameters';
         }
         else {
-            $r = $this->userMapper->findResetPasswordToken($user->getId());
+            $r = $this->userMapper->findResetToken($user->getId(), $token);
             if($r) {
                 $t = $r['token'];
                 $expireAt = $r['expireAt'];
 
-                if($t === $token) {
+                if($t == $token) {
                     if($expireAt >= time()) {
                         $form = $this->resetPasswordForm;
                         $form->setData($data);
