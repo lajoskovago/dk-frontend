@@ -17,5 +17,15 @@ return [
                 'charset' => 'utf8'
             ]
         ]
+    ],
+
+    'dk_user' => [
+        'form_captcha_options' => [
+            'class' => 'recaptcha',
+            'options' => [
+                'pubkey' => '6LcskCMTAAAAAM14rWOGRy4mMTfwk41dJHF75B2A',
+                'privkey' => '6LcskCMTAAAAANFDwPGBvXxPgVuDQFJxfXrMmEsX'
+            ]
+        ]
     ]
 ];
