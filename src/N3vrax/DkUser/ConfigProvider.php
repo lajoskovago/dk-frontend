@@ -89,6 +89,7 @@ class ConfigProvider
                 'table_settings' => [
                     'user_table' => 'user',
                     'user_reset_token_table' => 'user_reset_token',
+                    'user_confirm_token_table' => 'user_confirm_token',
                 ],
 
                 'user_entity_class' => UserEntity::class,
@@ -108,7 +109,7 @@ class ConfigProvider
 
                 'enable_registration' => true,
                 'enable_password_recovery' => true,
-                'login_after_registration' => true,
+                'login_after_registration' => false,
 
                 'enable_username' => true,
 
@@ -126,7 +127,7 @@ class ConfigProvider
                 'password_cost' => 11,
 
                 'enable_user_status' => true,
-                'default_user_status' => 'active',
+                'default_user_status' => 'pending',
 
             ],
 

@@ -29,6 +29,9 @@ class UserService
     const EVENT_RESET_PASSWORD = 'reset_password';
     const EVENT_RESET_PASSWORD_POST = 'reset_password_post';
 
+    const EVENT_ACCOUNT_CONFIRM = 'account_confirm';
+    const EVENT_ACCOUNT_CONFIRM_POST = 'account_confirm_post';
+
     /** @var  UserMapperInterface */
     protected $userMapper;
 
@@ -104,6 +107,34 @@ class UserService
     public function getLastInsertValue()
     {
         return $this->userMapper->lastInsertValue();
+    }
+
+    public function confirmAccount($email, $token)
+    {
+        $errors = [];
+        /** @var UserEntityInterface $user */
+        $user = $this->findUserBy('email', $email);
+        if($user) {
+            $r = $this->userMapper->findConfirmToken($user->getId(), $token);
+            if($r) {
+                //if email-token pair found, change user status to active
+                $user->setStatus('active');
+
+                $this->getEventManager()->trigger(static::EVENT_ACCOUNT_CONFIRM, $this, ['user' => $user]);
+
+                $this->saveUser($user);
+
+                $this->getEventManager()->trigger(static::EVENT_ACCOUNT_CONFIRM_POST, $this, ['user' => $user]);
+            }
+            else {
+                $errors[] = 'Confirm account error - invalid parameters';
+            }
+        }
+        else {
+            $errors[] = 'Confirm account error - invalid parameters';
+        }
+
+        return $errors;
     }
 
     /**
@@ -245,10 +276,26 @@ class UserService
             $user->setId($id);
         }
 
+        if($this->registerOptions->isEnableAccountConfirmation()) {
+            $this->generateConfirmToken($user);
+        }
+
         $this->getEventManager()->trigger(static::EVENT_REGISTER_POST, $this,
             ['user' => $user, 'form' => $form]);
 
         return $user;
+    }
+
+    protected function generateConfirmToken(UserEntityInterface $user)
+    {
+        $data = new \stdClass();
+        $data->userId = $user->getId();
+        $data->token = md5(Rand::getString(32) . time() . $user->getEmail());
+
+        $data = (array) $data;
+
+        //TODO: generate some events probably
+        $this->userMapper->saveConfirmToken($data);
     }
 
     /**

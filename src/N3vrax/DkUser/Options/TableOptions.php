@@ -16,6 +16,8 @@ class TableOptions extends AbstractOptions
 
     protected $userResetTokenTable = 'user_reset_token';
 
+    protected $userConfirmTokenTable = 'user_confirm_token';
+
     /**
      * @return string
      */
@@ -52,5 +54,24 @@ class TableOptions extends AbstractOptions
         return $this;
     }
 
+    /**
+     * @return string
+     */
+    public function getUserConfirmTokenTable()
+    {
+        return $this->userConfirmTokenTable;
+    }
+
+    /**
+     * @param string $userConfirmTokenTable
+     * @return TableOptions
+     */
+    public function setUserConfirmTokenTable($userConfirmTokenTable)
+    {
+        $this->userConfirmTokenTable = $userConfirmTokenTable;
+        return $this;
+    }
+
+    
     
 }

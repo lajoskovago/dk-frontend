@@ -23,7 +23,11 @@ interface UserMapperInterface
 
     public function saveResetToken($data);
 
+    public function saveConfirmToken($data);
+
     public function findResetToken($userId, $token);
+
+    public function findConfirmToken($userId, $token);
 
     public function lastInsertValue();
 }

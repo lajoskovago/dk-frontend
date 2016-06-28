@@ -34,7 +34,7 @@ return [
             \N3vrax\DkRbacGuard\Controller\ControllerGuard::class => [
                 [
                     'route' => 'user',
-                    'actions' => ['register', 'forgot-password', 'reset-password'],
+                    'actions' => ['register', 'forgot-password', 'reset-password','confirm-account'],
                     'roles' => ['guest']
                 ],
             ],

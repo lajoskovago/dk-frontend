@@ -20,6 +20,8 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
 
     protected $userResetTokenTable = 'user_reset_token';
 
+    protected $userConfirmTokenTable = 'user_confirm_token';
+
     public function findUser($id)
     {
         return $this->findUserBy($this->idColumn, $id);
@@ -88,6 +90,45 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
         return $stmt->execute()->current();
     }
 
+    public function saveConfirmToken($data)
+    {
+        $sql = new Sql($this->getAdapter(), $this->userConfirmTokenTable);
+        $insert = $sql->insert();
+        $insert->columns(array_keys($data))->values($data);
+
+        $stmt = $sql->prepareStatementForSqlObject($insert);
+        return $stmt->execute();
+    }
+
+    public function findConfirmToken($userId, $token)
+    {
+        $sql = new Sql($this->getAdapter(), $this->userConfirmTokenTable);
+        $select = $sql->select()->where(['userId' => $userId, 'token' => $token]);
+
+        $stmt = $sql->prepareStatementForSqlObject($select);
+        return $stmt->execute()->current();
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserConfirmTokenTable()
+    {
+        return $this->userConfirmTokenTable;
+    }
+
+    /**
+     * @param string $userConfirmTokenTable
+     * @return UserDbMapper
+     */
+    public function setUserConfirmTokenTable($userConfirmTokenTable)
+    {
+        $this->userConfirmTokenTable = $userConfirmTokenTable;
+        return $this;
+    }
+
+
+
     /**
      * @return string
      */
@@ -105,6 +146,7 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
         $this->userResetTokenTable = $userResetTokenTable;
         return $this;
     }
+
 
 
 

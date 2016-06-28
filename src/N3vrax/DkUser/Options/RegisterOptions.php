@@ -22,6 +22,8 @@ class RegisterOptions extends AbstractOptions
 
     protected $formCaptchaOptions;
 
+    protected $enableAccountConfirmation = true;
+
     protected $__strictMode__ = false;
     
 
@@ -112,6 +114,24 @@ class RegisterOptions extends AbstractOptions
     public function setUserFormTimeout($userFormTimeout)
     {
         $this->userFormTimeout = $userFormTimeout;
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isEnableAccountConfirmation()
+    {
+        return $this->enableAccountConfirmation;
+    }
+
+    /**
+     * @param boolean $enableAccountConfirmation
+     * @return RegisterOptions
+     */
+    public function setEnableAccountConfirmation($enableAccountConfirmation)
+    {
+        $this->enableAccountConfirmation = $enableAccountConfirmation;
         return $this;
     }
 

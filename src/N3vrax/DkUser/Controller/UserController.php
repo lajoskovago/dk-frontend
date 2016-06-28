@@ -12,6 +12,7 @@ use N3vrax\DkBase\Controller\AbstractActionController;
 use N3vrax\DkBase\Session\FlashMessenger;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Options\ModuleOptions;
+use N3vrax\DkUser\Options\RegisterOptions;
 use N3vrax\DkUser\Service\UserService;
 use N3vrax\DkWebAuthentication\Action\LoginAction;
 use N3vrax\DkWebAuthentication\Event\AuthenticationEvent;
@@ -25,6 +26,9 @@ class UserController extends AbstractActionController
 {
     /** @var  ModuleOptions */
     protected $options;
+
+    /** @var  RegisterOptions */
+    protected $registerOptions;
 
     /** @var  Form */
     protected $loginForm;
@@ -45,6 +49,7 @@ class UserController extends AbstractActionController
         UserService $userService,
         LoginAction $loginAction,
         ModuleOptions $options,
+        RegisterOptions $registerOptions,
         Form $loginForm,
         Form $registerForm,
         Form $resetPasswordForm
@@ -56,6 +61,7 @@ class UserController extends AbstractActionController
         $this->loginAction = $loginAction;
         $this->loginForm = $loginForm;
         $this->resetPasswordForm = $resetPasswordForm;
+        $this->registerOptions = $registerOptions;
     }
 
     public function indexAction()
@@ -65,7 +71,39 @@ class UserController extends AbstractActionController
 
     public function confirmAccountAction()
     {
+        if(!$this->registerOptions->isEnableAccountConfirmation()) {
+            $this->flashMessenger()->addError('Account confirmation is disabled');
+            return new RedirectResponse($this->urlHelper()->generate('login'));
+        }
 
+        $request = $this->getRequest();
+        $params = $request->getQueryParams();
+        $email = isset($params['email']) ? $params['email'] : '';
+        $token = isset($params['token']) ? $params['token'] : '';
+
+        if(empty($email) || empty($token)) {
+            $this->flashMessenger()->addError('Confirm account error - invalid parameters');
+            return new RedirectResponse($this->urlHelper()->generate('login'));
+        }
+
+        try {
+            $errors = $this->userService->confirmAccount($email, $token);
+
+            if(!empty($errors)) {
+                foreach ($errors as $error) {
+                    $this->flashMessenger()->addError($error);
+                }
+                return new RedirectResponse($this->urlHelper()->generate('login'));
+            }
+
+            $this->flashMessenger()->addSuccess('Confirmation success - you may login now');
+            return new RedirectResponse($this->urlHelper()->generate('login'));
+        }
+        catch(\Exception $e) {
+            error_log('Account confirmation exception: ' . $e->getMessage(), E_USER_ERROR);
+            $this->flashMessenger()->addError('Account confirmation error. Please try again');
+            return new RedirectResponse($this->urlHelper()->generate('login'));
+        }
     }
 
     public function accountAction()
