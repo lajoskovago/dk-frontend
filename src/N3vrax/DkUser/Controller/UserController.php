@@ -10,7 +10,9 @@ namespace N3vrax\DkUser\Controller;
 
 use N3vrax\DkBase\Controller\AbstractActionController;
 use N3vrax\DkBase\Session\FlashMessenger;
+use N3vrax\DkUser\DkUser;
 use N3vrax\DkUser\Entity\UserEntityInterface;
+use N3vrax\DkUser\FlashMessagesTrait;
 use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
 use N3vrax\DkUser\Service\UserService;
@@ -24,6 +26,8 @@ use Zend\Form\Form;
 
 class UserController extends AbstractActionController
 {
+    use FlashMessagesTrait;
+
     /** @var  ModuleOptions */
     protected $options;
 
@@ -72,7 +76,10 @@ class UserController extends AbstractActionController
     public function confirmAccountAction()
     {
         if(!$this->registerOptions->isEnableAccountConfirmation()) {
-            $this->flashMessenger()->addError('Account confirmation is disabled');
+            $this->addError($this->options->getMessage(
+                DkUser::MESSAGE_CONFIRM_ACCOUNT_DISABLED),
+                $this->flashMessenger());
+
             return new RedirectResponse($this->urlHelper()->generate('login'));
         }
 
@@ -82,7 +89,10 @@ class UserController extends AbstractActionController
         $token = isset($params['token']) ? $params['token'] : '';
 
         if(empty($email) || empty($token)) {
-            $this->flashMessenger()->addError('Confirm account error - invalid parameters');
+            $this->addError($this->options->getMessage(
+                DkUser::MESSAGE_CONFIRM_ACCOUNT_MISSING_PARAMS),
+                $this->flashMessenger());
+
             return new RedirectResponse($this->urlHelper()->generate('login'));
         }
 
@@ -90,18 +100,23 @@ class UserController extends AbstractActionController
             $errors = $this->userService->confirmAccount($email, $token);
 
             if(!empty($errors)) {
-                foreach ($errors as $error) {
-                    $this->flashMessenger()->addError($error);
-                }
+                $this->addError($errors, $this->flashMessenger());
                 return new RedirectResponse($this->urlHelper()->generate('login'));
             }
 
-            $this->flashMessenger()->addSuccess('Confirmation success - you may login now');
+            $this->addSuccess($this->options->getMessage(
+                DkUser::MESSAGE_CONFIRM_ACCOUNT_SUCCESS),
+                $this->flashMessenger());
+
             return new RedirectResponse($this->urlHelper()->generate('login'));
         }
         catch(\Exception $e) {
             error_log('Account confirmation exception: ' . $e->getMessage(), E_USER_ERROR);
-            $this->flashMessenger()->addError('Account confirmation error. Please try again');
+
+            $this->addError($this->options->getMessage(
+                DkUser::MESSAGE_CONFIRM_ACCOUNT_ERROR),
+                $this->flashMessenger());
+
             return new RedirectResponse($this->urlHelper()->generate('login'));
         }
     }
@@ -179,7 +194,10 @@ class UserController extends AbstractActionController
     public function resetPasswordAction()
     {
         if(!$this->options->isEnablePasswordRecovery()) {
-            $this->flashMessenger()->addError('Password recovery is disabled');
+            $this->addError($this->options->getMessage(
+                DkUser::MESSAGE_RESET_PASSWORD_DISABLED),
+                $this->flashMessenger());
+
             return new RedirectResponse($this->urlHelper()->generate('login'));
         }
 
@@ -189,7 +207,10 @@ class UserController extends AbstractActionController
         $token = isset($params['token']) ? $params['token'] : '';
 
         if(empty($email) || empty($token)) {
-            $this->flashMessenger()->addError('Reset password error - invalid parameters');
+            $this->addError($this->options->getMessage(
+                DkUser::MESSAGE_RESET_PASSWORD_MISSING_PARAMS),
+                $this->flashMessenger());
+
             return new RedirectResponse($this->urlHelper()->generate('login'));
         }
 
@@ -202,19 +223,23 @@ class UserController extends AbstractActionController
                 $errors = $this->userService->resetPassword($email, $token, $data);
 
                 if(!empty($errors)) {
-                    foreach ($errors as $error) {
-                        $this->flashMessenger()->addError($error);
-                    }
+                    $this->addError($errors, $this->flashMessenger());
                     return new RedirectResponse($request->getUri(), 303);
                 }
 
-                $this->flashMessenger()->addSuccess('Password was successfully updated');
+                $this->addSuccess($this->options->getMessage(
+                    DkUser::MESSAGE_RESET_PASSWORD_SUCCESS),
+                    $this->flashMessenger());
+
                 return new RedirectResponse($this->urlHelper()->generate('login'));
             }
             catch(\Exception $e) {
-                error_log('User reset password exception: ' . $e->getMessage(), E_USER_ERROR);
+                error_log('Account reset password exception: ' . $e->getMessage(), E_USER_ERROR);
 
-                $this->flashMessenger()->addError('Reset password error. Please try again');
+                $this->addError($this->options->getMessage(
+                    DkUser::MESSAGE_RESET_PASSWORD_ERROR),
+                    $this->flashMessenger());
+
                 return new RedirectResponse($request->getUri(), 303);
             }
         }
@@ -228,7 +253,10 @@ class UserController extends AbstractActionController
     public function forgotPasswordAction()
     {
         if(!$this->options->isEnablePasswordRecovery()) {
-            $this->flashMessenger()->addError('Password recovery is disabled');
+            $this->addError($this->options->getMessage(
+                DkUser::MESSAGE_RESET_PASSWORD_DISABLED),
+                $this->flashMessenger());
+
             return new RedirectResponse($this->urlHelper()->generate('login'));
         }
 
@@ -239,7 +267,10 @@ class UserController extends AbstractActionController
             $email = isset($data['email']) ? $data['email'] : '';
 
             if(empty($email)) {
-                $this->flashMessenger()->addError('Email is required and cannot be empty');
+                $this->addError($this->options->getMessage(
+                    DkUser::MESSAGE_FORGOT_PASSWORD_MISSING_EMAIL),
+                    $this->flashMessenger());
+
                 return new RedirectResponse($request->getUri(), 303);
             }
 
@@ -247,14 +278,19 @@ class UserController extends AbstractActionController
                 $this->userService->resetPasswordRequest($email);
                 //we don't check if email was found or not, we don't want to give this info as error
 
-                $this->flashMessenger()->addInfo('Reset password request successfully registered');
-                $this->flashMessenger()->addInfo('You\'ll receive an email with further instructions');
+                $this->addInfo($this->options->getMessage(
+                    DkUser::MESSAGE_FORGOT_PASSWORD_SUCCESS),
+                    $this->flashMessenger());
+
                 return new RedirectResponse($this->urlHelper()->generate('login'));
             }
             catch(\Exception $e) {
                 error_log('User reset password request exception: ' . $e->getMessage(), E_USER_ERROR);
 
-                $this->flashMessenger()->addError('Reset password request error. Please try again');
+                $this->addError($this->options->getMessage(
+                    DkUser::MESSAGE_FORGOT_PASSWORD_ERROR),
+                    $this->flashMessenger());
+
                 return new RedirectResponse($request->getUri(), 303);
             }
 

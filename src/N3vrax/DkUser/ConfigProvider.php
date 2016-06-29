@@ -97,15 +97,11 @@ class ConfigProvider
 
                 'zend_db_adapter' => 'database',
 
-                'login_form' => LoginForm::class,
-                'register_form' => RegisterForm::class,
-
                 'login_form_timeout' => 300,
                 'user_form_timeout' => 300,
 
                 'enable_remember_me' => true,
                 'auth_identity_fields' => ['username', 'email'],
-                'allowed_login_statuses' => ['active'],
 
                 'enable_registration' => true,
                 'enable_password_recovery' => true,
@@ -127,7 +123,12 @@ class ConfigProvider
                 'password_cost' => 11,
 
                 'enable_user_status' => true,
+
                 'default_user_status' => 'pending',
+                'active_user_status' => 'active',
+                'not_confirmed_user_status' => 'pending',
+
+                'allowed_login_statuses' => ['active'],
 
             ],
 

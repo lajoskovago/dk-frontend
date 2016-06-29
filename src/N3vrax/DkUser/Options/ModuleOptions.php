@@ -8,11 +8,11 @@
 
 namespace N3vrax\DkUser\Options;
 
+use N3vrax\DkUser\DkUser;
 use N3vrax\DkUser\Entity\UserEntity;
 use N3vrax\DkUser\Entity\UserEntityHydrator;
-use N3vrax\DkUser\Form\LoginForm;
-use N3vrax\DkUser\Form\RegisterForm;
 use Zend\Stdlib\AbstractOptions;
+use Zend\Stdlib\ArrayUtils;
 
 class ModuleOptions extends AbstractOptions
 {
@@ -24,12 +24,6 @@ class ModuleOptions extends AbstractOptions
 
     /** @var  string */
     protected $userEntityHydrator = UserEntityHydrator::class;
-
-    /** @var  string */
-    protected $loginForm = LoginForm::class;
-
-    /** @var  string */
-    protected $registerForm = RegisterForm::class;
 
     /** @var bool  */
     protected $loginAfterRegistration = false;
@@ -48,6 +42,38 @@ class ModuleOptions extends AbstractOptions
 
     /** @var bool  */
     protected $enableUserStatus = true;
+
+    /** @var string  */
+    protected $activeUserStatus = 'active';
+
+    /** @var string  */
+    protected $notConfirmedUserStatus = 'pending';
+    
+    /** @var array  */
+    protected $messages = [
+        DkUser::MESSAGE_CONFIRM_ACCOUNT_DISABLED => 'Account confirmation is disabled',
+        DkUser::MESSAGE_CONFIRM_ACCOUNT_ERROR => 'Account confirmation error. Please try again',
+        DkUser::MESSAGE_CONFIRM_ACCOUNT_INVALID_EMAIL => 'Account confirmation invalid parameters',
+        DkUser::MESSAGE_CONFIRM_ACCOUNT_INVALID_TOKEN => 'Account confirmation invalid parameters',
+        DkUser::MESSAGE_CONFIRM_ACCOUNT_MISSING_PARAMS => 'Account confirmation invalid parameters',
+        DkUser::MESSAGE_CONFIRM_ACCOUNT_INVALID_ACCOUNT => 'Current account status does not allow confirmation',
+        DkUser::MESSAGE_CONFIRM_ACCOUNT_SUCCESS => 'Account successfully confirmed. You may sign in now',
+
+        DkUser::MESSAGE_FORGOT_PASSWORD_ERROR => 'Password reset request error. Please try again',
+        DkUser::MESSAGE_FORGOT_PASSWORD_MISSING_EMAIL => 'Email address is required and cannot be empty',
+        DkUser::MESSAGE_FORGOT_PASSWORD_SUCCESS => [
+            'Password reset request successfully registered',
+            'You\'ll receive in email with further instructions'
+        ],
+
+        DkUser::MESSAGE_RESET_PASSWORD_DISABLED => 'Password recovery is disabled',
+        DkUser::MESSAGE_RESET_PASSWORD_ERROR => 'Password reset error. Please try again',
+        DkUser::MESSAGE_RESET_PASSWORD_INVALID_EMAIL => 'Password reset error. Invalid parameters',
+        DkUser::MESSAGE_RESET_PASSWORD_INVALID_TOKEN => 'Password reset error. Invalid parameters',
+        DkUser::MESSAGE_RESET_PASSWORD_MISSING_PARAMS => 'Password reset error. Invalid parameters',
+        DkUser::MESSAGE_RESET_PASSWORD_TOKEN_EXPIRED => 'Password reset error. Reset token has expired',
+        DkUser::MESSAGE_RESET_PASSWORD_SUCCESS => 'Account password successfully updated',
+    ];
 
     /** @var bool */
     protected $__strictMode__ = false;
@@ -103,42 +129,6 @@ class ModuleOptions extends AbstractOptions
     public function setUserEntityHydrator($userEntityHydrator)
     {
         $this->userEntityHydrator = $userEntityHydrator;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLoginForm()
-    {
-        return $this->loginForm;
-    }
-
-    /**
-     * @param string $loginForm
-     * @return ModuleOptions
-     */
-    public function setLoginForm($loginForm)
-    {
-        $this->loginForm = $loginForm;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRegisterForm()
-    {
-        return $this->registerForm;
-    }
-
-    /**
-     * @param string $registerForm
-     * @return ModuleOptions
-     */
-    public function setRegisterForm($registerForm)
-    {
-        $this->registerForm = $registerForm;
         return $this;
     }
 
@@ -248,6 +238,71 @@ class ModuleOptions extends AbstractOptions
     {
         $this->resetPasswordTokenTimeout = $resetPasswordTokenTimeout;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getActiveUserStatus()
+    {
+        return $this->activeUserStatus;
+    }
+
+    /**
+     * @param string $activeUserStatus
+     * @return ModuleOptions
+     */
+    public function setActiveUserStatus($activeUserStatus)
+    {
+        $this->activeUserStatus = $activeUserStatus;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNotConfirmedUserStatus()
+    {
+        return $this->notConfirmedUserStatus;
+    }
+
+    /**
+     * @param string $notConfirmedUserStatus
+     * @return ModuleOptions
+     */
+    public function setNotConfirmedUserStatus($notConfirmedUserStatus)
+    {
+        $this->notConfirmedUserStatus = $notConfirmedUserStatus;
+        return $this;
+    }
+
+
+
+    /**
+     * @return array
+     */
+    public function getMessages()
+    {
+        return $this->messages;
+    }
+
+    /**
+     * @param array $messages
+     * @return ModuleOptions
+     */
+    public function setMessages($messages)
+    {
+        $this->messages = ArrayUtils::merge($this->messages, $messages, true);
+        return $this;
+    }
+
+    /**
+     * @param $key
+     * @return mixed|string
+     */
+    public function getMessage($key)
+    {
+        return isset($this->messages[$key]) ? $this->messages[$key] : 'Missing message key';
     }
     
     

@@ -9,6 +9,7 @@
 namespace N3vrax\DkUser\Factory;
 
 use Interop\Container\ContainerInterface;
+use N3vrax\DkUser\Form\RegisterForm;
 use N3vrax\DkUser\Form\ResetPasswordForm;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Options\ModuleOptions;
@@ -33,7 +34,7 @@ class UserServiceFactory
             $container->get(UserMapperInterface::class),
             $options,
             $container->get(RegisterOptions::class),
-            $container->get($options->getRegisterForm()),
+            $container->get(RegisterForm::class),
             $container->get(ResetPasswordForm::class),
             $container->get($options->getUserEntityClass()),
             $container->get(PasswordInterface::class)

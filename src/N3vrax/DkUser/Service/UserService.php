@@ -8,6 +8,7 @@
 
 namespace N3vrax\DkUser\Service;
 
+use N3vrax\DkUser\DkUser;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Options\ModuleOptions;
@@ -117,21 +118,30 @@ class UserService
         if($user) {
             $r = $this->userMapper->findConfirmToken($user->getId(), $token);
             if($r) {
-                //if email-token pair found, change user status to active
-                $user->setStatus('active');
+                if($user->getStatus() == $this->options->getActiveUserStatus()) {
+                    return $errors;
+                }
 
-                $this->getEventManager()->trigger(static::EVENT_ACCOUNT_CONFIRM, $this, ['user' => $user]);
+                //if email-token pair found, change user status to active, only if user is on  the unconfirmed status or active
+                if($user->getStatus() == $this->options->getNotConfirmedUserStatus()) {
+                    $user->setStatus($this->options->getActiveUserStatus());
 
-                $this->saveUser($user);
+                    $this->getEventManager()->trigger(static::EVENT_ACCOUNT_CONFIRM, $this, ['user' => $user]);
 
-                $this->getEventManager()->trigger(static::EVENT_ACCOUNT_CONFIRM_POST, $this, ['user' => $user]);
+                    $this->saveUser($user);
+
+                    $this->getEventManager()->trigger(static::EVENT_ACCOUNT_CONFIRM_POST, $this, ['user' => $user]);
+                }
+                else {
+                    $errors[] = $this->options->getMessage(DkUser::MESSAGE_CONFIRM_ACCOUNT_INVALID_ACCOUNT);
+                }
             }
             else {
-                $errors[] = 'Confirm account error - invalid parameters';
+                $errors[] = $this->options->getMessage(DkUser::MESSAGE_CONFIRM_ACCOUNT_INVALID_TOKEN);
             }
         }
         else {
-            $errors[] = 'Confirm account error - invalid parameters';
+            $errors[] = $this->options->getMessage(DkUser::MESSAGE_CONFIRM_ACCOUNT_INVALID_EMAIL);
         }
 
         return $errors;
@@ -189,7 +199,7 @@ class UserService
         $user = $this->userMapper->findUserBy('email', $email);
 
         if(!$user) {
-            $errors[] = 'Reset password error - invalid parameters';
+            $errors[] = $this->options->getMessage(DkUser::MESSAGE_RESET_PASSWORD_INVALID_EMAIL);
         }
         else {
             $r = $this->userMapper->findResetToken($user->getId(), $token);
@@ -227,15 +237,15 @@ class UserService
                         }
                     }
                     else {
-                        $errors[] = 'Reset token expired. Request another password reset';
+                        $errors[] = $this->options->getMessage(DkUser::MESSAGE_RESET_PASSWORD_TOKEN_EXPIRED);
                     }
                 }
                 else {
-                    $errors[] = 'Reset password error - invalid token';
+                    $errors[] = $this->options->getMessage(DkUser::MESSAGE_RESET_PASSWORD_INVALID_TOKEN);
                 }
             }
             else {
-                $errors[] = 'Reset password error - invalid token';
+                $errors[] = $this->options->getMessage(DkUser::MESSAGE_RESET_PASSWORD_INVALID_TOKEN);
             }
         }
 
