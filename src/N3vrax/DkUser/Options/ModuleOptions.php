@@ -85,6 +85,8 @@ class ModuleOptions extends AbstractOptions
         DkUser::MESSAGE_REGISTER_PASSWORD_TOO_SHORT => 'Password must have at least 4 characters',
         DkUser::MESSAGE_REGISTER_EMPTY_PASSWORD_CONFIRM => 'Password confirmation is required',
         DkUser::MESSAGE_REGISTER_PASSWORD_CONFIRM_NOT_MATCH => 'The two passwords do not match',
+        DkUser::MESSAGE_REGISTER_ERROR => 'Registration error. Please try again',
+        DkUser::MESSAGE_REGISTER_SUCCESS => 'Account successfully created',
 
         DkUser::MESSAGE_LOGIN_EMPTY_IDENTITY => 'Identity is required and cannot be empty',
         DkUser::MESSAGE_LOGIN_EMPTY_PASSWORD => 'Password is required and cannot be empty',

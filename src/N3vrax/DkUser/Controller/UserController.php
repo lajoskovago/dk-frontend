@@ -166,7 +166,7 @@ class UserController extends AbstractActionController
             catch(\Exception $e) {
                 error_log('User registration exception: ' . $e->getMessage(), E_USER_ERROR);
 
-                $messenger->addError('Unexpected registration error. Please try again');
+                $this->addError($this->options->getMessage(DkUser::MESSAGE_REGISTER_ERROR), $this->flashMessenger());
                 $messenger->addData('registerFormData', $data);
                 return new RedirectResponse($request->getUri(), 303);
             }
@@ -176,7 +176,7 @@ class UserController extends AbstractActionController
             }
             else
             {
-                $messenger->addSuccess('Account created successfully');
+                $this->addSuccess($this->options->getMessage(DkUser::MESSAGE_REGISTER_SUCCESS), $this->flashMessenger());
                 return new RedirectResponse($this->urlHelper()->generate('login'));
             }
         }
