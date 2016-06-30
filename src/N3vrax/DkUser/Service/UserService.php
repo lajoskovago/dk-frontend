@@ -33,6 +33,9 @@ class UserService
     const EVENT_ACCOUNT_CONFIRM = 'account_confirm';
     const EVENT_ACCOUNT_CONFIRM_POST = 'account_confirm_post';
 
+    const EVENT_CONFIRM_TOKEN = 'confirm_token';
+    const EVENT_CONFIRM_TOKEN_POST = 'confirm_token_post';
+
     /** @var  UserMapperInterface */
     protected $userMapper;
 
@@ -170,8 +173,7 @@ class UserService
                 ['data' => $data]
             );
 
-            $data = (array) $data;
-            $this->userMapper->saveResetToken($data);
+            $this->userMapper->saveResetToken((array) $data);
 
             $this->getEventManager()->trigger(
                 static::EVENT_RESET_PASSWORD_REQUEST_POST,
@@ -302,10 +304,11 @@ class UserService
         $data->userId = $user->getId();
         $data->token = md5(Rand::getString(32) . time() . $user->getEmail());
 
-        $data = (array) $data;
+        $this->getEventManager()->trigger(static::EVENT_CONFIRM_TOKEN, $this, ['data' => $data]);
 
-        //TODO: generate some events probably
-        $this->userMapper->saveConfirmToken($data);
+        $this->userMapper->saveConfirmToken((array) $data);
+
+        $this->getEventManager()->trigger(static::EVENT_CONFIRM_TOKEN_POST, $this, ['data' => $data]);
     }
 
     /**
