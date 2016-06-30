@@ -8,15 +8,19 @@
 
 namespace N3vrax\DkUser\Form\InputFilter;
 
+use N3vrax\DkUser\DkUser;
+use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\InputFilter\InputFilter;
 use Zend\Validator\AbstractValidator;
-use Zend\Validator\Regex;
 
 class RegisterInputFilter extends InputFilter
 {
     use EventManagerAwareTrait;
+
+    /** @var  ModuleOptions */
+    protected $options;
 
     /** @var RegisterOptions  */
     protected $registerOptions;
@@ -27,9 +31,14 @@ class RegisterInputFilter extends InputFilter
     /** @var AbstractValidator */
     protected $usernameValidator;
 
-    public function __construct(RegisterOptions $options, $emailValidator = null, $usernameValidator = null)
+    public function __construct(
+        ModuleOptions $options,
+        RegisterOptions $registerOptions,
+        $emailValidator = null,
+        $usernameValidator = null)
     {
-        $this->registerOptions = $options;
+        $this->options = $options;
+        $this->registerOptions = $registerOptions;
         $this->emailValidator = $emailValidator;
         $this->usernameValidator = $usernameValidator;
         $this->init();
@@ -47,20 +56,22 @@ class RegisterInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => 'Email is required and cannot be empty'
+                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_EMPTY_EMAIL),
                     ]
                 ],
                 [
                     'name' => 'EmailAddress',
                     'options' => [
-                        'message' => 'Email address format is invalid'
+                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_INVALID_EMAIL)
                     ]
                 ],
             ],
         ];
 
         if($this->emailValidator) {
-            $this->emailValidator->setMessage('Email address is already registered');
+            $this->emailValidator->setMessage($this->options->getMessage(
+                DkUser::MESSAGE_REGISTER_EMAIL_ALREADY_REGISTERED));
+
             $email['validators'][] = $this->emailValidator;
         }
 
@@ -76,7 +87,7 @@ class RegisterInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => 'Username is required and cannot be empty'
+                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_EMPTY_USERNAME)
                     ]
                 ],
                 [
@@ -84,21 +95,23 @@ class RegisterInputFilter extends InputFilter
                     'options' => [
                         'min' => 3,
                         'max' => 255,
-                        'message' => 'Username must have at least 3 characters'
+                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_USERNAME_TOO_SHORT)
                     ]
                 ],
                 [
                     'name' => 'Regex',
                     'options' => [
                         'pattern' => '/^[a-zA-Z0-9-_]+$/',
-                        'message' => 'Username must contain only alphanumeric characters'
+                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_USERNAME_INVALID_CHARACTERS)
                     ]
                 ],
             ],
         ];
 
         if($this->usernameValidator) {
-            $this->usernameValidator->setMessage('Username is already registered');
+            $this->usernameValidator->setMessage($this->options->getMessage(
+                DkUser::MESSAGE_REGISTER_USERNAME_ALREADY_REGISTERED));
+
             $username['validators'][] = $this->usernameValidator;
         }
 
@@ -116,14 +129,14 @@ class RegisterInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => 'Password is required and cannot be empty'
+                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_EMPTY_PASSWORD)
                     ]
                 ],
                 [
                     'name'    => 'StringLength',
                     'options' => [
                         'min' => 4,
-                        'message' => 'Password must have at least 4 characters'
+                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_PASSWORD_TOO_SHORT)
                     ],
                 ],
             ],
@@ -139,14 +152,14 @@ class RegisterInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => 'Password confirmation is required'
+                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_EMPTY_PASSWORD_CONFIRM)
                     ]
                 ],
                 [
                     'name'    => 'Identical',
                     'options' => [
                         'token' => 'password',
-                        'message' => 'Password confirmation does not match'
+                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_PASSWORD_CONFIRM_NOT_MATCH)
                     ],
                 ],
             ],

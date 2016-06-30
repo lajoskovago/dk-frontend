@@ -73,6 +73,22 @@ class ModuleOptions extends AbstractOptions
         DkUser::MESSAGE_RESET_PASSWORD_MISSING_PARAMS => 'Password reset error. Invalid parameters',
         DkUser::MESSAGE_RESET_PASSWORD_TOKEN_EXPIRED => 'Password reset error. Reset token has expired',
         DkUser::MESSAGE_RESET_PASSWORD_SUCCESS => 'Account password successfully updated',
+
+        DkUser::MESSAGE_REGISTER_EMPTY_EMAIL => 'Email address is required and cannot be empty',
+        DkUser::MESSAGE_REGISTER_INVALID_EMAIL => 'Email address format is not valid',
+        DkUser::MESSAGE_REGISTER_EMAIL_ALREADY_REGISTERED => 'Email address is already in use',
+        DkUser::MESSAGE_REGISTER_EMPTY_USERNAME => 'Username is required and cannot be empty',
+        DkUser::MESSAGE_REGISTER_USERNAME_TOO_SHORT => 'Username must have at least 4 characters',
+        DkUser::MESSAGE_REGISTER_USERNAME_INVALID_CHARACTERS => 'Username contains invalid characters',
+        DkUser::MESSAGE_REGISTER_USERNAME_ALREADY_REGISTERED => 'Username is already in use',
+        DkUser::MESSAGE_REGISTER_EMPTY_PASSWORD => 'Password is required and cannot be empty',
+        DkUser::MESSAGE_REGISTER_PASSWORD_TOO_SHORT => 'Password must have at least 4 characters',
+        DkUser::MESSAGE_REGISTER_EMPTY_PASSWORD_CONFIRM => 'Password confirmation is required',
+        DkUser::MESSAGE_REGISTER_PASSWORD_CONFIRM_NOT_MATCH => 'The two passwords do not match',
+
+        DkUser::MESSAGE_LOGIN_EMPTY_IDENTITY => 'Identity is required and cannot be empty',
+        DkUser::MESSAGE_LOGIN_EMPTY_PASSWORD => 'Password is required and cannot be empty',
+        DkUser::MESSAGE_LOGIN_PASSWORD_TOO_SHORT => 'Password must have at least 4 characters',
     ];
 
     /** @var bool */

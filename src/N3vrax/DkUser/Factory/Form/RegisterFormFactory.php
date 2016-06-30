@@ -28,6 +28,7 @@ class RegisterFormFactory
         $moduleOptions = $container->get(ModuleOptions::class);
 
         $filter = new RegisterInputFilter(
+            $moduleOptions,
             $registerOptions,
             new NoRecordsExists([
                 'mapper' => $container->get(UserMapperInterface::class),

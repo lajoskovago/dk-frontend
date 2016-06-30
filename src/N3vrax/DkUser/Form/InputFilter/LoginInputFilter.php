@@ -8,7 +8,9 @@
 
 namespace N3vrax\DkUser\Form\InputFilter;
 
+use N3vrax\DkUser\DkUser;
 use N3vrax\DkUser\Options\LoginOptions;
+use N3vrax\DkUser\Options\ModuleOptions;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\InputFilter\InputFilter;
 
@@ -16,12 +18,16 @@ class LoginInputFilter extends InputFilter
 {
     use EventManagerAwareTrait;
 
+    /** @var  ModuleOptions */
+    protected $options;
+
     /** @var  LoginOptions */
     protected $loginOptions;
 
-    public function __construct(LoginOptions $options)
+    public function __construct(ModuleOptions $options, LoginOptions $loginOptions)
     {
-        $this->loginOptions = $options;
+        $this->options = $options;
+        $this->loginOptions = $loginOptions;
         $this->init();
     }
 
@@ -34,7 +40,7 @@ class LoginInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => 'Identity is required and cannot be empty'
+                        'message' => $this->options->getMessage(DkUser::MESSAGE_LOGIN_EMPTY_IDENTITY)
                     ]
                 ]
             ]
@@ -48,14 +54,14 @@ class LoginInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => 'Password is required and cannot be empty'
+                        'message' => $this->options->getMessage(DkUser::MESSAGE_LOGIN_EMPTY_PASSWORD)
                     ]
                 ],
                 [
                     'name' => 'StringLength',
                     'options' => [
                         'min' => 4,
-                        'message' => 'Password must be at least 4 characters'
+                        'message' => $this->options->getMessage(DkUser::MESSAGE_LOGIN_PASSWORD_TOO_SHORT)
                     ]
                 ]
             ],
