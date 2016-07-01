@@ -45,6 +45,8 @@ $configManager = new ConfigManager([
     //needed mainly for the form view helpers
     \Zend\Form\ConfigProvider::class,
 
+    \Zend\Mail\ConfigProvider::class,
+
     new PhpFileProvider(__DIR__ . '/autoload/{{,*.}global,{,*.}local}.php'),
 ], $cachedConfigFile);
 

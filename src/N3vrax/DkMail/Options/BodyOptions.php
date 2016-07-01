@@ -18,6 +18,9 @@ class BodyOptions extends AbstractOptions
     protected $content = '';
 
     protected $charset = MailServiceInterface::DEFAULT_CHARSET;
+    
+    /** @var  TemplateOptions */
+    protected $template;
 
     /**
      * @return boolean
@@ -73,5 +76,24 @@ class BodyOptions extends AbstractOptions
         return $this;
     }
 
+    /**
+     * @return TemplateOptions
+     */
+    public function getTemplate()
+    {
+        return $this->template;
+    }
+
+    /**
+     * @param TemplateOptions $template
+     * @return BodyOptions
+     */
+    public function setTemplate($template)
+    {
+        $this->template = $template;
+        return $this;
+    }
+
+    
 
 }

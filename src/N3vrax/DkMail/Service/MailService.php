@@ -9,21 +9,23 @@
 namespace N3vrax\DkMail\Service;
 
 use N3vrax\DkMail\Event\MailEvent;
+use N3vrax\DkMail\Event\MailListenerAwareInterface;
+use N3vrax\DkMail\Event\MailListenerAwareTrait;
 use N3vrax\DkMail\Exception\InvalidArgumentException;
 use N3vrax\DkMail\Exception\MailException;
 use N3vrax\DkMail\Result\MailResult;
 use N3vrax\DkMail\Result\ResultInterface;
-use Zend\EventManager\EventManagerAwareTrait;
 use Zend\Expressive\Template\TemplateRendererInterface;
 use Zend\Mail\Message;
 use Zend\Mail\Transport\TransportInterface;
 use Zend\Mail\Exception\ExceptionInterface as ZendMailException;
 use Zend\Mime\Mime;
-use Zend\Mime\Part;
+use Zend\Mime\Part as MimePart;
+use Zend\Mime\Message as MimeMessage;
 
-class MailService implements MailServiceInterface
+class MailService implements MailServiceInterface, MailListenerAwareInterface
 {
-    use EventManagerAwareTrait;
+    use MailListenerAwareTrait;
 
     /** @var  Message */
     protected $message;
@@ -37,7 +39,10 @@ class MailService implements MailServiceInterface
     /** @var array  */
     protected $attachments = [];
 
-    public function __construct(Message $message , TransportInterface $transport, TemplateRendererInterface $template)
+    public function __construct(
+        Message $message ,
+        TransportInterface $transport,
+        TemplateRendererInterface $template)
     {
         $this->message = $message;
         $this->transport = $transport;
@@ -94,24 +99,24 @@ class MailService implements MailServiceInterface
     {
         if(is_string($body)) {
             //create a mime\part and wrap it into a mime\message
-            $mimePart = new Part($body);
+            $mimePart = new MimePart($body);
             $mimePart->type = $body != strip_tags($body) ? Mime::TYPE_HTML : Mime::TYPE_TEXT;
             $mimePart->charset = $charset ?: self::DEFAULT_CHARSET;
-            $body = new \Zend\Mime\Message();
+            $body = new MimeMessage();
             $body->setParts([$mimePart]);
         }
-        elseif($body instanceof Part) {
+        elseif($body instanceof MimePart) {
             if(isset($charset)) {
                 $body->charset = $charset;
             }
 
-            $mimeMessage = new \Zend\Mime\Message();
+            $mimeMessage = new MimeMessage();
             $mimeMessage->setParts([$body]);
             $body = $mimeMessage;
         }
 
         //if the body is not a string or mime message at this point, it is not a valid argument
-        if(!is_string($body) && !$body instanceof \Zend\Mime\Message) {
+        if(!is_string($body) && !$body instanceof MimeMessage) {
             throw new InvalidArgumentException(sprintf(
                 'Provided body is not valid. It should be one of "%s". %s provided',
                 implode('", "', ['string', 'Zend\Mime\Part', 'Zend\Mime\Message']),
@@ -174,7 +179,7 @@ class MailService implements MailServiceInterface
 
         $mimeMessage = $this->message->getBody();
         if(is_string($mimeMessage)) {
-            $originalBodyPart = new Part($mimeMessage);
+            $originalBodyPart = new MimePart($mimeMessage);
             $originalBodyPart->type = $mimeMessage != strip_tags($mimeMessage)
                 ? Mime::TYPE_HTML
                 : Mime::TYPE_TEXT;
@@ -195,7 +200,7 @@ class MailService implements MailServiceInterface
 
             $basename = is_string($key) ? $key : basename($attachment);
 
-            $part = new Part(fopen($attachment, 'r'));
+            $part = new MimePart(fopen($attachment, 'r'));
             $part->id = $basename;
             $part->filename = $basename;
             $part->type = $info->file($attachment);
@@ -204,7 +209,7 @@ class MailService implements MailServiceInterface
             $attachmentParts[] = $part;
         }
 
-        $body = new \Zend\Mime\Message();
+        $body = new MimeMessage();
         $body->setParts(array_merge($oldParts, $attachmentParts));
         $this->message->setBody($body);
     }
