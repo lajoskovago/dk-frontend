@@ -16,8 +16,10 @@ class AttachmentsOptions extends AbstractOptions
     const DEFAULT_PATH = 'data/mail/attachments';
     const DEFAULT_RECURSIVE = false;
 
+    /** @var array  */
     protected $files = [];
 
+    /** @var array  */
     protected $dir = [
         'iterate' => self::DEFAULT_ITERATE,
         'path' => self::DEFAULT_PATH,

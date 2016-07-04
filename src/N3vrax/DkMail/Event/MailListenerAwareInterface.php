@@ -10,7 +10,7 @@ namespace N3vrax\DkMail\Event;
 
 interface MailListenerAwareInterface
 {
-    public function attachMailListener(MailListenerInterface $listener);
+    public function attachMailListener(MailListenerInterface $listener, $priority = 1);
 
     public function detachMailListener(MailListenerInterface $listener);
 

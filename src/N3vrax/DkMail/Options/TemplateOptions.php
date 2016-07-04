@@ -10,8 +10,10 @@ namespace N3vrax\DkMail\Options;
 
 class TemplateOptions
 {
+    /** @var array  */
     protected $params = [];
 
+    /** @var  string */
     protected $name;
 
     /**

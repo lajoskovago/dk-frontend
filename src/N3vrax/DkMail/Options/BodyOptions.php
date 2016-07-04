@@ -8,6 +8,7 @@
 
 namespace N3vrax\DkMail\Options;
 
+use N3vrax\DkMail\Exception\InvalidArgumentException;
 use N3vrax\DkMail\Service\MailServiceInterface;
 use Zend\Stdlib\AbstractOptions;
 
@@ -36,7 +37,7 @@ class BodyOptions extends AbstractOptions
      */
     public function setUseTemplate($useTemplate)
     {
-        $this->useTemplate = $useTemplate;
+        $this->useTemplate = (bool) $useTemplate;
         return $this;
     }
 
@@ -81,16 +82,31 @@ class BodyOptions extends AbstractOptions
      */
     public function getTemplate()
     {
+        if(!isset($this->template)) {
+            $this->setTemplate([]);
+        }
         return $this->template;
     }
 
     /**
-     * @param TemplateOptions $template
+     * @param TemplateOptions|array $template
      * @return BodyOptions
      */
     public function setTemplate($template)
     {
-        $this->template = $template;
+        if (is_array($template)) {
+            $this->template = new TemplateOptions($template);
+        }
+        elseif ($template instanceof TemplateOptions) {
+            $this->template = $template;
+        }
+        else {
+            throw new InvalidArgumentException(sprintf(
+                'Template should be an array or an %s object. %s provided.',
+                TemplateOptions::class,
+                is_object($template) ? get_class($template) : gettype($template)
+            ));
+        }
         return $this;
     }
 

@@ -17,10 +17,10 @@ trait MailListenerAwareTrait
     /** @var MailListenerInterface[] */
     protected $listeners = [];
 
-    public function attachMailListener(MailListenerInterface $listener)
+    public function attachMailListener(MailListenerInterface $listener, $priority = 1)
     {
 
-        $listener->attach($this->getEventManager());
+        $listener->attach($this->getEventManager(), $priority);
         $this->listeners[] = $listener;
         return $this;
     }

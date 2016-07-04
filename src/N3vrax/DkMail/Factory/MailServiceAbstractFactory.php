@@ -14,6 +14,7 @@ use N3vrax\DkMail\Event\MailListenerInterface;
 use N3vrax\DkMail\Exception\InvalidArgumentException;
 use N3vrax\DkMail\Options\MailOptions;
 use N3vrax\DkMail\Service\MailService;
+use Zend\EventManager\EventManagerInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 use Zend\Mail\Message;
 use Zend\Mail\Transport\File;
@@ -35,10 +36,18 @@ class MailServiceAbstractFactory extends AbstractMailFactory
         ));
 
         $template = $container->get(TemplateRendererInterface::class);
+
         $message = $this->createMessage();
         $transport = $this->createTransport($container);
 
         $mailService = new MailService($message, $transport, $template);
+
+        $eventManager = $container->has(EventManagerInterface::class)
+            ? $container->get(EventManagerInterface::class)
+            : null;
+
+        if($eventManager)
+            $mailService->setEventManager($eventManager);
 
         //set subject
         $mailService->setSubject($this->mailOptions->getMessageOptions()->getSubject());
@@ -116,7 +125,7 @@ class MailServiceAbstractFactory extends AbstractMailFactory
 
     protected function createTransport(ContainerInterface $container)
     {
-        $adapter = $this->mailOptions->getMailAdapter();
+        $adapter = $this->mailOptions->getTransport();
         if($adapter instanceof TransportInterface) {
             return $this->setupTransportConfig($adapter);
         }
