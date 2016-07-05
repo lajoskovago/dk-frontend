@@ -42,9 +42,10 @@
         "zendframework/zend-crypt": "^3.0",
         "zendframework/zend-captcha": "^2.6",
         "zendframework/zend-text": "^2.6",
-        "zendframework/zendservice-recaptcha": "^2.0",
         "zendframework/zend-code": "3.0.2",
         "zendframework/zend-mail": "^2.7",
+
+        "zendframework/zendservice-recaptcha": "^2.0",
 
         "mtymek/expressive-config-manager": "^0.4",
 
@@ -64,7 +65,8 @@
     "autoload": {
         "psr-4": {
             "Frontend\\": "src/Frontend/",
-            "N3vrax\\DkUser\\": "src/N3vrax/DkUser/"
+            "N3vrax\\DkUser\\": "src/N3vrax/DkUser/",
+            "N3vrax\\DkMail\\": "src/N3vrax/DkMail/"
         }
     },
     "autoload-dev": {

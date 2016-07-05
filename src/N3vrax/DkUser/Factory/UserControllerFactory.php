@@ -16,6 +16,7 @@ use N3vrax\DkUser\Form\ResetPasswordForm;
 use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
 use N3vrax\DkUser\Service\UserService;
+use N3vrax\DkUser\Service\UserServiceInterface;
 use N3vrax\DkWebAuthentication\Action\LoginAction;
 
 class UserControllerFactory
@@ -24,7 +25,7 @@ class UserControllerFactory
     {
         /** @var ModuleOptions $options */
         $options = $container->get(ModuleOptions::class);
-        $userService = $container->get(UserService::class);
+        $userService = $container->get(UserServiceInterface::class);
 
         $controller = new UserController(
             $userService,

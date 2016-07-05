@@ -17,7 +17,7 @@ use Zend\EventManager\EventManagerAwareTrait;
 use Zend\Form\Form;
 use Zend\Math\Rand;
 
-class UserService
+class UserService implements UserServiceInterface
 {
     use EventManagerAwareTrait;
 
@@ -57,7 +57,16 @@ class UserService
     /** @var  PasswordInterface */
     protected $passwordService;
 
-
+    /**
+     * UserService constructor.
+     * @param UserMapperInterface $userMapper
+     * @param ModuleOptions $options
+     * @param RegisterOptions $registerOptions
+     * @param Form $registerForm
+     * @param Form $resetPasswordForm
+     * @param UserEntityInterface $userEntityPrototype
+     * @param PasswordInterface $passwordService
+     */
     public function __construct(
         UserMapperInterface $userMapper,
         ModuleOptions $options,
@@ -78,41 +87,89 @@ class UserService
 
     }
 
+    /**
+     * Find user by its id
+     *
+     * @param $id
+     * @return mixed
+     */
     public function findUser($id)
     {
         return $this->userMapper->findUser($id);
     }
 
+    /**
+     * Get a user entity by some given field and value
+     *
+     * @param $field
+     * @param $value
+     * @return mixed
+     */
     public function findUserBy($field, $value)
     {
         return $this->userMapper->findUserBy($field, $value);
     }
 
+    /**
+     * Gets all users from the backend
+     *
+     * @param array $filters
+     * @return mixed
+     */
     public function findAllUsers(array $filters = [])
     {
         return $this->userMapper->findAllUsers($filters);
     }
 
+    /**
+     * Return a paginated list of users based on some filters
+     *
+     * @param array $filters
+     */
     public function findAllUsersPaginated(array $filters = [])
     {
 
     }
 
+    /**
+     * Save user is working as in create/update user, based on the presence of user id in the data
+     *
+     * @param $data
+     * @return mixed
+     */
     public function saveUser($data)
     {
         return $this->userMapper->saveUser($data);
     }
 
+    /**
+     * Remove an user based on its id
+     *
+     * @param $id
+     * @return mixed
+     */
     public function removeUser($id)
     {
         return $this->userMapper->removeUser($id);
     }
-    
+
+    /**
+     * Get the last id generated
+     *
+     * @return mixed
+     */
     public function getLastInsertValue()
     {
         return $this->userMapper->lastInsertValue();
     }
 
+    /**
+     * Change user status from unconfirmed to active based on an email and valid confirmation token
+     *
+     * @param $email
+     * @param $token
+     * @return array
+     */
     public function confirmAccount($email, $token)
     {
         $errors = [];

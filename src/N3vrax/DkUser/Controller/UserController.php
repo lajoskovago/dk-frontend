@@ -10,12 +10,14 @@ namespace N3vrax\DkUser\Controller;
 
 use N3vrax\DkBase\Controller\AbstractActionController;
 use N3vrax\DkBase\Session\FlashMessenger;
+use N3vrax\DkMail\Service\MailServiceInterface;
 use N3vrax\DkUser\DkUser;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\FlashMessagesTrait;
 use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
 use N3vrax\DkUser\Service\UserService;
+use N3vrax\DkUser\Service\UserServiceInterface;
 use N3vrax\DkWebAuthentication\Action\LoginAction;
 use N3vrax\DkWebAuthentication\Event\AuthenticationEvent;
 use Zend\Diactoros\Response\HtmlResponse;
@@ -46,11 +48,11 @@ class UserController extends AbstractActionController
     /** @var  Form */
     protected $registerForm;
 
-    /** @var  UserService */
+    /** @var  UserServiceInterface */
     protected $userService;
 
     public function __construct(
-        UserService $userService,
+        UserServiceInterface $userService,
         LoginAction $loginAction,
         ModuleOptions $options,
         RegisterOptions $registerOptions,
@@ -123,7 +125,10 @@ class UserController extends AbstractActionController
 
     public function accountAction()
     {
-        
+        /** @var MailServiceInterface $mailService */
+        $mailService = $this->sendMail();
+        $mailService->setBody('This is a test');
+        $mailService->getMessage()->setTo('n3vrax@gmail.com');
     }
 
     public function registerAction()

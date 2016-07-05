@@ -13,7 +13,7 @@ use Zend\ServiceManager\Factory\AbstractFactoryInterface;
 
 abstract class AbstractMailFactory implements AbstractFactoryInterface
 {
-    const DKMAIL_PART = 'dk_mail';
+    const DKMAIL_PART = 'dkmail';
     const SPECIFIC_PART = '';
 
     public function canCreate(ContainerInterface $container, $requestedName)

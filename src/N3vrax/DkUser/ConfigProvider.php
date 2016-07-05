@@ -36,6 +36,7 @@ use N3vrax\DkUser\Options\RegisterOptions;
 use N3vrax\DkUser\Options\TableOptions;
 use N3vrax\DkUser\Service\PasswordInterface;
 use N3vrax\DkUser\Service\UserService;
+use N3vrax\DkUser\Service\UserServiceInterface;
 use N3vrax\DkUser\Twig\FormElementExtension;
 use Zend\ServiceManager\Factory\InvokableFactory;
 
@@ -53,7 +54,7 @@ class ConfigProvider
                     TableOptions::class => TableOptionsFactory::class,
 
                     UserMapperInterface::class => UserDbMapperFactory::class,
-                    UserService::class => UserServiceFactory::class,
+                    UserServiceInterface::class => UserServiceFactory::class,
 
                     UserController::class => UserControllerFactory::class,
 

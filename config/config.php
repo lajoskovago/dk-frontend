@@ -20,6 +20,7 @@ $configManager = new ConfigManager([
     \N3vrax\DkRbacGuard\ConfigProvider::class,
     \N3vrax\DkNavigation\ConfigProvider::class,
     \N3vrax\DkUser\ConfigProvider::class,
+    \N3vrax\DkMail\ConfigProvider::class,
     
 
     //*************************************
