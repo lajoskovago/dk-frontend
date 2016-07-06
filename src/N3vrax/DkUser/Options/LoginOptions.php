@@ -9,9 +9,14 @@
 namespace N3vrax\DkUser\Options;
 
 use Zend\Stdlib\AbstractOptions;
+use Zend\Stdlib\ArrayUtils;
 
 class LoginOptions extends AbstractOptions
 {
+    const MESSAGE_LOGIN_EMPTY_IDENTITY = 1;
+    const MESSAGE_LOGIN_EMPTY_PASSWORD = 2;
+    const MESSAGE_LOGIN_PASSWORD_TOO_SHORT = 3;
+
     /** @var bool  */
     protected $enableRememberMe = true;
 
@@ -22,10 +27,14 @@ class LoginOptions extends AbstractOptions
     protected $allowedLoginStatuses;
 
     /** @var int  */
-    protected $loginFormTimeout = 300;
+    protected $loginFormTimeout = 1800;
 
-    /** @var bool  */
-    protected $__strictMode__ = false;
+    /** @var array  */
+    protected $messages = [
+        LoginOptions::MESSAGE_LOGIN_EMPTY_IDENTITY => 'Identity is required and cannot be empty',
+        LoginOptions::MESSAGE_LOGIN_EMPTY_PASSWORD => 'Password is required and cannot be empty',
+        LoginOptions::MESSAGE_LOGIN_PASSWORD_TOO_SHORT => 'Password must have at least 4 characters',
+    ];
 
     /**
      * @return boolean
@@ -99,6 +108,30 @@ class LoginOptions extends AbstractOptions
         return $this;
     }
 
-    
+    /**
+     * @return array
+     */
+    public function getMessages()
+    {
+        return $this->messages;
+    }
 
+    /**
+     * @param array $messages
+     * @return LoginOptions
+     */
+    public function setMessages($messages)
+    {
+        $this->messages = ArrayUtils::merge($this->messages, $messages, true);
+        return $this;
+    }
+
+    /**
+     * @param $key
+     * @return mixed|string
+     */
+    public function getMessage($key)
+    {
+        return isset($this->messages[$key]) ? $this->messages[$key] : 'Unknown message';
+    }
 }

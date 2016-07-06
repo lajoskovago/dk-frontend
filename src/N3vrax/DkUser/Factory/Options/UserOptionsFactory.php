@@ -10,11 +10,12 @@ namespace N3vrax\DkUser\Factory\Options;
 
 use Interop\Container\ContainerInterface;
 use N3vrax\DkUser\Options\ModuleOptions;
+use N3vrax\DkUser\Options\UserOptions;
 
-class ModuleOptionsFactory
+class UserOptionsFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        return new ModuleOptions($container->get('config')['dk_user']);
+        return new UserOptions($container->get('config')['dk_user']);
     }
 }

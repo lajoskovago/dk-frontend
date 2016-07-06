@@ -2,21 +2,45 @@
 /**
  * Created by PhpStorm.
  * User: n3vrax
- * Date: 6/27/2016
- * Time: 5:28 PM
+ * Date: 7/6/2016
+ * Time: 7:39 PM
  */
 
 namespace N3vrax\DkUser\Options;
 
 use Zend\Stdlib\AbstractOptions;
 
-class TableOptions extends AbstractOptions
+class DbOptions extends AbstractOptions
 {
-    protected $userTable = 'user';
+    /** @var  string */
+    protected $dbAdapter;
 
-    protected $userResetTokenTable = 'user_reset_token';
+    /** @var  string */
+    protected $userTable;
 
-    protected $userConfirmTokenTable = 'user_confirm_token';
+    /** @var  string */
+    protected $userResetTokenTable;
+
+    /** @var  string */
+    protected $userConfirmTokenTable;
+
+    /**
+     * @return string
+     */
+    public function getDbAdapter()
+    {
+        return $this->dbAdapter;
+    }
+
+    /**
+     * @param string $dbAdapter
+     * @return DbOptions
+     */
+    public function setDbAdapter($dbAdapter)
+    {
+        $this->dbAdapter = $dbAdapter;
+        return $this;
+    }
 
     /**
      * @return string
@@ -28,7 +52,7 @@ class TableOptions extends AbstractOptions
 
     /**
      * @param string $userTable
-     * @return TableOptions
+     * @return DbOptions
      */
     public function setUserTable($userTable)
     {
@@ -46,7 +70,7 @@ class TableOptions extends AbstractOptions
 
     /**
      * @param string $userResetTokenTable
-     * @return TableOptions
+     * @return DbOptions
      */
     public function setUserResetTokenTable($userResetTokenTable)
     {
@@ -64,14 +88,12 @@ class TableOptions extends AbstractOptions
 
     /**
      * @param string $userConfirmTokenTable
-     * @return TableOptions
+     * @return DbOptions
      */
     public function setUserConfirmTokenTable($userConfirmTokenTable)
     {
         $this->userConfirmTokenTable = $userConfirmTokenTable;
         return $this;
     }
-
-    
     
 }

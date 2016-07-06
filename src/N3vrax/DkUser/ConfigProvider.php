@@ -20,6 +20,7 @@ use N3vrax\DkUser\Factory\Options\LoginOptionsFactory;
 use N3vrax\DkUser\Factory\Options\ModuleOptionsFactory;
 use N3vrax\DkUser\Factory\Options\RegisterOptionsFactory;
 use N3vrax\DkUser\Factory\Options\TableOptionsFactory;
+use N3vrax\DkUser\Factory\Options\UserOptionsFactory;
 use N3vrax\DkUser\Factory\PasswordDefaultFactory;
 use N3vrax\DkUser\Factory\UserControllerFactory;
 use N3vrax\DkUser\Factory\UserDbMapperFactory;
@@ -34,6 +35,7 @@ use N3vrax\DkUser\Options\LoginOptions;
 use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
 use N3vrax\DkUser\Options\TableOptions;
+use N3vrax\DkUser\Options\UserOptions;
 use N3vrax\DkUser\Service\PasswordInterface;
 use N3vrax\DkUser\Service\UserService;
 use N3vrax\DkUser\Service\UserServiceInterface;
@@ -48,10 +50,7 @@ class ConfigProvider
 
             'dependencies' => [
                 'factories' => [
-                    ModuleOptions::class => ModuleOptionsFactory::class,
-                    LoginOptions::class => LoginOptionsFactory::class,
-                    RegisterOptions::class => RegisterOptionsFactory::class,
-                    TableOptions::class => TableOptionsFactory::class,
+                    UserOptions::class => UserOptionsFactory::class,
 
                     UserMapperInterface::class => UserDbMapperFactory::class,
                     UserServiceInterface::class => UserServiceFactory::class,

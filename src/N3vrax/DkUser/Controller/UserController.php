@@ -11,12 +11,11 @@ namespace N3vrax\DkUser\Controller;
 use N3vrax\DkBase\Controller\AbstractActionController;
 use N3vrax\DkBase\Session\FlashMessenger;
 use N3vrax\DkMail\Service\MailServiceInterface;
-use N3vrax\DkUser\DkUser;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\FlashMessagesTrait;
-use N3vrax\DkUser\Options\ModuleOptions;
-use N3vrax\DkUser\Options\RegisterOptions;
-use N3vrax\DkUser\Service\UserService;
+use N3vrax\DkUser\Options\ConfirmAccountOptions;
+use N3vrax\DkUser\Options\UserOptions;
+use N3vrax\DkUser\Result\ResultInterface;
 use N3vrax\DkUser\Service\UserServiceInterface;
 use N3vrax\DkWebAuthentication\Action\LoginAction;
 use N3vrax\DkWebAuthentication\Event\AuthenticationEvent;
@@ -30,11 +29,8 @@ class UserController extends AbstractActionController
 {
     use FlashMessagesTrait;
 
-    /** @var  ModuleOptions */
+    /** @var  UserOptions */
     protected $options;
-
-    /** @var  RegisterOptions */
-    protected $registerOptions;
 
     /** @var  Form */
     protected $loginForm;
@@ -54,8 +50,7 @@ class UserController extends AbstractActionController
     public function __construct(
         UserServiceInterface $userService,
         LoginAction $loginAction,
-        ModuleOptions $options,
-        RegisterOptions $registerOptions,
+        UserOptions $options,
         Form $loginForm,
         Form $registerForm,
         Form $resetPasswordForm
@@ -67,7 +62,6 @@ class UserController extends AbstractActionController
         $this->loginAction = $loginAction;
         $this->loginForm = $loginForm;
         $this->resetPasswordForm = $resetPasswordForm;
-        $this->registerOptions = $registerOptions;
     }
 
     public function indexAction()
@@ -77,9 +71,9 @@ class UserController extends AbstractActionController
 
     public function confirmAccountAction()
     {
-        if(!$this->registerOptions->isEnableAccountConfirmation()) {
-            $this->addError($this->options->getMessage(
-                DkUser::MESSAGE_CONFIRM_ACCOUNT_DISABLED),
+        if(!$this->options->getConfirmAccountOptions()->isEnableAccountConfirmation()) {
+            $this->addError($this->options->getConfirmAccountOptions()->getMessage(
+                ConfirmAccountOptions::MESSAGE_CONFIRM_ACCOUNT_DISABLED),
                 $this->flashMessenger());
 
             return new RedirectResponse($this->urlHelper()->generate('login'));
@@ -87,40 +81,23 @@ class UserController extends AbstractActionController
 
         $request = $this->getRequest();
         $params = $request->getQueryParams();
+
         $email = isset($params['email']) ? $params['email'] : '';
         $token = isset($params['token']) ? $params['token'] : '';
 
-        if(empty($email) || empty($token)) {
-            $this->addError($this->options->getMessage(
-                DkUser::MESSAGE_CONFIRM_ACCOUNT_MISSING_PARAMS),
-                $this->flashMessenger());
-
-            return new RedirectResponse($this->urlHelper()->generate('login'));
-        }
-
-        try {
-            $errors = $this->userService->confirmAccount($email, $token);
-
-            if(!empty($errors)) {
-                $this->addError($errors, $this->flashMessenger());
-                return new RedirectResponse($this->urlHelper()->generate('login'));
+        /** @var ResultInterface $result */
+        $result = $this->userService->confirmAccount($email, $token);
+        if(!$result->isValid()) {
+            $this->addError($result->getMessages(), $this->flashMessenger());
+            if($result->hasException()) {
+                trigger_error("Account confirmation error: " . $result->getException()->getMessage(), E_USER_ERROR);
             }
-
-            $this->addSuccess($this->options->getMessage(
-                DkUser::MESSAGE_CONFIRM_ACCOUNT_SUCCESS),
-                $this->flashMessenger());
-
-            return new RedirectResponse($this->urlHelper()->generate('login'));
         }
-        catch(\Exception $e) {
-            error_log('Account confirmation exception: ' . $e->getMessage(), E_USER_ERROR);
-
-            $this->addError($this->options->getMessage(
-                DkUser::MESSAGE_CONFIRM_ACCOUNT_ERROR),
-                $this->flashMessenger());
-
-            return new RedirectResponse($this->urlHelper()->generate('login'));
+        else {
+            $this->addSuccess($result->getMessages(), $this->flashMessenger());
         }
+
+        return new RedirectResponse($this->urlHelper()->generate('login'));
     }
 
     public function accountAction()
@@ -135,7 +112,7 @@ class UserController extends AbstractActionController
     {
         $request = $this->getRequest();
 
-        if(!$this->options->isEnableRegistration()) {
+        if(!$this->options->getRegisterOptions()->isEnableRegistration()) {
             return new HtmlResponse(
                 $this->template()->render('dk-user::register',
                     ['enableRegistration' => false]));
