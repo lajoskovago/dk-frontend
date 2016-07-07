@@ -11,6 +11,7 @@ namespace N3vrax\DkUser\Service;
 use N3vrax\DkUser\DkUser;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Event\ConfirmAccountEvent;
+use N3vrax\DkUser\Event\RegisterEvent;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Options\ConfirmAccountOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
@@ -340,6 +341,8 @@ class UserService implements UserServiceInterface
         $result = new RegisterResult(true, $this->options->getRegisterOptions()
             ->getMessage(RegisterOptions::MESSAGE_REGISTER_SUCCESS));
 
+        $user = null;
+
         $form = $this->registerForm;
         $form->bind($this->userEntityPrototype);
         $form->setData($data);
@@ -354,32 +357,51 @@ class UserService implements UserServiceInterface
             $result = $this->createRegisterResultWithMessages($messages);
         }
         else {
-            /** @var UserEntityInterface $user */
-            $user = $form->getData();
+            try{
+                /** @var UserEntityInterface $user */
+                $user = $form->getData();
 
-            $user->setPassword($this->passwordService->create($user->getPassword()));
-            if($this->options->isEnableUserStatus()) {
-                $user->setStatus($this->options->getRegisterOptions()->getDefaultUserStatus());
+                $user->setPassword($this->passwordService->create($user->getPassword()));
+                if($this->options->isEnableUserStatus()) {
+                    $user->setStatus($this->options->getRegisterOptions()->getDefaultUserStatus());
+                }
+
+                //trigger pre register event
+                $this->getEventManager()->triggerEvent(
+                    $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_PRE));
+
+                $this->saveUser($user);
+                //get newly created user id and save it to the object
+                $id = $this->userMapper->lastInsertValue();
+                if($id) {
+                    $user->setId($id);
+                }
+
+                if($this->options->getConfirmAccountOptions()->isEnableAccountConfirmation()) {
+                    $this->generateConfirmToken($user);
+                }
+
+                //trigger post register event
+                $this->getEventManager()->triggerEvent(
+                    $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_POST));
+
+                $result->setUser($user);
             }
-
-            $this->getEventManager()->trigger($this->createRegisterEvent());
-
-            $this->saveUser($user);
-            $id = $this->userMapper->lastInsertValue();
-            if($id) {
-                $user->setId($id);
+            catch(\Exception $e) {
+                $result = $this->createRegisterResultWithException($e);
+                //trigger error event
+                $this->getEventManager()->triggerEvent(
+                    $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_ERROR, $result));
             }
-
-            if($this->registerOptions->isEnableAccountConfirmation()) {
-                $this->generateConfirmToken($user);
-            }
-
-            $this->getEventManager()->trigger(static::EVENT_REGISTER_POST, $this,
-                ['user' => $user, 'form' => $form]);
-
-            return $user;
         }
 
+        //if no exception but still some validation errors, trigger the error event
+        if(!$result->isValid()) {
+            $this->getEventManager()->triggerEvent(
+                $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_ERROR, $result));
+        }
+
+        return $result;
 
     }
 
@@ -541,9 +563,22 @@ class UserService implements UserServiceInterface
         return $event;
     }
 
-    protected function createRegisterEvent()
+    protected function createRegisterEvent(
+        UserEntityInterface $user = null,
+        Form $registerForm = null,
+        $name = RegisterEvent::EVENT_REGISTER_PRE,
+        ResultInterface $result = null
+    )
     {
+        $event = new RegisterEvent($this, $user, $name);
+        if($registerForm) {
+            $event->setRegisterForm($registerForm);
+        }
+        if($result) {
+            $event->setResult($result);
+        }
 
+        return $event;
     }
     
 }

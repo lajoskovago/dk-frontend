@@ -9,14 +9,14 @@
 namespace N3vrax\DkUser\Service;
 
 
-use N3vrax\DkUser\Options\ModuleOptions;
+use N3vrax\DkUser\Options\UserOptions;
 
 class PasswordDefault implements PasswordInterface
 {
-    /** @var  ModuleOptions */
+    /** @var  UserOptions */
     protected $options;
 
-    public function __construct(ModuleOptions $options)
+    public function __construct(UserOptions $options)
     {
         $this->options = $options;
     }

@@ -11,6 +11,7 @@ namespace N3vrax\DkUser\Form\InputFilter;
 use N3vrax\DkUser\DkUser;
 use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
+use N3vrax\DkUser\Options\UserOptions;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\InputFilter\InputFilter;
 use Zend\Validator\AbstractValidator;
@@ -19,11 +20,8 @@ class RegisterInputFilter extends InputFilter
 {
     use EventManagerAwareTrait;
 
-    /** @var  ModuleOptions */
+    /** @var  UserOptions */
     protected $options;
-
-    /** @var RegisterOptions  */
-    protected $registerOptions;
 
     /** @var AbstractValidator */
     protected $emailValidator;
@@ -32,13 +30,11 @@ class RegisterInputFilter extends InputFilter
     protected $usernameValidator;
 
     public function __construct(
-        ModuleOptions $options,
-        RegisterOptions $registerOptions,
+        UserOptions $options,
         $emailValidator = null,
         $usernameValidator = null)
     {
         $this->options = $options;
-        $this->registerOptions = $registerOptions;
         $this->emailValidator = $emailValidator;
         $this->usernameValidator = $usernameValidator;
         $this->init();
@@ -56,21 +52,23 @@ class RegisterInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_EMPTY_EMAIL),
+                        'message' => $this->options->getRegisterOptions()
+                            ->getMessage(RegisterOptions::MESSAGE_REGISTER_EMPTY_EMAIL),
                     ]
                 ],
                 [
                     'name' => 'EmailAddress',
                     'options' => [
-                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_INVALID_EMAIL)
+                        'message' => $this->options->getRegisterOptions()
+                            ->getMessage(RegisterOptions::MESSAGE_REGISTER_INVALID_EMAIL)
                     ]
                 ],
             ],
         ];
 
         if($this->emailValidator) {
-            $this->emailValidator->setMessage($this->options->getMessage(
-                DkUser::MESSAGE_REGISTER_EMAIL_ALREADY_REGISTERED));
+            $this->emailValidator->setMessage($this->options->getRegisterOptions()
+                ->getMessage(RegisterOptions::MESSAGE_REGISTER_EMAIL_ALREADY_REGISTERED));
 
             $email['validators'][] = $this->emailValidator;
         }
@@ -87,7 +85,8 @@ class RegisterInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_EMPTY_USERNAME)
+                        'message' => $this->options->getRegisterOptions()
+                            ->getMessage(RegisterOptions::MESSAGE_REGISTER_EMPTY_USERNAME)
                     ]
                 ],
                 [
@@ -95,27 +94,29 @@ class RegisterInputFilter extends InputFilter
                     'options' => [
                         'min' => 3,
                         'max' => 255,
-                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_USERNAME_TOO_SHORT)
+                        'message' => $this->options->getRegisterOptions()
+                            ->getMessage(RegisterOptions::MESSAGE_REGISTER_USERNAME_TOO_SHORT)
                     ]
                 ],
                 [
                     'name' => 'Regex',
                     'options' => [
                         'pattern' => '/^[a-zA-Z0-9-_]+$/',
-                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_USERNAME_INVALID_CHARACTERS)
+                        'message' => $this->options->getRegisterOptions()
+                            ->getMessage(RegisterOptions::MESSAGE_REGISTER_USERNAME_INVALID_CHARACTERS)
                     ]
                 ],
             ],
         ];
 
         if($this->usernameValidator) {
-            $this->usernameValidator->setMessage($this->options->getMessage(
-                DkUser::MESSAGE_REGISTER_USERNAME_ALREADY_REGISTERED));
+            $this->usernameValidator->setMessage($this->options->getRegisterOptions()
+                ->getMessage(RegisterOptions::MESSAGE_REGISTER_USERNAME_ALREADY_REGISTERED));
 
             $username['validators'][] = $this->usernameValidator;
         }
 
-        if($this->registerOptions->isEnableUsername()) {
+        if($this->options->getRegisterOptions()->isEnableUsername()) {
             $this->add($username);
         }
         
@@ -129,14 +130,16 @@ class RegisterInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_EMPTY_PASSWORD)
+                        'message' => $this->options->getRegisterOptions()
+                            ->getMessage(RegisterOptions::MESSAGE_REGISTER_EMPTY_PASSWORD)
                     ]
                 ],
                 [
                     'name'    => 'StringLength',
                     'options' => [
                         'min' => 4,
-                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_PASSWORD_TOO_SHORT)
+                        'message' => $this->options->getRegisterOptions()
+                            ->getMessage(RegisterOptions::MESSAGE_REGISTER_PASSWORD_TOO_SHORT)
                     ],
                 ],
             ],
@@ -152,14 +155,16 @@ class RegisterInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_EMPTY_PASSWORD_CONFIRM)
+                        'message' => $this->options->getRegisterOptions()
+                            ->getMessage(RegisterOptions::MESSAGE_REGISTER_EMPTY_PASSWORD_CONFIRM)
                     ]
                 ],
                 [
                     'name'    => 'Identical',
                     'options' => [
                         'token' => 'password',
-                        'message' => $this->options->getMessage(DkUser::MESSAGE_REGISTER_PASSWORD_CONFIRM_NOT_MATCH)
+                        'message' => $this->options->getRegisterOptions()
+                            ->getMessage(RegisterOptions::MESSAGE_REGISTER_PASSWORD_CONFIRM_NOT_MATCH)
                     ],
                 ],
             ],

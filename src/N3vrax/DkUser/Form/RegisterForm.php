@@ -8,8 +8,7 @@
 
 namespace N3vrax\DkUser\Form;
 
-use N3vrax\DkUser\Form\InputFilter\RegisterInputFilter;
-use N3vrax\DkUser\Options\RegisterOptions;
+use N3vrax\DkUser\Options\UserOptions;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\Form\Element\Captcha;
 use Zend\Form\Element\Csrf;
@@ -19,18 +18,18 @@ class RegisterForm extends Form
 {
     use EventManagerAwareTrait;
 
-    /** @var  RegisterOptions */
-    protected $registerOptions;
+    /** @var  UserOptions */
+    protected $userOptions;
 
     /** @var  Captcha */
     protected $captcha;
 
     public function __construct(
-        RegisterOptions $registerOptions,
+        UserOptions $userOptions,
         $name = 'register',
         $options = array())
     {
-        $this->registerOptions = $registerOptions;
+        $this->userOptions = $userOptions;
         parent::__construct($name, $options);
         $this->init();
     }
@@ -51,7 +50,7 @@ class RegisterForm extends Form
 
         ));
 
-        if($this->registerOptions->isEnableUsername()) {
+        if($this->userOptions->getRegisterOptions()->isEnableUsername()) {
             $this->add(array(
                 'type' => 'text',
                 'name' => 'username',
@@ -83,21 +82,21 @@ class RegisterForm extends Form
             ),
         ), ['priority' => -20]);
 
-        if($this->registerOptions->isUseRegistrationFormCaptcha()) {
+        if($this->userOptions->getRegisterOptions()->isUseRegistrationFormCaptcha()) {
             //add captcha element
             $this->add([
                 'type' => 'Captcha',
                 'name' => 'captcha',
                 'options' => [
                     'label' => 'Please verify you are are human',
-                    'captcha' => $this->registerOptions->getFormCaptchaOptions()
+                    'captcha' => $this->userOptions->getRegisterOptions()->getFormCaptchaOptions()
                 ]
             ], ['priority' => -99]);
         }
 
         $csrf = new Csrf('user_csrf', [
             'csrf_options' => [
-                'timeout' => $this->registerOptions->getUserFormTimeout()
+                'timeout' => $this->userOptions->getRegisterOptions()->getUserFormTimeout()
             ]
         ]);
         $this->add($csrf);
@@ -110,7 +109,7 @@ class RegisterForm extends Form
             ),
         ), ['priority' => -100]);
 
-        if($this->registerOptions->isUseRegistrationFormCaptcha() && $this->captcha) {
+        if($this->userOptions->getRegisterOptions()->isUseRegistrationFormCaptcha() && $this->captcha) {
             $this->add($this->captcha, ['name' => 'captcha']);
         }
 

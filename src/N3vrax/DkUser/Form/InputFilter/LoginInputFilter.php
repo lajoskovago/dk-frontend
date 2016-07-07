@@ -8,9 +8,8 @@
 
 namespace N3vrax\DkUser\Form\InputFilter;
 
-use N3vrax\DkUser\DkUser;
 use N3vrax\DkUser\Options\LoginOptions;
-use N3vrax\DkUser\Options\ModuleOptions;
+use N3vrax\DkUser\Options\UserOptions;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\InputFilter\InputFilter;
 
@@ -18,16 +17,12 @@ class LoginInputFilter extends InputFilter
 {
     use EventManagerAwareTrait;
 
-    /** @var  ModuleOptions */
+    /** @var  UserOptions */
     protected $options;
 
-    /** @var  LoginOptions */
-    protected $loginOptions;
-
-    public function __construct(ModuleOptions $options, LoginOptions $loginOptions)
+    public function __construct(UserOptions $options)
     {
         $this->options = $options;
-        $this->loginOptions = $loginOptions;
         $this->init();
     }
 
@@ -40,7 +35,8 @@ class LoginInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => $this->options->getMessage(DkUser::MESSAGE_LOGIN_EMPTY_IDENTITY)
+                        'message' => $this->options->getLoginOptions()
+                            ->getMessage(LoginOptions::MESSAGE_LOGIN_EMPTY_IDENTITY)
                     ]
                 ]
             ]
@@ -54,14 +50,16 @@ class LoginInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => $this->options->getMessage(DkUser::MESSAGE_LOGIN_EMPTY_PASSWORD)
+                        'message' => $this->options->getLoginOptions()
+                            ->getMessage(LoginOptions::MESSAGE_LOGIN_EMPTY_PASSWORD)
                     ]
                 ],
                 [
                     'name' => 'StringLength',
                     'options' => [
                         'min' => 4,
-                        'message' => $this->options->getMessage(DkUser::MESSAGE_LOGIN_PASSWORD_TOO_SHORT)
+                        'message' => $this->options->getLoginOptions()
+                            ->getMessage(LoginOptions::MESSAGE_LOGIN_PASSWORD_TOO_SHORT)
                     ]
                 ]
             ],

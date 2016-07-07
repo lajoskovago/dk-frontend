@@ -8,6 +8,7 @@
 
 namespace N3vrax\DkUser\Result;
 
+
 interface ResultInterface
 {
     /**

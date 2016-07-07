@@ -13,8 +13,7 @@ use N3vrax\DkUser\DIGetEventManagerTrait;
 use N3vrax\DkUser\Form\InputFilter\RegisterInputFilter;
 use N3vrax\DkUser\Form\RegisterForm;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
-use N3vrax\DkUser\Options\ModuleOptions;
-use N3vrax\DkUser\Options\RegisterOptions;
+use N3vrax\DkUser\Options\UserOptions;
 use N3vrax\DkUser\Validator\NoRecordsExists;
 
 class RegisterFormFactory
@@ -23,13 +22,11 @@ class RegisterFormFactory
 
     public function __invoke(ContainerInterface $container)
     {
-        $registerOptions = $container->get(RegisterOptions::class);
-        /** @var ModuleOptions $moduleOptions */
-        $moduleOptions = $container->get(ModuleOptions::class);
+        /** @var UserOptions $moduleOptions */
+        $options = $container->get(UserOptions::class);
 
         $filter = new RegisterInputFilter(
-            $moduleOptions,
-            $registerOptions,
+            $options,
             new NoRecordsExists([
                 'mapper' => $container->get(UserMapperInterface::class),
                 'key' => 'email'
@@ -41,9 +38,9 @@ class RegisterFormFactory
         );
         $filter->setEventManager($this->getEventManager($container));
 
-        $form = new RegisterForm($registerOptions);
+        $form = new RegisterForm($options);
         $form->setInputFilter($filter);
-        $form->setHydrator($container->get($moduleOptions->getUserEntityHydrator()));
+        $form->setHydrator($container->get($options->getUserEntityHydrator()));
         $form->setEventManager($this->getEventManager($container));
 
         return $form;

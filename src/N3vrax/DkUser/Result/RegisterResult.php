@@ -32,6 +32,5 @@ class RegisterResult extends AbstractResult
         $this->user = $user;
         return $this;
     }
-
     
 }

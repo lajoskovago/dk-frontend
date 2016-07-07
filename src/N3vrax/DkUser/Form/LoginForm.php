@@ -8,7 +8,7 @@
 
 namespace N3vrax\DkUser\Form;
 
-use N3vrax\DkUser\Options\LoginOptions;
+use N3vrax\DkUser\Options\UserOptions;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\Form\Element\Csrf;
 use Zend\Form\Element\Submit;
@@ -18,15 +18,15 @@ class LoginForm extends Form
 {
     use EventManagerAwareTrait;
 
-    /** @var  LoginOptions */
-    protected $loginOptions;
+    /** @var  UserOptions */
+    protected $userOptions;
     
     public function __construct(
-        LoginOptions $loginOptions,
+        UserOptions $userOptions,
         $name = 'login',
         $options = array())
     {
-        $this->loginOptions = $loginOptions;
+        $this->userOptions = $userOptions;
         parent::__construct($name, $options);
         $this->init();
     }
@@ -34,7 +34,7 @@ class LoginForm extends Form
     public function init()
     {
         $placeholder = '';
-        foreach ($this->loginOptions->getAuthIdentityFields() as $field) {
+        foreach ($this->userOptions->getLoginOptions()->getAuthIdentityFields() as $field) {
             $placeholder = (!empty($placeholder) ? $placeholder . ' or ' : '') . ucfirst($field);
         }
 
@@ -63,7 +63,7 @@ class LoginForm extends Form
             ),
         ));
 
-        if($this->loginOptions->isEnableRememberMe()) {
+        if($this->userOptions->getLoginOptions()->isEnableRememberMe()) {
             $this->add(array(
                 'type' => 'checkbox',
                 'name' => 'remember',
@@ -81,7 +81,7 @@ class LoginForm extends Form
 
         $csrf = new Csrf('login_csrf', [
             'csrf_options' => [
-                'timeout' => $this->loginOptions->getLoginFormTimeout()
+                'timeout' => $this->userOptions->getLoginOptions()->getLoginFormTimeout()
             ]
         ]);
         $this->add($csrf);

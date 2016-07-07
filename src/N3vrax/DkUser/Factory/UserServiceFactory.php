@@ -12,8 +12,7 @@ use Interop\Container\ContainerInterface;
 use N3vrax\DkUser\Form\RegisterForm;
 use N3vrax\DkUser\Form\ResetPasswordForm;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
-use N3vrax\DkUser\Options\ModuleOptions;
-use N3vrax\DkUser\Options\RegisterOptions;
+use N3vrax\DkUser\Options\UserOptions;
 use N3vrax\DkUser\Service\PasswordInterface;
 use N3vrax\DkUser\Service\UserService;
 use Zend\EventManager\EventManager;
@@ -23,8 +22,8 @@ class UserServiceFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        /** @var ModuleOptions $options */
-        $options = $container->get(ModuleOptions::class);
+        /** @var UserOptions $options */
+        $options = $container->get(UserOptions::class);
         $eventManager = $container->has(EventManagerInterface::class)
             ? $container->get(EventManagerInterface::class)
             : new EventManager();
@@ -33,7 +32,6 @@ class UserServiceFactory
         $service = new UserService(
             $container->get(UserMapperInterface::class),
             $options,
-            $container->get(RegisterOptions::class),
             $container->get(RegisterForm::class),
             $container->get(ResetPasswordForm::class),
             $container->get($options->getUserEntityClass()),

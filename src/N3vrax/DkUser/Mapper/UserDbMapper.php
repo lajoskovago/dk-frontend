@@ -9,6 +9,8 @@
 namespace N3vrax\DkUser\Mapper;
 
 use N3vrax\DkUser\Entity\UserEntityInterface;
+use N3vrax\DkUser\Options\DbOptions;
+use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\ResultSet\HydratingResultSet;
 use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
@@ -18,9 +20,19 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
 {
     protected $idColumn = 'id';
 
-    protected $userResetTokenTable = 'user_reset_token';
+    /** @var  DbOptions */
+    protected $dbOptions;
 
-    protected $userConfirmTokenTable = 'user_confirm_token';
+    public function __construct(
+        $table,
+        DbOptions $dbOptions,
+        AdapterInterface $adapter,
+        $features = null,
+        $resultSetPrototype = null,
+        $sql = null)
+    {
+        parent::__construct($table, $adapter, $features, $resultSetPrototype, $sql);
+    }
 
     public function findUser($id)
     {
@@ -73,7 +85,7 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
 
     public function saveResetToken($data)
     {
-        $sql = new Sql($this->getAdapter(), $this->userResetTokenTable);
+        $sql = new Sql($this->getAdapter(), $this->dbOptions->getUserResetTokenTable());
         $insert = $sql->insert();
         $insert->columns(array_keys($data))->values($data);
 
@@ -83,7 +95,7 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
 
     public function findResetToken($userId, $token)
     {
-        $sql = new Sql($this->getAdapter(), $this->userResetTokenTable);
+        $sql = new Sql($this->getAdapter(), $this->dbOptions->getUserResetTokenTable());
         $select = $sql->select()->where(['userId' => $userId, 'token' => $token]);
 
         $stmt = $sql->prepareStatementForSqlObject($select);
@@ -92,7 +104,7 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
 
     public function saveConfirmToken($data)
     {
-        $sql = new Sql($this->getAdapter(), $this->userConfirmTokenTable);
+        $sql = new Sql($this->getAdapter(), $this->dbOptions->getUserConfirmTokenTable());
         $insert = $sql->insert();
         $insert->columns(array_keys($data))->values($data);
 
@@ -102,52 +114,10 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
 
     public function findConfirmToken($userId, $token)
     {
-        $sql = new Sql($this->getAdapter(), $this->userConfirmTokenTable);
+        $sql = new Sql($this->getAdapter(), $this->dbOptions->getUserConfirmTokenTable());
         $select = $sql->select()->where(['userId' => $userId, 'token' => $token]);
 
         $stmt = $sql->prepareStatementForSqlObject($select);
         return $stmt->execute()->current();
     }
-
-    /**
-     * @return string
-     */
-    public function getUserConfirmTokenTable()
-    {
-        return $this->userConfirmTokenTable;
-    }
-
-    /**
-     * @param string $userConfirmTokenTable
-     * @return UserDbMapper
-     */
-    public function setUserConfirmTokenTable($userConfirmTokenTable)
-    {
-        $this->userConfirmTokenTable = $userConfirmTokenTable;
-        return $this;
-    }
-
-
-
-    /**
-     * @return string
-     */
-    public function getUserResetTokenTable()
-    {
-        return $this->userResetTokenTable;
-    }
-
-    /**
-     * @param string $userResetTokenTable
-     * @return UserDbMapper
-     */
-    public function setUserResetTokenTable($userResetTokenTable)
-    {
-        $this->userResetTokenTable = $userResetTokenTable;
-        return $this;
-    }
-
-
-
-
 }

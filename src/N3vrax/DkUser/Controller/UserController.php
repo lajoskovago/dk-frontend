@@ -9,12 +9,14 @@
 namespace N3vrax\DkUser\Controller;
 
 use N3vrax\DkBase\Controller\AbstractActionController;
+use N3vrax\DkBase\Controller\Plugin\FlashMessengerPlugin;
 use N3vrax\DkBase\Session\FlashMessenger;
 use N3vrax\DkMail\Service\MailServiceInterface;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\FlashMessagesTrait;
 use N3vrax\DkUser\Options\ConfirmAccountOptions;
 use N3vrax\DkUser\Options\UserOptions;
+use N3vrax\DkUser\Result\RegisterResult;
 use N3vrax\DkUser\Result\ResultInterface;
 use N3vrax\DkUser\Service\UserServiceInterface;
 use N3vrax\DkWebAuthentication\Action\LoginAction;
@@ -90,7 +92,7 @@ class UserController extends AbstractActionController
         if(!$result->isValid()) {
             $this->addError($result->getMessages(), $this->flashMessenger());
             if($result->hasException()) {
-                trigger_error("Account confirmation error: " . $result->getException()->getMessage(), E_USER_ERROR);
+                error_log("Account confirmation error: " . $result->getException()->getMessage(), E_USER_ERROR);
             }
         }
         else {
@@ -118,7 +120,7 @@ class UserController extends AbstractActionController
                     ['enableRegistration' => false]));
         }
 
-        /** @var FlashMessenger $messenger */
+        /** @var FlashMessengerPlugin $messenger */
         $messenger = $this->flashMessenger();
 
         $form = $this->userService->getRegisterForm();
@@ -131,41 +133,41 @@ class UserController extends AbstractActionController
         if($request->getMethod() === 'POST')
         {
             $data = $request->getParsedBody();
-            try {
-                $user = $this->userService->register($data);
-                if(!$user) {
-                    $messages = $form->getMessages();
-                    foreach ($messages as $element => $error) {
-                        $messenger->addError(current($error));
-                    }
 
-                    $messenger->addData('registerFormData', $data);
-                    $messenger->addData('registerFormMessages', $messages);
+            /** @var RegisterResult $result */
+            $result = $this->userService->register($data);
+            if(!$result->isValid()) {
+                $this->addError($result->getMessages(), $messenger);
 
-                    return new RedirectResponse($request->getUri(), 303);
-                }
-            }
-            catch(\Exception $e) {
-                error_log('User registration exception: ' . $e->getMessage(), E_USER_ERROR);
-
-                $this->addError($this->options->getMessage(DkUser::MESSAGE_REGISTER_ERROR), $this->flashMessenger());
+                //as we use PRG forms, store form data in session for next page display
                 $messenger->addData('registerFormData', $data);
+                $messenger->addData('registerFormMessages', $form->getMessages());
+
+                if($result->hasException()) {
+                    error_log("User registration error: " . $result->getException()->getMessage(), E_USER_ERROR);
+                }
+
                 return new RedirectResponse($request->getUri(), 303);
             }
-
-            if($this->options->isLoginAfterRegistration()) {
-                return $this->autoLoginUser($user, $data['password']);
-            }
-            else
-            {
-                $this->addSuccess($this->options->getMessage(DkUser::MESSAGE_REGISTER_SUCCESS), $this->flashMessenger());
-                return new RedirectResponse($this->urlHelper()->generate('login'));
+            else {
+                $user = $result->getUser();
+                if($this->options->getRegisterOptions()->isLoginAfterRegistration()) {
+                    return $this->autoLoginUser($user, $data['password']);
+                }
+                else
+                {
+                    $this->addSuccess($result->getMessages(), $this->flashMessenger());
+                    return new RedirectResponse($this->urlHelper()->generate('login'));
+                }
             }
         }
 
         return new HtmlResponse(
             $this->template()->render('dk-user::register',
-                ['form' => $form, 'enableRegistration' => $this->options->isEnableRegistration()]));
+                [
+                    'form' => $form,
+                    'enableRegistration' => $this->options->getRegisterOptions()->isEnableRegistration()
+                ]));
     }
 
     /**

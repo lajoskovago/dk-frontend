@@ -10,8 +10,10 @@ namespace N3vrax\DkUser\Factory;
 
 use Interop\Container\ContainerInterface;
 use N3vrax\DkUser\Mapper\UserDbMapper;
+use N3vrax\DkUser\Options\DbOptions;
 use N3vrax\DkUser\Options\ModuleOptions;
 use N3vrax\DkUser\Options\TableOptions;
+use N3vrax\DkUser\Options\UserOptions;
 use Zend\Db\ResultSet\HydratingResultSet;
 use Zend\Db\TableGateway\Feature\EventFeature;
 use Zend\EventManager\EventManager;
@@ -21,11 +23,9 @@ class UserDbMapperFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        /** @var ModuleOptions $options */
-        $options = $container->get(ModuleOptions::class);
-        /** @var TableOptions $tableOptions */
-        $tableOptions = $container->get(TableOptions::class);
-        $dbAdapter = $container->get($options->getZendDbAdapter());
+        /** @var UserOptions $options */
+        $options = $container->get(UserOptions::class);
+        $dbAdapter = $container->get($options->getDbOptions()->getDbAdapter());
 
         $resultSetPrototype = new HydratingResultSet(
             $container->get($options->getUserEntityHydrator()),
@@ -36,8 +36,12 @@ class UserDbMapperFactory
             : new EventManager();
 
         $eventFeature = new EventFeature($eventManager);
-        $mapper = new UserDbMapper($tableOptions->getUserTable(), $dbAdapter, $eventFeature, $resultSetPrototype);
-        $mapper->setUserResetTokenTable($tableOptions->getUserResetTokenTable());
+        $mapper = new UserDbMapper(
+            $options->getDbOptions()->getUserTable(),
+            $options->getDbOptions(),
+            $dbAdapter,
+            $eventFeature,
+            $resultSetPrototype);
 
         return $mapper;
     }

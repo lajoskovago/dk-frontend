@@ -12,8 +12,7 @@ use Interop\Container\ContainerInterface;
 use N3vrax\DkUser\DIGetEventManagerTrait;
 use N3vrax\DkUser\Form\InputFilter\LoginInputFilter;
 use N3vrax\DkUser\Form\LoginForm;
-use N3vrax\DkUser\Options\LoginOptions;
-use N3vrax\DkUser\Options\ModuleOptions;
+use N3vrax\DkUser\Options\UserOptions;
 
 class LoginFormFactory
 {
@@ -21,13 +20,12 @@ class LoginFormFactory
 
     public function __invoke(ContainerInterface $container)
     {
-        $moduleOptions = $container->get(ModuleOptions::class);
-        $loginOptions = $container->get(LoginOptions::class);
+        $options = $container->get(UserOptions::class);
         
-        $filter = new LoginInputFilter($moduleOptions, $loginOptions);
+        $filter = new LoginInputFilter($options);
         $filter->setEventManager($this->getEventManager($container));
         
-        $form = new LoginForm($loginOptions);
+        $form = new LoginForm($options);
         $form->setInputFilter($filter);
         $form->setEventManager($this->getEventManager($container));
 

@@ -12,9 +12,7 @@ use N3vrax\DkAuthentication\AuthenticationResult;
 use N3vrax\DkBase\Session\FlashMessenger;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
-use N3vrax\DkUser\Options\LoginOptions;
-use N3vrax\DkUser\Options\ModuleOptions;
-use N3vrax\DkUser\Service\PasswordHashingInterface;
+use N3vrax\DkUser\Options\UserOptions;
 use N3vrax\DkWebAuthentication\Action\LoginAction;
 use N3vrax\DkWebAuthentication\Event\AuthenticationEvent;
 use Zend\EventManager\AbstractListenerAggregate;
@@ -32,25 +30,20 @@ class AuthenticationListener extends AbstractListenerAggregate
     /** @var  UserMapperInterface */
     protected $userMapper;
 
-    /** @var  ModuleOptions */
-    protected $moduleOptions;
-
-    /** @var  LoginOptions */
-    protected $loginOptions;
+    /** @var  UserOptions */
+    protected $options;
 
     public function __construct(
         Form $form,
         FlashMessenger $flashMessenger,
         UserMapperInterface $userMapper,
-        ModuleOptions $moduleOptions,
-        LoginOptions $loginOptions
+        UserOptions $options
     )
     {
         $this->loginForm = $form;
         $this->flashMessenger = $flashMessenger;
         $this->userMapper = $userMapper;
-        $this->moduleOptions = $moduleOptions;
-        $this->loginOptions = $loginOptions;
+        $this->options = $options;
     }
 
     public function attach(EventManagerInterface $events, $priority = 1)
@@ -152,7 +145,7 @@ class AuthenticationListener extends AbstractListenerAggregate
             }
             elseif($result && $result->isValid()) {
                 //check account status and interrupt login process if not active
-                if($this->moduleOptions->isEnableUserStatus())
+                if($this->options->isEnableUserStatus())
                 {
                     $status = null;
                     $identity = $result->getIdentity();
@@ -167,7 +160,7 @@ class AuthenticationListener extends AbstractListenerAggregate
                         }
                     }
 
-                    if($status && !in_array($status, $this->loginOptions->getAllowedLoginStatuses())) {
+                    if($status && !in_array($status, $this->options->getLoginOptions()->getAllowedLoginStatuses())) {
                         $data = $form->getData();
                         $this->flashMessenger->addData('loginFormData', $data);
 
