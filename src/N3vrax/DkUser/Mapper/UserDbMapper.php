@@ -16,7 +16,7 @@ use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
-class UserDbMapper extends TableGateway implements UserMapperInterface
+class UserDbMapper extends AbstractDbMapper implements UserMapperInterface
 {
     protected $idColumn = 'id';
 
@@ -78,11 +78,6 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
         return $this->delete([$this->idColumn => $id]);
     }
 
-    public function lastInsertValue()
-    {
-        return $this->getLastInsertValue();
-    }
-
     public function saveResetToken($data)
     {
         $sql = new Sql($this->getAdapter(), $this->dbOptions->getUserResetTokenTable());
@@ -115,9 +110,18 @@ class UserDbMapper extends TableGateway implements UserMapperInterface
     public function findConfirmToken($userId, $token)
     {
         $sql = new Sql($this->getAdapter(), $this->dbOptions->getUserConfirmTokenTable());
-        $select = $sql->select()->where(['userId' => $userId, 'token' => $token]);
+        $select = $sql->select()->where(['userId' => $userId, 'token' => $token, 'isUsed' => 0]);
 
         $stmt = $sql->prepareStatementForSqlObject($select);
         return $stmt->execute()->current();
+    }
+
+    public function disableConfirmToken($userId, $token)
+    {
+        $sql = new Sql($this->getAdapter(), $this->dbOptions->getUserConfirmTokenTable());
+        $update = $sql->update()->set(['isUsed' => 1])->where(['userId' => $userId, 'token' => $token]);
+
+        $stmt = $sql->prepareStatementForSqlObject($update);
+        return $stmt->execute();
     }
 }

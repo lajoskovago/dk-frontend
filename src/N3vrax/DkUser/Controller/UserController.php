@@ -15,6 +15,7 @@ use N3vrax\DkMail\Service\MailServiceInterface;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\FlashMessagesTrait;
 use N3vrax\DkUser\Options\ConfirmAccountOptions;
+use N3vrax\DkUser\Options\PasswordRecoveryOptions;
 use N3vrax\DkUser\Options\UserOptions;
 use N3vrax\DkUser\Result\RegisterResult;
 use N3vrax\DkUser\Result\ResultInterface;
@@ -91,9 +92,6 @@ class UserController extends AbstractActionController
         $result = $this->userService->confirmAccount($email, $token);
         if(!$result->isValid()) {
             $this->addError($result->getMessages(), $this->flashMessenger());
-            if($result->hasException()) {
-                error_log("Account confirmation error: " . $result->getException()->getMessage(), E_USER_ERROR);
-            }
         }
         else {
             $this->addSuccess($result->getMessages(), $this->flashMessenger());
@@ -143,10 +141,6 @@ class UserController extends AbstractActionController
                 $messenger->addData('registerFormData', $data);
                 $messenger->addData('registerFormMessages', $form->getMessages());
 
-                if($result->hasException()) {
-                    error_log("User registration error: " . $result->getException()->getMessage(), E_USER_ERROR);
-                }
-
                 return new RedirectResponse($request->getUri(), 303);
             }
             else {
@@ -177,9 +171,9 @@ class UserController extends AbstractActionController
      */
     public function resetPasswordAction()
     {
-        if(!$this->options->isEnablePasswordRecovery()) {
-            $this->addError($this->options->getMessage(
-                DkUser::MESSAGE_RESET_PASSWORD_DISABLED),
+        if(!$this->options->getPasswordRecoveryOptions()->isEnablePasswordRecovery()) {
+            $this->addError($this->options->getPasswordRecoveryOptions()->getMessage(
+                PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_DISABLED),
                 $this->flashMessenger());
 
             return new RedirectResponse($this->urlHelper()->generate('login'));

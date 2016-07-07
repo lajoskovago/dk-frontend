@@ -142,6 +142,8 @@ class ConfigProvider
 
                 'confirm_account_options' => [
                     'enable_account_confirmation' => true,
+
+                    'active_user_status' => 'active',
                 ],
             ],
 

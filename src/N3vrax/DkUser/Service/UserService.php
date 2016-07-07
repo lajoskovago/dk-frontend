@@ -9,8 +9,10 @@
 namespace N3vrax\DkUser\Service;
 
 use N3vrax\DkUser\DkUser;
+use N3vrax\DkUser\Entity\TokenEntity;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Event\ConfirmAccountEvent;
+use N3vrax\DkUser\Event\ConfirmTokenGenerateEvent;
 use N3vrax\DkUser\Event\RegisterEvent;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Options\ConfirmAccountOptions;
@@ -189,7 +191,14 @@ class UserService implements UserServiceInterface
                         $this->getEventManager()->triggerEvent(
                             $this->createConfirmAccountEvent($user, ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_PRE));
 
+                        $this->userMapper->beginTransaction();
+
+                        $user->setStatus($this->options->getConfirmAccountOptions()->getActiveUserStatus());
                         $this->saveUser($user);
+
+                        $this->userMapper->disableConfirmToken($user->getId(), $token);
+
+                        $this->userMapper->commit();
 
                         //post confirm event
                         $this->getEventManager()->triggerEvent(
@@ -211,10 +220,15 @@ class UserService implements UserServiceInterface
             }
         }
         catch(\Exception $e) {
+            error_log("Confirm account error: " . $e->getMessage(), E_USER_ERROR);
+
             $result = $this->createConfirmAccountResultWithException($e);
             //trigger error event
             $this->getEventManager()->triggerEvent(
                 $this->createConfirmAccountEvent($user, ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_ERROR, $result));
+
+            $this->userMapper->rollback();
+            return $result;
         }
 
         if(!$result->isValid()) {
@@ -234,6 +248,18 @@ class UserService implements UserServiceInterface
      */
     public function resetPasswordRequest($email)
     {
+        if(empty($email) || empty($token)) {
+
+        }
+        else {
+            try {
+
+            }
+            catch (\Exception $e) {
+                
+            }
+        }
+
         /** @var UserEntityInterface $user */
         $user = $this->findUserBy('email', $email);
         if($user) {
@@ -357,6 +383,9 @@ class UserService implements UserServiceInterface
             $result = $this->createRegisterResultWithMessages($messages);
         }
         else {
+
+            $this->userMapper->beginTransaction();
+
             try{
                 /** @var UserEntityInterface $user */
                 $user = $form->getData();
@@ -371,12 +400,16 @@ class UserService implements UserServiceInterface
                     $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_PRE));
 
                 $this->saveUser($user);
+
                 //get newly created user id and save it to the object
                 $id = $this->userMapper->lastInsertValue();
                 if($id) {
                     $user->setId($id);
                 }
 
+                $result->setUser($user);
+
+                //generate a confirm token if enabled and also trigger events
                 if($this->options->getConfirmAccountOptions()->isEnableAccountConfirmation()) {
                     $this->generateConfirmToken($user);
                 }
@@ -385,13 +418,18 @@ class UserService implements UserServiceInterface
                 $this->getEventManager()->triggerEvent(
                     $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_POST));
 
-                $result->setUser($user);
+                $this->userMapper->commit();
             }
             catch(\Exception $e) {
+                error_log("Register error: " . $e->getMessage(), E_USER_ERROR);
+                
                 $result = $this->createRegisterResultWithException($e);
                 //trigger error event
                 $this->getEventManager()->triggerEvent(
                     $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_ERROR, $result));
+
+                $this->userMapper->rollback();
+                return $result;
             }
         }
 
@@ -405,17 +443,46 @@ class UserService implements UserServiceInterface
 
     }
 
+    /**
+     * @param UserEntityInterface $user
+     * @throws \Exception
+     */
     protected function generateConfirmToken(UserEntityInterface $user)
     {
-        $data = new \stdClass();
-        $data->userId = $user->getId();
-        $data->token = md5(Rand::getString(32) . time() . $user->getEmail());
+        try {
+            $data = new \stdClass();
+            $data->userId = $user->getId();
+            $data->token = md5(Rand::getString(32) . time() . $user->getEmail());
 
-        $this->getEventManager()->trigger(static::EVENT_CONFIRM_TOKEN, $this, ['data' => $data]);
+            $this->getEventManager()->triggerEvent(
+                $this->createConfirmTokenGenerateEvent(
+                    $user,
+                    $data,
+                    ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_PRE));
 
-        $this->userMapper->saveConfirmToken((array) $data);
+            $this->userMapper->saveConfirmToken((array) $data);
 
-        $this->getEventManager()->trigger(static::EVENT_CONFIRM_TOKEN_POST, $this, ['data' => $data]);
+            $this->getEventManager()->triggerEvent(
+                $this->createConfirmTokenGenerateEvent(
+                    $user,
+                    $data,
+                    ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_POST
+                )
+            );
+        }
+        catch(\Exception $e) {
+            error_log("Confirm token generation error: " . $e->getMessage());
+
+            $this->getEventManager()->triggerEvent(
+                $this->createConfirmTokenGenerateEvent(
+                    $user,
+                    null,
+                    ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_ERROR
+                )
+            );
+
+            throw $e;
+        }
     }
 
     /**
@@ -578,6 +645,16 @@ class UserService implements UserServiceInterface
             $event->setResult($result);
         }
 
+        return $event;
+    }
+
+    protected function createConfirmTokenGenerateEvent(
+        UserEntityInterface $user = null,
+        $data = null,
+        $name = ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_PRE
+    )
+    {
+        $event = new ConfirmTokenGenerateEvent($this, $user, $data, $name);
         return $event;
     }
     

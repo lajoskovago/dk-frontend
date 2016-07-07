@@ -23,6 +23,9 @@ class ConfirmAccountOptions extends AbstractOptions
     /** @var bool  */
     protected $enableAccountConfirmation = true;
 
+    /** @var  mixed */
+    protected $activeUserStatus;
+
     /** @var array  */
     protected $messages = [
         ConfirmAccountOptions::MESSAGE_CONFIRM_ACCOUNT_DISABLED => 'Account confirmation is disabled',
@@ -50,6 +53,26 @@ class ConfirmAccountOptions extends AbstractOptions
         $this->enableAccountConfirmation = $enableAccountConfirmation;
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getActiveUserStatus()
+    {
+        return $this->activeUserStatus;
+    }
+
+    /**
+     * @param mixed $activeUserStatus
+     * @return ConfirmAccountOptions
+     */
+    public function setActiveUserStatus($activeUserStatus)
+    {
+        $this->activeUserStatus = $activeUserStatus;
+        return $this;
+    }
+
+    
 
     /**
      * @return array

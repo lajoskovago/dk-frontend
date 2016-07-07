@@ -9,7 +9,7 @@
 namespace N3vrax\DkUser\Mapper;
 
 
-interface UserMapperInterface
+interface UserMapperInterface extends MapperInterface
 {
     public function findUser($id);
 
@@ -29,5 +29,5 @@ interface UserMapperInterface
 
     public function findConfirmToken($userId, $token);
 
-    public function lastInsertValue();
+    public function disableConfirmToken($userId, $token);
 }
