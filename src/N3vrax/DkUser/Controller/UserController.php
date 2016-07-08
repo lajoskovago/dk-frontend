@@ -22,6 +22,7 @@ use N3vrax\DkUser\Result\ResultInterface;
 use N3vrax\DkUser\Service\UserServiceInterface;
 use N3vrax\DkWebAuthentication\Action\LoginAction;
 use N3vrax\DkWebAuthentication\Event\AuthenticationEvent;
+use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\RedirectResponse;
 use Zend\Diactoros\Uri;
@@ -230,9 +231,9 @@ class UserController extends AbstractActionController
      */
     public function forgotPasswordAction()
     {
-        if(!$this->options->isEnablePasswordRecovery()) {
-            $this->addError($this->options->getMessage(
-                DkUser::MESSAGE_RESET_PASSWORD_DISABLED),
+        if(!$this->options->getPasswordRecoveryOptions()->isEnablePasswordRecovery()) {
+            $this->addError($this->options->getPasswordRecoveryOptions()->getMessage(
+                PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_DISABLED),
                 $this->flashMessenger());
 
             return new RedirectResponse($this->urlHelper()->generate('login'));
@@ -242,35 +243,20 @@ class UserController extends AbstractActionController
 
         if($request->getMethod() === 'POST') {
             $data = $request->getParsedBody();
+
             $email = isset($data['email']) ? $data['email'] : '';
 
-            if(empty($email)) {
-                $this->addError($this->options->getMessage(
-                    DkUser::MESSAGE_FORGOT_PASSWORD_MISSING_EMAIL),
-                    $this->flashMessenger());
-
+            /** @var ResultInterface $result */
+            $result = $this->userService->resetPasswordRequest($email);
+            if($result->isValid()) {
+                $this->addInfo($result->getMessages(), $this->flashMessenger());
+            }
+            else {
+                $this->addError($result->getMessages(), $this->flashMessenger());
                 return new RedirectResponse($request->getUri(), 303);
             }
 
-            try {
-                $this->userService->resetPasswordRequest($email);
-                //we don't check if email was found or not, we don't want to give this info as error
-
-                $this->addInfo($this->options->getMessage(
-                    DkUser::MESSAGE_FORGOT_PASSWORD_SUCCESS),
-                    $this->flashMessenger());
-
-                return new RedirectResponse($this->urlHelper()->generate('login'));
-            }
-            catch(\Exception $e) {
-                error_log('User reset password request exception: ' . $e->getMessage(), E_USER_ERROR);
-
-                $this->addError($this->options->getMessage(
-                    DkUser::MESSAGE_FORGOT_PASSWORD_ERROR),
-                    $this->flashMessenger());
-
-                return new RedirectResponse($request->getUri(), 303);
-            }
+            return new RedirectResponse($this->urlHelper()->generate('login'));
 
         }
 
@@ -286,6 +272,7 @@ class UserController extends AbstractActionController
      */
     protected function autoLoginUser(UserEntityInterface $user, $password)
     {
+        /** @var ServerRequestInterface $request */
         $request = $this->getRequest();
         $response = $this->getResponse();
         

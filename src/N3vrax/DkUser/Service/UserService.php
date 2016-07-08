@@ -8,17 +8,18 @@
 
 namespace N3vrax\DkUser\Service;
 
-use N3vrax\DkUser\DkUser;
-use N3vrax\DkUser\Entity\TokenEntity;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Event\ConfirmAccountEvent;
 use N3vrax\DkUser\Event\ConfirmTokenGenerateEvent;
+use N3vrax\DkUser\Event\PasswordResetEvent;
 use N3vrax\DkUser\Event\RegisterEvent;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Options\ConfirmAccountOptions;
+use N3vrax\DkUser\Options\PasswordRecoveryOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
 use N3vrax\DkUser\Options\UserOptions;
 use N3vrax\DkUser\Result\ConfirmAccountResult;
+use N3vrax\DkUser\Result\PasswordResetResult;
 use N3vrax\DkUser\Result\RegisterResult;
 use N3vrax\DkUser\Result\ResultInterface;
 use Zend\EventManager\EventManagerAwareTrait;
@@ -174,19 +175,18 @@ class UserService implements UserServiceInterface
 
         $user = null;
 
-        try{
-            if(empty($email) || empty($token)) {
+        try {
+            if (empty($email) || empty($token)) {
                 $result = $this->createConfirmAccountResultWithMessages(
                     $this->options->getConfirmAccountOptions()
-                    ->getMessage(ConfirmAccountOptions::MESSAGE_CONFIRM_ACCOUNT_MISSING_PARAMS)
+                        ->getMessage(ConfirmAccountOptions::MESSAGE_CONFIRM_ACCOUNT_MISSING_PARAMS)
                 );
-            }
-            else {
+            } else {
                 /** @var UserEntityInterface $user */
                 $user = $this->findUserBy('email', $email);
-                if($user) {
+                if ($user) {
                     $r = $this->userMapper->findConfirmToken($user->getId(), $token);
-                    if($r) {
+                    if ($r) {
                         //trigger pre event
                         $this->getEventManager()->triggerEvent(
                             $this->createConfirmAccountEvent($user, ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_PRE));
@@ -203,23 +203,20 @@ class UserService implements UserServiceInterface
                         //post confirm event
                         $this->getEventManager()->triggerEvent(
                             $this->createConfirmAccountEvent($user, ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_POST));
-                    }
-                    else {
+                    } else {
                         $result = $this->createConfirmAccountResultWithMessages(
                             $this->options->getConfirmAccountOptions()
                                 ->getMessage(ConfirmAccountOptions::MESSAGE_CONFIRM_ACCOUNT_INVALID_TOKEN)
                         );
                     }
-                }
-                else {
+                } else {
                     $result = $this->createConfirmAccountResultWithMessages(
                         $this->options->getConfirmAccountOptions()
                             ->getMessage(ConfirmAccountOptions::MESSAGE_CONFIRM_ACCOUNT_INVALID_EMAIL)
                     );
                 }
             }
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             error_log("Confirm account error: " . $e->getMessage(), E_USER_ERROR);
 
             $result = $this->createConfirmAccountResultWithException($e);
@@ -231,7 +228,7 @@ class UserService implements UserServiceInterface
             return $result;
         }
 
-        if(!$result->isValid()) {
+        if (!$result->isValid()) {
             $this->getEventManager()->triggerEvent(
                 $this->createConfirmAccountEvent($user, ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_ERROR, $result));
         }
@@ -248,44 +245,71 @@ class UserService implements UserServiceInterface
      */
     public function resetPasswordRequest($email)
     {
-        if(empty($email) || empty($token)) {
+        $result = new PasswordResetResult(true, $this->options->getPasswordRecoveryOptions()
+            ->getMessage(PasswordRecoveryOptions::MESSAGE_FORGOT_PASSWORD_SUCCESS));
 
-        }
-        else {
+        $user = null;
+        $data = null;
+
+        if (empty($email)) {
+            $result = $this->createPasswordResetResultWithMessages(
+                $this->options->getPasswordRecoveryOptions()
+                    ->getMessage(PasswordRecoveryOptions::MESSAGE_FORGOT_PASSWORD_MISSING_EMAIL));
+        } else {
             try {
+                /** @var UserEntityInterface $user */
+                $user = $this->findUserBy('email', $email);
 
-            }
-            catch (\Exception $e) {
-                
+                if ($user) {
+                    $data = new \stdClass();
+                    $data->userId = $user->getId();
+                    $data->token = md5(Rand::getString(32) . time() . $email);
+                    $data->expireAt = time() + $this->options->getPasswordRecoveryOptions()
+                            ->getResetPasswordTokenTimeout();
+
+                    $this->getEventManager()->triggerEvent(
+                        $this->createPasswordResetEvent(
+                            $user,
+                            $data,
+                            PasswordResetEvent::EVENT_PASSWORD_RESET_TOKEN_PRE));
+
+                    $this->userMapper->saveResetToken((array)$data);
+
+                    $this->getEventManager()->triggerEvent($this->createPasswordResetEvent(
+                        $user,
+                        $data,
+                        PasswordResetEvent::EVENT_PASSWORD_RESET_TOKEN_POST
+                    ));
+                }
+            } catch (\Exception $e) {
+                error_log("Password reset request error: " . $e->getMessage(), E_USER_ERROR);
+                $result = $this->createPasswordResetResultTokenWithException($e);
+
+                $this->getEventManager()->triggerEvent(
+                    $this->createPasswordResetEvent(
+                        $user,
+                        $data,
+                        PasswordResetEvent::EVENT_PASSWORD_RESET_TOKEN_ERROR,
+                        $result
+                    )
+                );
+
+                return $result;
             }
         }
 
-        /** @var UserEntityInterface $user */
-        $user = $this->findUserBy('email', $email);
-        if($user) {
-            $data = new \stdClass();
-            $data->userId = $user->getId();
-            $data->token = md5(Rand::getString(32) . time() . $email);
-            $data->expireAt = time() + $this->options->getResetPasswordTokenTimeout();
-
-            $this->getEventManager()->trigger(
-                static::EVENT_RESET_PASSWORD_REQUEST,
-                $this,
-                ['data' => $data]
+        if (!$result->isValid()) {
+            $this->getEventManager()->triggerEvent(
+                $this->createPasswordResetEvent(
+                    $user,
+                    $data,
+                    PasswordResetEvent::EVENT_PASSWORD_RESET_TOKEN_ERROR,
+                    $result
+                )
             );
-
-            $this->userMapper->saveResetToken((array) $data);
-
-            $this->getEventManager()->trigger(
-                static::EVENT_RESET_PASSWORD_REQUEST_POST,
-                $this,
-                ['data' => $data]
-            );
-
-            return true;
         }
 
-        return false;
+        return $result;
     }
 
     /**
@@ -296,63 +320,86 @@ class UserService implements UserServiceInterface
      */
     public function resetPassword($email, $token, $data)
     {
-        $errors = [];
+        $result = new PasswordResetResult(true, $this->options->getPasswordRecoveryOptions()
+            ->getMessage(PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_SUCCESS));
 
-        /** @var UserEntityInterface $user */
-        $user = $this->userMapper->findUserBy('email', $email);
+        $user = null;
 
-        if(!$user) {
-            $errors[] = $this->options->getMessage(DkUser::MESSAGE_RESET_PASSWORD_INVALID_EMAIL);
+        if (empty($email) || empty($token)) {
+            $result = $this->createPasswordResetResultWithMessages($this->options->getPasswordRecoveryOptions()
+                ->getMessage(PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_MISSING_PARAMS));
+
         }
         else {
-            $r = $this->userMapper->findResetToken($user->getId(), $token);
-            if($r) {
-                $t = $r['token'];
-                $expireAt = $r['expireAt'];
+            try {
+                /** @var UserEntityInterface $user */
+                $user = $this->userMapper->findUserBy('email', $email);
 
-                if($t == $token) {
-                    if($expireAt >= time()) {
-                        $form = $this->resetPasswordForm;
-                        $form->setData($data);
+                if (!$user) {
+                    $result = $this->createPasswordResetResultWithMessages($this->options->getPasswordRecoveryOptions()
+                        ->getMessage(PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_INVALID_EMAIL));
+                }
+                else {
+                    $r = $this->userMapper->findResetToken($user->getId(), $token);
+                    if ($r) {
+                        $expireAt = $r['expireAt'];
 
-                        if($form->isValid()) {
-                            $data = $form->getData();
-                            $user->setPassword($this->passwordService->create($data['newPassword']));
+                        if ($expireAt >= time()) {
+                            $form = $this->resetPasswordForm;
+                            $form->setData($data);
 
-                            $this->getEventManager()->trigger(
-                                static::EVENT_RESET_PASSWORD,
-                                $this,
-                                ['user' => $user, 'form' => $form]
-                            );
+                            if ($form->isValid()) {
+                                $data = $form->getData();
+                                $user->setPassword($this->passwordService->create($data['newPassword']));
 
-                            $this->saveUser($user);
+                                $this->getEventManager()->triggerEvent($this->createPasswordResetEvent(
+                                    $user,
+                                    null,
+                                    PasswordResetEvent::EVENT_PASSWORD_RESET_PRE
+                                ));
 
-                            $this->getEventManager()->trigger(
-                                static::EVENT_RESET_PASSWORD_POST,
-                                $this,
-                                ['user' => $user, 'form' => $form]
-                            );
+                                $this->saveUser($user);
+
+                                $this->getEventManager()->triggerEvent($this->createPasswordResetEvent(
+                                    $user,
+                                    null,
+                                    PasswordResetEvent::EVENT_PASSWORD_RESET_PRE
+                                ));
+                            }
+                            else {
+                                foreach ($form->getMessages() as $error) {
+                                    $errors[] = current($error);
+                                }
+                            }
                         }
                         else {
-                            foreach ($form->getMessages() as $error) {
-                                $errors[] = current($error);
-                            }
+                            $result = $this->createPasswordResetResultWithMessages(
+                                $this->options->getPasswordRecoveryOptions()
+                                    ->getMessage(PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_TOKEN_EXPIRED));
                         }
                     }
                     else {
-                        $errors[] = $this->options->getMessage(DkUser::MESSAGE_RESET_PASSWORD_TOKEN_EXPIRED);
+                        $result = $this->createPasswordResetResultWithMessages(
+                            $this->options->getPasswordRecoveryOptions()
+                                ->getMessage(PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_INVALID_TOKEN));
                     }
                 }
-                else {
-                    $errors[] = $this->options->getMessage(DkUser::MESSAGE_RESET_PASSWORD_INVALID_TOKEN);
-                }
             }
-            else {
-                $errors[] = $this->options->getMessage(DkUser::MESSAGE_RESET_PASSWORD_INVALID_TOKEN);
+            catch (\Exception $e) {
+                error_log("Password reset error: " . $e->getMessage());
+                $result = $this->createPasswordResetResultWithException($e);
+
+                $this->getEventManager()->triggerEvent(
+                    $this->createPasswordResetEvent(
+                        $user,
+                        null,
+                        PasswordResetEvent::EVENT_PASSWORD_RESET_ERROR
+                    )
+                );
             }
         }
 
-        return $errors;
+        return $result;
     }
 
     /**
@@ -362,7 +409,8 @@ class UserService implements UserServiceInterface
      * @param $data
      * @return bool|UserEntityInterface
      */
-    public function register($data)
+    public
+    function register($data)
     {
         $result = new RegisterResult(true, $this->options->getRegisterOptions()
             ->getMessage(RegisterOptions::MESSAGE_REGISTER_SUCCESS));
@@ -373,7 +421,7 @@ class UserService implements UserServiceInterface
         $form->bind($this->userEntityPrototype);
         $form->setData($data);
 
-        if(!$form->isValid()) {
+        if (!$form->isValid()) {
             $messages = [];
             $formMessages = $form->getMessages();
             foreach ($formMessages as $message) {
@@ -381,17 +429,16 @@ class UserService implements UserServiceInterface
             }
 
             $result = $this->createRegisterResultWithMessages($messages);
-        }
-        else {
+        } else {
 
             $this->userMapper->beginTransaction();
 
-            try{
+            try {
                 /** @var UserEntityInterface $user */
                 $user = $form->getData();
 
                 $user->setPassword($this->passwordService->create($user->getPassword()));
-                if($this->options->isEnableUserStatus()) {
+                if ($this->options->isEnableUserStatus()) {
                     $user->setStatus($this->options->getRegisterOptions()->getDefaultUserStatus());
                 }
 
@@ -403,14 +450,14 @@ class UserService implements UserServiceInterface
 
                 //get newly created user id and save it to the object
                 $id = $this->userMapper->lastInsertValue();
-                if($id) {
+                if ($id) {
                     $user->setId($id);
                 }
 
                 $result->setUser($user);
 
                 //generate a confirm token if enabled and also trigger events
-                if($this->options->getConfirmAccountOptions()->isEnableAccountConfirmation()) {
+                if ($this->options->getConfirmAccountOptions()->isEnableAccountConfirmation()) {
                     $this->generateConfirmToken($user);
                 }
 
@@ -419,10 +466,9 @@ class UserService implements UserServiceInterface
                     $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_POST));
 
                 $this->userMapper->commit();
-            }
-            catch(\Exception $e) {
+            } catch (\Exception $e) {
                 error_log("Register error: " . $e->getMessage(), E_USER_ERROR);
-                
+
                 $result = $this->createRegisterResultWithException($e);
                 //trigger error event
                 $this->getEventManager()->triggerEvent(
@@ -434,7 +480,7 @@ class UserService implements UserServiceInterface
         }
 
         //if no exception but still some validation errors, trigger the error event
-        if(!$result->isValid()) {
+        if (!$result->isValid()) {
             $this->getEventManager()->triggerEvent(
                 $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_ERROR, $result));
         }
@@ -447,7 +493,8 @@ class UserService implements UserServiceInterface
      * @param UserEntityInterface $user
      * @throws \Exception
      */
-    protected function generateConfirmToken(UserEntityInterface $user)
+    protected
+    function generateConfirmToken(UserEntityInterface $user)
     {
         try {
             $data = new \stdClass();
@@ -460,7 +507,7 @@ class UserService implements UserServiceInterface
                     $data,
                     ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_PRE));
 
-            $this->userMapper->saveConfirmToken((array) $data);
+            $this->userMapper->saveConfirmToken((array)$data);
 
             $this->getEventManager()->triggerEvent(
                 $this->createConfirmTokenGenerateEvent(
@@ -469,8 +516,7 @@ class UserService implements UserServiceInterface
                     ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_POST
                 )
             );
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             error_log("Confirm token generation error: " . $e->getMessage());
 
             $this->getEventManager()->triggerEvent(
@@ -488,7 +534,8 @@ class UserService implements UserServiceInterface
     /**
      * @return Form
      */
-    public function getResetPasswordForm()
+    public
+    function getResetPasswordForm()
     {
         return $this->resetPasswordForm;
     }
@@ -497,7 +544,8 @@ class UserService implements UserServiceInterface
      * @param Form $resetPasswordForm
      * @return UserService
      */
-    public function setResetPasswordForm($resetPasswordForm)
+    public
+    function setResetPasswordForm($resetPasswordForm)
     {
         $this->resetPasswordForm = $resetPasswordForm;
         return $this;
@@ -506,7 +554,8 @@ class UserService implements UserServiceInterface
     /**
      * @return PasswordInterface
      */
-    public function getPasswordService()
+    public
+    function getPasswordService()
     {
         return $this->passwordService;
     }
@@ -515,7 +564,8 @@ class UserService implements UserServiceInterface
      * @param PasswordInterface $passwordService
      * @return UserService
      */
-    public function setPasswordService($passwordService)
+    public
+    function setPasswordService($passwordService)
     {
         $this->passwordService = $passwordService;
         return $this;
@@ -524,7 +574,8 @@ class UserService implements UserServiceInterface
     /**
      * @return UserMapperInterface
      */
-    public function getUserMapper()
+    public
+    function getUserMapper()
     {
         return $this->userMapper;
     }
@@ -533,7 +584,8 @@ class UserService implements UserServiceInterface
      * @param UserMapperInterface $userMapper
      * @return UserService
      */
-    public function setUserMapper($userMapper)
+    public
+    function setUserMapper($userMapper)
     {
         $this->userMapper = $userMapper;
         return $this;
@@ -542,7 +594,8 @@ class UserService implements UserServiceInterface
     /**
      * @return UserOptions
      */
-    public function getOptions()
+    public
+    function getOptions()
     {
         return $this->options;
     }
@@ -551,18 +604,19 @@ class UserService implements UserServiceInterface
      * @param UserOptions $options
      * @return UserService
      */
-    public function setOptions($options)
+    public
+    function setOptions($options)
     {
         $this->options = $options;
         return $this;
     }
 
 
-
     /**
      * @return Form
      */
-    public function getRegisterForm()
+    public
+    function getRegisterForm()
     {
         return $this->registerForm;
     }
@@ -571,7 +625,8 @@ class UserService implements UserServiceInterface
      * @param Form $registerForm
      * @return UserService
      */
-    public function setRegisterForm($registerForm)
+    public
+    function setRegisterForm($registerForm)
     {
         $this->registerForm = $registerForm;
         return $this;
@@ -580,7 +635,8 @@ class UserService implements UserServiceInterface
     /**
      * @return UserEntityInterface
      */
-    public function getUserEntityPrototype()
+    public
+    function getUserEntityPrototype()
     {
         return $this->userEntityPrototype;
     }
@@ -589,48 +645,76 @@ class UserService implements UserServiceInterface
      * @param UserEntityInterface $userEntityPrototype
      * @return UserService
      */
-    public function setUserEntityPrototype($userEntityPrototype)
+    public
+    function setUserEntityPrototype($userEntityPrototype)
     {
         $this->userEntityPrototype = $userEntityPrototype;
         return $this;
     }
 
-    protected function createConfirmAccountResultWithMessages($messages)
+    protected
+    function createConfirmAccountResultWithMessages($messages)
     {
         return new ConfirmAccountResult(false, $messages);
     }
 
-    protected function createConfirmAccountResultWithException(\Exception $e)
+    protected
+    function createConfirmAccountResultWithException(\Exception $e)
     {
         return new ConfirmAccountResult(false, $this->options->getConfirmAccountOptions()
             ->getMessage(ConfirmAccountOptions::MESSAGE_CONFIRM_ACCOUNT_ERROR), $e);
     }
 
-    protected function createRegisterResultWithMessages($messages)
+    protected
+    function createRegisterResultWithMessages($messages)
     {
         return new RegisterResult(false, $messages);
     }
 
-    protected function createRegisterResultWithException(\Exception $e)
+    protected
+    function createRegisterResultWithException(\Exception $e)
     {
         return new RegisterResult(false, $this->options->getRegisterOptions()
             ->getMessage(RegisterOptions::MESSAGE_REGISTER_ERROR), $e);
     }
 
-    protected function createConfirmAccountEvent(
+    protected
+    function createPasswordResetResultWithMessages($messages)
+    {
+        return new PasswordResetResult(false, $messages);
+    }
+
+    protected
+    function createPasswordResetResultTokenWithException(\Exception $e)
+    {
+        return new PasswordResetResult(false, $this->options->getPasswordRecoveryOptions()
+            ->getMessage(PasswordRecoveryOptions::MESSAGE_FORGOT_PASSWORD_ERROR), $e);
+    }
+
+    protected
+    function createPasswordResetResultWithException(\Exception $e)
+    {
+        return new PasswordResetResult(false, $this->options->getPasswordRecoveryOptions()
+            ->getMessage(PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_ERROR), $e);
+    }
+
+    protected
+    function createConfirmAccountEvent(
         UserEntityInterface $user = null,
         $name = ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_PRE,
         ResultInterface $result = null
-    ) {
+    )
+    {
         $event = new ConfirmAccountEvent($this, $user, $name);
-        if($result) {
+        if ($result) {
             $event->setResult($result);
         }
 
         return $event;
     }
 
-    protected function createRegisterEvent(
+    protected
+    function createRegisterEvent(
         UserEntityInterface $user = null,
         Form $registerForm = null,
         $name = RegisterEvent::EVENT_REGISTER_PRE,
@@ -638,17 +722,18 @@ class UserService implements UserServiceInterface
     )
     {
         $event = new RegisterEvent($this, $user, $name);
-        if($registerForm) {
+        if ($registerForm) {
             $event->setRegisterForm($registerForm);
         }
-        if($result) {
+        if ($result) {
             $event->setResult($result);
         }
 
         return $event;
     }
 
-    protected function createConfirmTokenGenerateEvent(
+    protected
+    function createConfirmTokenGenerateEvent(
         UserEntityInterface $user = null,
         $data = null,
         $name = ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_PRE
@@ -657,5 +742,21 @@ class UserService implements UserServiceInterface
         $event = new ConfirmTokenGenerateEvent($this, $user, $data, $name);
         return $event;
     }
-    
+
+    protected
+    function createPasswordResetEvent(
+        UserEntityInterface $user = null,
+        $data = null,
+        $name = PasswordResetEvent::EVENT_PASSWORD_RESET_PRE,
+        ResultInterface $result = null
+    )
+    {
+        $event = new PasswordResetEvent($this, $user, $data, $name);
+        if ($result) {
+            $event->setResult($result);
+        }
+
+        return $event;
+    }
+
 }
