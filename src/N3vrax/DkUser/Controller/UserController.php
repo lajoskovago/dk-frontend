@@ -10,8 +10,6 @@ namespace N3vrax\DkUser\Controller;
 
 use N3vrax\DkBase\Controller\AbstractActionController;
 use N3vrax\DkBase\Controller\Plugin\FlashMessengerPlugin;
-use N3vrax\DkBase\Session\FlashMessenger;
-use N3vrax\DkMail\Service\MailServiceInterface;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\FlashMessagesTrait;
 use N3vrax\DkUser\Options\ConfirmAccountOptions;
@@ -39,14 +37,8 @@ class UserController extends AbstractActionController
     /** @var  Form */
     protected $loginForm;
 
-    /** @var  Form */
-    protected $resetPasswordForm;
-
     /** @var  LoginAction */
     protected $loginAction;
-
-    /** @var  Form */
-    protected $registerForm;
 
     /** @var  UserServiceInterface */
     protected $userService;
@@ -55,17 +47,13 @@ class UserController extends AbstractActionController
         UserServiceInterface $userService,
         LoginAction $loginAction,
         UserOptions $options,
-        Form $loginForm,
-        Form $registerForm,
-        Form $resetPasswordForm
+        Form $loginForm
     )
     {
         $this->userService = $userService;
-        $this->registerForm = $registerForm;
         $this->options = $options;
         $this->loginAction = $loginAction;
         $this->loginForm = $loginForm;
-        $this->resetPasswordForm = $resetPasswordForm;
     }
 
     public function indexAction()
@@ -103,10 +91,7 @@ class UserController extends AbstractActionController
 
     public function accountAction()
     {
-        /** @var MailServiceInterface $mailService */
-        $mailService = $this->sendMail();
-        $mailService->setBody('This is a test');
-        $mailService->getMessage()->setTo('n3vrax@gmail.com');
+
     }
 
     public function registerAction()
@@ -172,55 +157,48 @@ class UserController extends AbstractActionController
      */
     public function resetPasswordAction()
     {
+        /** @var FlashMessengerPlugin $messenger */
+        $messenger = $this->flashMessenger();
+
         if(!$this->options->getPasswordRecoveryOptions()->isEnablePasswordRecovery()) {
             $this->addError($this->options->getPasswordRecoveryOptions()->getMessage(
                 PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_DISABLED),
-                $this->flashMessenger());
+                $messenger);
 
             return new RedirectResponse($this->urlHelper()->generate('login'));
         }
 
         $request = $this->getRequest();
         $params = $request->getQueryParams();
+
         $email = isset($params['email']) ? $params['email'] : '';
         $token = isset($params['token']) ? $params['token'] : '';
 
-        if(empty($email) || empty($token)) {
-            $this->addError($this->options->getMessage(
-                DkUser::MESSAGE_RESET_PASSWORD_MISSING_PARAMS),
-                $this->flashMessenger());
+        $data = $messenger->getData('resetPasswordFormData') ?: [];
+        $formMessages = $messenger->getData('resetPasswordFormMessages') ?: [];
 
-            return new RedirectResponse($this->urlHelper()->generate('login'));
-        }
-
-        $form = $this->resetPasswordForm;
+        $form = $this->userService->getResetPasswordForm();
+        $form->setData($data);
+        $form->setMessages($formMessages);
 
         if($request->getMethod() === 'POST') {
             $data = $request->getParsedBody();
 
-            try {
-                $errors = $this->userService->resetPassword($email, $token, $data);
+            /** @var ResultInterface $result */
+            $result = $this->userService->resetPassword($email, $token, $data);
+            if(!$result->isValid()) {
+                $this->addError($result->getMessages(), $messenger);
 
-                if(!empty($errors)) {
-                    $this->addError($errors, $this->flashMessenger());
-                    return new RedirectResponse($request->getUri(), 303);
-                }
-
-                $this->addSuccess($this->options->getMessage(
-                    DkUser::MESSAGE_RESET_PASSWORD_SUCCESS),
-                    $this->flashMessenger());
-
-                return new RedirectResponse($this->urlHelper()->generate('login'));
-            }
-            catch(\Exception $e) {
-                error_log('Account reset password exception: ' . $e->getMessage(), E_USER_ERROR);
-
-                $this->addError($this->options->getMessage(
-                    DkUser::MESSAGE_RESET_PASSWORD_ERROR),
-                    $this->flashMessenger());
+                $messenger->addData('resetPasswordFormData', $data);
+                $messenger->addData('resetPasswordFormMessages', $form->getMessages());
 
                 return new RedirectResponse($request->getUri(), 303);
             }
+            else {
+                $this->addSuccess($result->getMessages(), $messenger);
+            }
+
+            return new RedirectResponse($this->urlHelper()->generate('login'));
         }
 
         return new HtmlResponse($this->template()->render('dk-user::reset-password', ['form' => $form]));

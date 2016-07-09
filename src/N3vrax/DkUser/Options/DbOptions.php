@@ -16,13 +16,13 @@ class DbOptions extends AbstractOptions
     protected $dbAdapter;
 
     /** @var  string */
-    protected $userTable;
+    protected $userTable = 'user';
 
     /** @var  string */
-    protected $userResetTokenTable;
+    protected $userResetTokenTable = 'user_reset_token';
 
     /** @var  string */
-    protected $userConfirmTokenTable;
+    protected $userConfirmTokenTable = 'user_confirm_token';
 
     /**
      * @return string

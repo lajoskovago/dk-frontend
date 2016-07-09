@@ -9,7 +9,7 @@
 namespace N3vrax\DkUser\Factory\Form;
 
 use Interop\Container\ContainerInterface;
-use N3vrax\DkUser\DIGetEventManagerTrait;
+use N3vrax\DkUser\DiGetEventManagerTrait;
 use N3vrax\DkUser\Form\InputFilter\RegisterInputFilter;
 use N3vrax\DkUser\Form\RegisterForm;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
@@ -18,7 +18,7 @@ use N3vrax\DkUser\Validator\NoRecordsExists;
 
 class RegisterFormFactory
 {
-    use DIGetEventManagerTrait;
+    use DiGetEventManagerTrait;
 
     public function __invoke(ContainerInterface $container)
     {

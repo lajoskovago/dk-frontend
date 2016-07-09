@@ -32,6 +32,7 @@ class UserDbMapper extends AbstractDbMapper implements UserMapperInterface
         $sql = null)
     {
         parent::__construct($table, $adapter, $features, $resultSetPrototype, $sql);
+        $this->dbOptions = $dbOptions;
     }
 
     public function findUser($id)

@@ -24,7 +24,7 @@ class ConfirmAccountOptions extends AbstractOptions
     protected $enableAccountConfirmation = true;
 
     /** @var  mixed */
-    protected $activeUserStatus;
+    protected $activeUserStatus = 'active';
 
     /** @var array  */
     protected $messages = [

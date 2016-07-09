@@ -28,7 +28,6 @@ class UserServiceFactory
             ? $container->get(EventManagerInterface::class)
             : new EventManager();
 
-
         $service = new UserService(
             $container->get(UserMapperInterface::class),
             $options,

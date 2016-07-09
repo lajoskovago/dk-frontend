@@ -8,6 +8,8 @@
 
 namespace N3vrax\DkUser\Form\InputFilter;
 
+use N3vrax\DkUser\Options\PasswordRecoveryOptions;
+use N3vrax\DkUser\Options\UserOptions;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\InputFilter\InputFilter;
 
@@ -15,8 +17,14 @@ class ResetPasswordInputFilter extends InputFilter
 {
     use EventManagerAwareTrait;
 
-    public function __construct()
+    /** @var  UserOptions */
+    protected $options;
+
+    public function __construct(
+        UserOptions $options
+    )
     {
+        $this->options = $options;
         $this->init();
     }
 
@@ -32,14 +40,16 @@ class ResetPasswordInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => 'Password is required and cannot be empty'
+                        'message' => $this->options->getPasswordRecoveryOptions()
+                            ->getMessage(PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_EMPTY_PASSWORD)
                     ]
                 ],
                 [
                     'name'    => 'StringLength',
                     'options' => [
                         'min' => 4,
-                        'message' => 'Password must have at least 4 characters'
+                        'message' => $this->options->getPasswordRecoveryOptions()
+                            ->getMessage(PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_TOO_SHORT)
                     ],
                 ],
             ],
@@ -55,14 +65,16 @@ class ResetPasswordInputFilter extends InputFilter
                 [
                     'name' => 'NotEmpty',
                     'options' => [
-                        'message' => 'Password confirmation is required'
+                        'message' => $this->options->getPasswordRecoveryOptions()
+                            ->getMessage(PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_EMPTY_VERIFY)
                     ]
                 ],
                 [
                     'name'    => 'Identical',
                     'options' => [
                         'token' => 'newPassword',
-                        'message' => 'Password confirmation does not match'
+                        'message' => $this->options->getPasswordRecoveryOptions()
+                            ->getMessage(PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_MISMATCH)
                     ],
                 ],
             ],

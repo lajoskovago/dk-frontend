@@ -9,19 +9,19 @@
 namespace N3vrax\DkUser\Factory\Form;
 
 use Interop\Container\ContainerInterface;
-use N3vrax\DkUser\DIGetEventManagerTrait;
+use N3vrax\DkUser\DiGetEventManagerTrait;
 use N3vrax\DkUser\Form\InputFilter\LoginInputFilter;
 use N3vrax\DkUser\Form\LoginForm;
 use N3vrax\DkUser\Options\UserOptions;
 
 class LoginFormFactory
 {
-    use DIGetEventManagerTrait;
+    use DiGetEventManagerTrait;
 
     public function __invoke(ContainerInterface $container)
     {
         $options = $container->get(UserOptions::class);
-        
+
         $filter = new LoginInputFilter($options);
         $filter->setEventManager($this->getEventManager($container));
         

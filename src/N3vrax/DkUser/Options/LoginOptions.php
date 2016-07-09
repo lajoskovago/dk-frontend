@@ -24,7 +24,7 @@ class LoginOptions extends AbstractOptions
     protected $authIdentityFields = ['username', 'email'];
 
     /** @var  array */
-    protected $allowedLoginStatuses;
+    protected $allowedLoginStatuses = ['active'];
 
     /** @var int  */
     protected $loginFormTimeout = 1800;
@@ -68,7 +68,7 @@ class LoginOptions extends AbstractOptions
      */
     public function setAuthIdentityFields($authIdentityFields)
     {
-        $this->authIdentityFields = $authIdentityFields;
+        $this->authIdentityFields = (array) $authIdentityFields;
         return $this;
     }
 

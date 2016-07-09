@@ -34,7 +34,7 @@ class RegisterOptions extends AbstractOptions
     protected $enableUsername = true;
 
     /** @var  mixed */
-    protected $defaultUserStatus;
+    protected $defaultUserStatus = 'pending';
 
     /** @var int  */
     protected $userFormTimeout = 1800;
@@ -43,7 +43,14 @@ class RegisterOptions extends AbstractOptions
     protected $useRegistrationFormCaptcha = true;
 
     /** @var  mixed */
-    protected $formCaptchaOptions;
+    protected $formCaptchaOptions = [
+        'class'   => 'Figlet',
+        'options' => [
+            'wordLen'    => 5,
+            'expiration' => 300,
+            'timeout'    => 300,
+        ],
+    ];
 
     /** @var bool  */
     protected $loginAfterRegistration = false;

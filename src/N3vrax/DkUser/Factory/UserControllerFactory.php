@@ -32,9 +32,7 @@ class UserControllerFactory
             $userService,
             $container->get(LoginAction::class),
             $options,
-            $container->get(LoginForm::class),
-            $container->get(RegisterForm::class),
-            $container->get(ResetPasswordForm::class)
+            $container->get(LoginForm::class)
         );
 
         return $controller;

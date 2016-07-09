@@ -111,7 +111,18 @@ interface UserServiceInterface
      * @param Form $registerForm
      * @return UserService
      */
-    public function setRegisterForm($registerForm);
+    public function setRegisterForm(Form $registerForm);
+
+    /**
+     * @return Form
+     */
+    public function getResetPasswordForm();
+
+    /**
+     * @param Form $form
+     * @return mixed
+     */
+    public function setResetPasswordForm(Form $form);
 
     /**
      * @return UserEntityInterface

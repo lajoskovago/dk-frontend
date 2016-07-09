@@ -17,13 +17,17 @@ class PasswordRecoveryOptions extends AbstractOptions
     const MESSAGE_RESET_PASSWORD_INVALID_TOKEN = 2;
     const MESSAGE_RESET_PASSWORD_TOKEN_EXPIRED = 3;
     const MESSAGE_RESET_PASSWORD_MISSING_PARAMS = 4;
-    const MESSAGE_RESET_PASSWORD_DISABLED = 5;
-    const MESSAGE_RESET_PASSWORD_ERROR = 6;
-    const MESSAGE_RESET_PASSWORD_SUCCESS = 7;
+    const MESSAGE_RESET_PASSWORD_EMPTY_PASSWORD = 5;
+    const MESSAGE_RESET_PASSWORD_TOO_SHORT = 6;
+    const MESSAGE_RESET_PASSWORD_EMPTY_VERIFY = 7;
+    const MESSAGE_RESET_PASSWORD_MISMATCH = 8;
+    const MESSAGE_RESET_PASSWORD_DISABLED = 9;
+    const MESSAGE_RESET_PASSWORD_ERROR = 10;
+    const MESSAGE_RESET_PASSWORD_SUCCESS = 11;
 
-    const MESSAGE_FORGOT_PASSWORD_MISSING_EMAIL = 8;
-    const MESSAGE_FORGOT_PASSWORD_ERROR = 9;
-    const MESSAGE_FORGOT_PASSWORD_SUCCESS = 10;
+    const MESSAGE_FORGOT_PASSWORD_MISSING_EMAIL = 12;
+    const MESSAGE_FORGOT_PASSWORD_ERROR = 13;
+    const MESSAGE_FORGOT_PASSWORD_SUCCESS = 14;
 
     /** @var bool  */
     protected $enablePasswordRecovery = true;
@@ -45,6 +49,10 @@ class PasswordRecoveryOptions extends AbstractOptions
         PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_INVALID_EMAIL => 'Password reset error. Invalid parameters',
         PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_INVALID_TOKEN => 'Password reset error. Invalid parameters',
         PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_MISSING_PARAMS => 'Password reset error. Invalid parameters',
+        PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_EMPTY_PASSWORD => 'Password is required and cannot be empty',
+        PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_TOO_SHORT => 'Password must have at least 4 characters',
+        PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_EMPTY_VERIFY => 'Password confirmation is required and cannot be empty',
+        PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_MISMATCH => 'Password confirmation does not match',
         PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_TOKEN_EXPIRED => 'Password reset error. Reset token has expired',
         PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_SUCCESS => 'Account password successfully updated',
     ];

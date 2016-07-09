@@ -9,17 +9,20 @@
 namespace N3vrax\DkUser\Factory\Form;
 
 use Interop\Container\ContainerInterface;
-use N3vrax\DkUser\DIGetEventManagerTrait;
+use N3vrax\DkUser\DiGetEventManagerTrait;
 use N3vrax\DkUser\Form\InputFilter\ResetPasswordInputFilter;
 use N3vrax\DkUser\Form\ResetPasswordForm;
+use N3vrax\DkUser\Options\UserOptions;
 
 class ResetPasswordFormFactory
 {
-    use DIGetEventManagerTrait;
+    use DiGetEventManagerTrait;
 
     public function __invoke(ContainerInterface $container)
     {
-        $filter = new ResetPasswordInputFilter();
+        $options = $container->get(UserOptions::class);
+
+        $filter = new ResetPasswordInputFilter($options);
         $filter->setEventManager($this->getEventManager($container));
 
         $form = new ResetPasswordForm();

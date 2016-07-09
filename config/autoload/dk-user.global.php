@@ -30,7 +30,7 @@ return [
         'register_options' => [
             'enable_registration' => true,
 
-            'enable_username' => true,
+            //'enable_username' => true,
 
             //'user_form_timeout' => 1800,
 
@@ -53,7 +53,7 @@ return [
         'login_options' => [
             //'login_form_timeout' => 1800,
 
-            'enable_remember_me' => true,
+            //'enable_remember_me' => true,
 
             'auth_identity_fields' => ['username', 'email'],
 
@@ -63,11 +63,13 @@ return [
         'password_recovery_options' => [
             'enable_password_recovery' => true,
 
-            'reset_password_token_timeout' => 3600,
+            //'reset_password_token_timeout' => 3600,
         ],
 
         'confirm_account_options' => [
             'enable_account_confirmation' => true,
+
+            'active_user_status' => 'active'
         ],
     ],
 
