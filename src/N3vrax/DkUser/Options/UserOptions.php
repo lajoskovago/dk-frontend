@@ -28,6 +28,9 @@ class UserOptions extends AbstractOptions
     /** @var bool  */
     protected $enableUserStatus = true;
 
+    /** @var array  */
+    protected $userListeners = [];
+
     /** @var  DbOptions */
     protected $dbOptions;
 
@@ -114,6 +117,25 @@ class UserOptions extends AbstractOptions
         $this->enableUserStatus = $enableUserStatus;
         return $this;
     }
+
+    /**
+     * @return array
+     */
+    public function getUserListeners()
+    {
+        return $this->userListeners;
+    }
+
+    /**
+     * @param array $userListeners
+     * @return UserOptions
+     */
+    public function setUserListeners($userListeners)
+    {
+        $this->userListeners = (array) $userListeners;
+        return $this;
+    }
+
 
     /**
      * @return DbOptions

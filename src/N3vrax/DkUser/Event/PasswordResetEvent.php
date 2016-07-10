@@ -30,7 +30,7 @@ class PasswordResetEvent extends Event
     /** @var  UserEntityInterface */
     protected $user;
 
-    /** @var  object */
+    /** @var  mixed */
     protected $data;
 
     /** @var  Form */
@@ -134,7 +134,7 @@ class PasswordResetEvent extends Event
     }
 
     /**
-     * @return object
+     * @return mixed
      */
     public function getData()
     {
@@ -142,7 +142,7 @@ class PasswordResetEvent extends Event
     }
 
     /**
-     * @param object $data
+     * @param mixed $data
      * @return PasswordResetEvent
      */
     public function setData($data)

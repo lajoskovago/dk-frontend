@@ -11,6 +11,8 @@ namespace N3vrax\DkUser\Service;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Event\ConfirmAccountEvent;
 use N3vrax\DkUser\Event\ConfirmTokenGenerateEvent;
+use N3vrax\DkUser\Event\Listener\UserListenerAwareInterface;
+use N3vrax\DkUser\Event\Listener\UserListenerAwareTrait;
 use N3vrax\DkUser\Event\PasswordResetEvent;
 use N3vrax\DkUser\Event\RegisterEvent;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
@@ -22,22 +24,12 @@ use N3vrax\DkUser\Result\ConfirmAccountResult;
 use N3vrax\DkUser\Result\PasswordResetResult;
 use N3vrax\DkUser\Result\RegisterResult;
 use N3vrax\DkUser\Result\ResultInterface;
-use Zend\EventManager\EventManagerAwareTrait;
 use Zend\Form\Form;
 use Zend\Math\Rand;
 
-class UserService implements UserServiceInterface
+class UserService implements UserServiceInterface, UserListenerAwareInterface
 {
-    use EventManagerAwareTrait;
-
-    const EVENT_RESET_PASSWORD_REQUEST = 'reset_password_request';
-    const EVENT_RESET_PASSWORD_REQUEST_POST = 'reset_password_request.post';
-
-    const EVENT_RESET_PASSWORD = 'reset_password';
-    const EVENT_RESET_PASSWORD_POST = 'reset_password_post';
-
-    const EVENT_CONFIRM_TOKEN = 'confirm_token';
-    const EVENT_CONFIRM_TOKEN_POST = 'confirm_token_post';
+    use UserListenerAwareTrait;
 
     /** @var  UserMapperInterface */
     protected $userMapper;
