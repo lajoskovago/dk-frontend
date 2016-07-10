@@ -86,6 +86,7 @@ class ConfigProvider
 
             'dk_user' => [
 
+                'user_listeners' => [],
 
                 'db_options' => [
 

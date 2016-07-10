@@ -8,11 +8,13 @@
 
 namespace N3vrax\DkUser\Event\Listener;
 
+use Zend\EventManager\AbstractListenerAggregate;
+
 interface UserListenerAwareInterface
 {
-    public function attachUserListener(UserListenerInterface $listener, $priority = 1);
+    public function attachUserListener(AbstractListenerAggregate $listener, $priority = 1);
 
-    public function detachUserListener(UserListenerInterface $listener);
+    public function detachUserListener(AbstractListenerAggregate $listener);
 
     public function clearUserListeners();
 }

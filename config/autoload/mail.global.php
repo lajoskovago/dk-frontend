@@ -33,7 +33,7 @@ return [
              * defaults to sendmail
             **/
 
-            'transport' => \Zend\Mail\Transport\Sendmail::class,
+            'transport' => \Zend\Mail\Transport\Smtp::class,
 
             //message configuration
             'message_options' => [
@@ -91,31 +91,31 @@ return [
             ],
 
             //options that will be used only if Zend\Mail\Transport\Smtp adapter is used
-            /*'smtp_options' => [
+            'smtp_options' => [
 
                 //hostname or IP address of the mail server
-                'host' => 'localhost',
+                'host' => 'smtp.gmail.com',
 
                 //port of the mail server - default 25
-                'port' => 25,
+                'port' => 587,
 
                 //connection class used for authentication
                 //the calue can be one of smtp, plain, login or crammd5
-                'connection_class' => 'smtp',
+                'connection_class' => 'login',
 
                 'connection_config' => [
 
                     //the smtp authentication identity
-                    'username' => '',
+                    //'username' => '',
 
                     //the smtp authentication credential
-                    'password' => '',
+                    //'password' => '',
 
                     //the encryption type to be used, ssl or tls
                     //null should be used to disable SSL
-                    'ssl' => null,
+                    'ssl' => 'tls',
                 ]
-            ],*/
+            ],
 
             //file options that will be used only if the adapter is Zend\Mail\Transport\File
             /*'file_options' => [

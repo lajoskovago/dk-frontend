@@ -7,10 +7,17 @@ return [
         'factories' => [
             \Frontend\Authentication\AuthenticationEventListener::class =>
                 \Frontend\Authentication\Factory\AuthenticationEventListenerFactory::class,
+
+            \Frontend\User\Listener\UserEventsListener::class =>
+                \Frontend\User\Listener\Factory\UserEventsListenerFactory::class,
         ]
     ],
 
     'dk_user' => [
+
+        'user_listeners' => [
+            \Frontend\User\Listener\UserEventsListener::class,
+        ],
 
         //'user_entity_class' => \N3vrax\DkUser\Entity\UserEntity::class,
         //'user_entity_hydrator' => \N3vrax\DkUser\Entity\UserEntityHydrator::class,
@@ -48,6 +55,11 @@ return [
             'login_after_registration' => false,
 
             'default_user_status' => 'pending',
+
+            'messages' => [
+                \N3vrax\DkUser\Options\RegisterOptions::MESSAGE_REGISTER_SUCCESS =>
+                    'Account created. Check your email for confirmation'
+            ]
         ],
 
         'login_options' => [

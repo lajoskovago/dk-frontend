@@ -8,16 +8,17 @@
 
 namespace N3vrax\DkUser\Event\Listener;
 
+use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManagerAwareTrait;
 
 trait UserListenerAwareTrait
 {
     use EventManagerAwareTrait;
 
-    /** @var UserListenerInterface[] */
+    /** @var AbstractListenerAggregate[] */
     protected $listeners = [];
     
-    public function attachUserListener(UserListenerInterface $listener, $priority = 1)
+    public function attachUserListener(AbstractListenerAggregate $listener, $priority = 1)
     {
         $listener->attach($this->getEventManager(), $priority);
         $this->listeners[] = $listener;
@@ -25,7 +26,7 @@ trait UserListenerAwareTrait
         return $this;
     }
 
-    public function detachUserListener(UserListenerInterface $listener)
+    public function detachUserListener(AbstractListenerAggregate $listener)
     {
         $listener->detach($this->getEventManager());
 

@@ -45,6 +45,7 @@ class RegisterEvent extends Event
     {
         parent::__construct($name);
         $this->userService = $userService;
+        $this->userEntity = $user;
     }
 
     /**

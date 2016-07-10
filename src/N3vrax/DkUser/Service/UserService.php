@@ -611,7 +611,7 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
      * @param UserOptions $options
      * @return UserService
      */
-    public function setOptions($options)
+    public function setOptions(UserOptions $options)
     {
         $this->options = $options;
         return $this;
@@ -655,6 +655,8 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
         $this->userEntityPrototype = $userEntityPrototype;
         return $this;
     }
+
+
 
     protected function createConfirmAccountResultWithMessages($messages)
     {

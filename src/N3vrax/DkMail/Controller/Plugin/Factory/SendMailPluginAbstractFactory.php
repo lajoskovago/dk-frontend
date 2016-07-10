@@ -46,6 +46,7 @@ class SendMailPluginAbstractFactory extends AbstractMailFactory
     protected function getSpecificServiceName($requestedName)
     {
         $parts = explode('_', $this->camelCaseToUnderscore($requestedName));
+
         if(count($parts) === 2) {
             return 'default';
         }

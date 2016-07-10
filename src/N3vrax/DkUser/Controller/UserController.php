@@ -56,14 +56,9 @@ class UserController extends AbstractActionController
         $this->loginForm = $loginForm;
     }
 
-    public function indexAction()
-    {
-
-    }
-
     public function confirmAccountAction()
     {
-        if(!$this->options->getConfirmAccountOptions()->isEnableAccountConfirmation()) {
+        if (!$this->options->getConfirmAccountOptions()->isEnableAccountConfirmation()) {
             $this->addError($this->options->getConfirmAccountOptions()->getMessage(
                 ConfirmAccountOptions::MESSAGE_CONFIRM_ACCOUNT_DISABLED),
                 $this->flashMessenger());
@@ -79,19 +74,13 @@ class UserController extends AbstractActionController
 
         /** @var ResultInterface $result */
         $result = $this->userService->confirmAccount($email, $token);
-        if(!$result->isValid()) {
+        if (!$result->isValid()) {
             $this->addError($result->getMessages(), $this->flashMessenger());
-        }
-        else {
+        } else {
             $this->addSuccess($result->getMessages(), $this->flashMessenger());
         }
 
         return new RedirectResponse($this->urlHelper()->generate('login'));
-    }
-
-    public function accountAction()
-    {
-
     }
 
     public function registerAction()

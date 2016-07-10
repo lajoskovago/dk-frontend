@@ -8,6 +8,7 @@
 namespace N3vrax\DkUser\Service;
 
 use N3vrax\DkUser\Entity\UserEntityInterface;
+use N3vrax\DkUser\Options\UserOptions;
 use Zend\Form\Form;
 
 interface UserServiceInterface
@@ -134,4 +135,15 @@ interface UserServiceInterface
      * @return UserService
      */
     public function setUserEntityPrototype($userEntityPrototype);
+
+    /**
+     * @return mixed
+     */
+    public function getOptions();
+
+    /**
+     * @param UserOptions $options
+     * @return mixed
+     */
+    public function setOptions(UserOptions $options);
 }

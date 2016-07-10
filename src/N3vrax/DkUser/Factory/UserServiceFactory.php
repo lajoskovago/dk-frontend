@@ -10,7 +10,6 @@ namespace N3vrax\DkUser\Factory;
 
 use Interop\Container\ContainerInterface;
 use N3vrax\DkUser\Event\Listener\UserListenerAwareInterface;
-use N3vrax\DkUser\Event\Listener\UserListenerInterface;
 use N3vrax\DkUser\Exception\InvalidArgumentException;
 use N3vrax\DkUser\Form\RegisterForm;
 use N3vrax\DkUser\Form\ResetPasswordForm;
@@ -18,6 +17,7 @@ use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Options\UserOptions;
 use N3vrax\DkUser\Service\PasswordInterface;
 use N3vrax\DkUser\Service\UserService;
+use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerInterface;
 
@@ -62,11 +62,11 @@ class UserServiceFactory
                 $listener = new $listener;
             }
 
-            if (!$listener instanceof UserListenerInterface) {
+            if (!$listener instanceof AbstractListenerAggregate) {
                 throw new InvalidArgumentException(sprintf(
                     'Provided mail listener of type "%s" is not valid. Expected string or %s',
                     is_object($listener) ? get_class($listener) : gettype($listener),
-                    UserListenerInterface::class
+                    AbstractListenerAggregate::class
                 ));
             }
 
