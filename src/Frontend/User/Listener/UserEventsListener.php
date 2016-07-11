@@ -55,9 +55,7 @@ class UserEventsListener extends AbstractListenerAggregate
 
     public function attach(EventManagerInterface $events, $priority = 1)
     {
-        $this->listeners[] = $events->attach(RegisterEvent::EVENT_REGISTER_PRE, [$this, 'onPreRegister'], $priority);
         $this->listeners[] = $events->attach(RegisterEvent::EVENT_REGISTER_POST, [$this, 'onPostRegister'], $priority);
-        $this->listeners[] = $events->attach(RegisterEvent::EVENT_REGISTER_ERROR, [$this, 'onRegisterError'], $priority);
 
         $this->listeners[] = $events->attach(ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_POST,
             [$this, 'onConfirmTokenGenerated'], $priority);
@@ -88,9 +86,12 @@ class UserEventsListener extends AbstractListenerAggregate
         $query = ['email' => $user->getEmail(), 'token' => $this->resetToken];
         $resetPasswordUri .= '?' . http_build_query($query);
 
+        //sets the current request/response to make it available to mail events
+        $this->mailService->setRequest($e->getRequest());
+        $this->mailService->setResponse($e->getResponse());
+
         $message = $this->mailService->getMessage();
         $message->setTo($user->getEmail());
-        $message->setFrom('pgt.dot.work@gmail.com', 'Dotkernel Team');
         $message->setSubject('DotKernel Password Reset');
 
         $message->setBody("You have requested an account password reset".
@@ -101,11 +102,6 @@ class UserEventsListener extends AbstractListenerAggregate
         );
 
         $this->mailService->send();
-
-    }
-
-    public function onPreRegister(RegisterEvent $e)
-    {
 
     }
 
@@ -121,29 +117,27 @@ class UserEventsListener extends AbstractListenerAggregate
         /** @var UserOptions $options */
         $options = $userService->getOptions();
         /** @var UserEntityInterface $user */
-        $user = $e->getUserEntity();
+        $user = $e->getUser();
 
         $confirmAccountUri = $this->urlHelper->generate('user', ['action' => 'confirm-account']);
         $query = ['email' => $user->getEmail(), 'token' => $this->confirmToken];
         $confirmAccountUri .= '?' . http_build_query($query);
 
         if($options->getConfirmAccountOptions()->isEnableAccountConfirmation()) {
+
+            $this->mailService->setRequest($e->getRequest());
+            $this->mailService->setResponse($e->getResponse());
+
             $message = $this->mailService->getMessage();
             $message->setTo($user->getEmail());
-            $message->setFrom('pgt.dot.work@gmail.com', 'Dotkernel Team');
             $message->setSubject('DotKernel Account confirmation');
             
-            $message->setBody("Welcome to Dotkernel 3. Thanks you for registering with us.".
+            $message->setBody("Welcome to Dotkernel 3. Thank you for registering with us.".
                 "\nClick the link below to confirm your account \n\n".
                 $this->serverUrlHelper->generate($confirmAccountUri)
             );
 
             $this->mailService->send();
         }
-    }
-
-    public function onRegisterError(RegisterEvent $e)
-    {
-
     }
 }

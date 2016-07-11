@@ -39,10 +39,10 @@ return [
             'message_options' => [
 
                 //from email address of the email
-                'from' => '',
+                'from' => 'pgt.dot.work@gmail.com',
 
                 //from name to be displayed instead of from address
-                'from_name' => '',
+                'from_name' => 'DotKernel Team',
 
                 //reply-to email address of the email
                 'reply_to' => '',

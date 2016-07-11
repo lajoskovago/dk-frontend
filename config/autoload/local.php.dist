@@ -19,6 +19,17 @@ return [
         ]
     ],
 
+    'dk_mail' => [
+        'default' => [
+            'smtp_options' => [
+                'connection_config' => [
+                    'username' => '',
+                    'password' => ''
+                ]
+            ]
+        ]
+    ],
+
     'dk_user' => [
         'form_captcha_options' => [
             'class' => 'recaptcha',

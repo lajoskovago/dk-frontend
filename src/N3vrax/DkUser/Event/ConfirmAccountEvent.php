@@ -8,10 +8,10 @@
 
 namespace N3vrax\DkUser\Event;
 
+use N3vrax\DkBase\Event\Event;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Result\ResultInterface;
 use N3vrax\DkUser\Service\UserServiceInterface;
-use Zend\EventManager\Event;
 
 class ConfirmAccountEvent extends Event
 {

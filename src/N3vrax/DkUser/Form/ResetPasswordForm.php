@@ -45,7 +45,7 @@ class ResetPasswordForm extends Form
             'type' => 'submit',
             'name' => 'submit',
             'attributes' => array(
-                'value' => 'Update password',
+                'value' => 'Reset password',
             ),
         ), ['priority' => -100]);
 

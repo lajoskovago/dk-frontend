@@ -24,6 +24,8 @@ use N3vrax\DkUser\Result\ConfirmAccountResult;
 use N3vrax\DkUser\Result\PasswordResetResult;
 use N3vrax\DkUser\Result\RegisterResult;
 use N3vrax\DkUser\Result\ResultInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Zend\Form\Form;
 use Zend\Math\Rand;
 
@@ -48,6 +50,12 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
 
     /** @var  PasswordInterface */
     protected $passwordService;
+
+    /** @var  ServerRequestInterface */
+    protected $request;
+
+    /** @var  ResponseInterface */
+    protected $response;
 
     /**
      * UserService constructor.
@@ -656,7 +664,41 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
         return $this;
     }
 
+    /**
+     * @return ServerRequestInterface
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
 
+    /**
+     * @param ServerRequestInterface $request
+     * @return UserService
+     */
+    public function setRequest(ServerRequestInterface $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+     * @return ResponseInterface
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @return UserService
+     */
+    public function setResponse(ResponseInterface $response)
+    {
+        $this->response = $response;
+        return $this;
+    }
 
     protected function createConfirmAccountResultWithMessages($messages)
     {
@@ -704,6 +746,12 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
     )
     {
         $event = new ConfirmAccountEvent($this, $user, $name);
+        if($this->request) {
+            $event->setRequest($this->request);
+        }
+        if($this->response) {
+            $event->setResponse($this->response);
+        }
         if ($result) {
             $event->setResult($result);
         }
@@ -722,6 +770,12 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
         if ($registerForm) {
             $event->setRegisterForm($registerForm);
         }
+        if($this->request) {
+            $event->setRequest($this->request);
+        }
+        if($this->response) {
+            $event->setResponse($this->response);
+        }
         if ($result) {
             $event->setResult($result);
         }
@@ -736,6 +790,12 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
     )
     {
         $event = new ConfirmTokenGenerateEvent($this, $user, $data, $name);
+        if($this->request) {
+            $event->setRequest($this->request);
+        }
+        if($this->response) {
+            $event->setResponse($this->response);
+        }
         return $event;
     }
 
@@ -748,6 +808,12 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
     )
     {
         $event = new PasswordResetEvent($this, $user, $data, $name);
+        if($this->request) {
+            $event->setRequest($this->request);
+        }
+        if($this->response) {
+            $event->setResponse($this->response);
+        }
         if($resetPasswordForm) {
             $event->setResetPasswordForm($resetPasswordForm);
         }

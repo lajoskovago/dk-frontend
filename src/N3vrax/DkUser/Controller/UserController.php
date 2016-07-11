@@ -58,6 +58,9 @@ class UserController extends AbstractActionController
 
     public function confirmAccountAction()
     {
+        $this->userService->setRequest($this->getRequest());
+        $this->userService->setResponse($this->getResponse());
+
         if (!$this->options->getConfirmAccountOptions()->isEnableAccountConfirmation()) {
             $this->addError($this->options->getConfirmAccountOptions()->getMessage(
                 ConfirmAccountOptions::MESSAGE_CONFIRM_ACCOUNT_DISABLED),
@@ -85,6 +88,9 @@ class UserController extends AbstractActionController
 
     public function registerAction()
     {
+        $this->userService->setRequest($this->getRequest());
+        $this->userService->setResponse($this->getResponse());
+
         $request = $this->getRequest();
 
         if(!$this->options->getRegisterOptions()->isEnableRegistration()) {
@@ -146,6 +152,9 @@ class UserController extends AbstractActionController
      */
     public function resetPasswordAction()
     {
+        $this->userService->setRequest($this->getRequest());
+        $this->userService->setResponse($this->getResponse());
+
         /** @var FlashMessengerPlugin $messenger */
         $messenger = $this->flashMessenger();
 
@@ -198,6 +207,9 @@ class UserController extends AbstractActionController
      */
     public function forgotPasswordAction()
     {
+        $this->userService->setRequest($this->getRequest());
+        $this->userService->setResponse($this->getResponse());
+
         if(!$this->options->getPasswordRecoveryOptions()->isEnablePasswordRecovery()) {
             $this->addError($this->options->getPasswordRecoveryOptions()->getMessage(
                 PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_DISABLED),

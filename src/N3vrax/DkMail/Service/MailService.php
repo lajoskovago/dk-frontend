@@ -15,6 +15,8 @@ use N3vrax\DkMail\Exception\InvalidArgumentException;
 use N3vrax\DkMail\Exception\MailException;
 use N3vrax\DkMail\Result\MailResult;
 use N3vrax\DkMail\Result\ResultInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 use Zend\Mail\Message;
 use Zend\Mail\Transport\TransportInterface;
@@ -38,6 +40,12 @@ class MailService implements MailServiceInterface, MailListenerAwareInterface
 
     /** @var array  */
     protected $attachments = [];
+
+    /** @var  ServerRequestInterface */
+    protected $request;
+
+    /** @var  ResponseInterface */
+    protected $response;
 
     public function __construct(
         Message $message ,
@@ -79,6 +87,12 @@ class MailService implements MailServiceInterface, MailListenerAwareInterface
     protected function createMailEvent($name = MailEvent::EVENT_MAIL_PRE_SEND, ResultInterface $result = null)
     {
         $event = new MailEvent($this, $name);
+        if($this->request) {
+            $event->setRequest($this->request);
+        }
+        if($this->response) {
+            $event->setResponse($this->response);
+        }
         if(isset($result)) {
             $event->setResult($result);
         }
@@ -232,6 +246,41 @@ class MailService implements MailServiceInterface, MailListenerAwareInterface
         return $this;
     }
 
+    /**
+     * @return ServerRequestInterface
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return MailService
+     */
+    public function setRequest(ServerRequestInterface $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+     * @return ResponseInterface
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @return MailService
+     */
+    public function setResponse(ResponseInterface $response)
+    {
+        $this->response = $response;
+        return $this;
+    }
 
 
 }

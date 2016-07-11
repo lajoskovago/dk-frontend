@@ -8,10 +8,10 @@
 
 namespace N3vrax\DkUser\Event;
 
+use N3vrax\DkBase\Event\Event;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Result\ResultInterface;
 use N3vrax\DkUser\Service\UserServiceInterface;
-use Zend\EventManager\Event;
 use Zend\Form\Form;
 
 class RegisterEvent extends Event
@@ -24,7 +24,7 @@ class RegisterEvent extends Event
     protected $userService;
 
     /** @var  UserEntityInterface */
-    protected $userEntity;
+    protected $user;
 
     /** @var  Form */
     protected $registerForm;
@@ -45,7 +45,7 @@ class RegisterEvent extends Event
     {
         parent::__construct($name);
         $this->userService = $userService;
-        $this->userEntity = $user;
+        $this->user = $user;
     }
 
     /**
@@ -69,18 +69,18 @@ class RegisterEvent extends Event
     /**
      * @return UserEntityInterface
      */
-    public function getUserEntity()
+    public function getUser()
     {
-        return $this->userEntity;
+        return $this->user;
     }
 
     /**
-     * @param UserEntityInterface $userEntity
+     * @param UserEntityInterface $user
      * @return RegisterEvent
      */
-    public function setUserEntity($userEntity)
+    public function setUser($user)
     {
-        $this->userEntity = $userEntity;
+        $this->user = $user;
         return $this;
     }
 

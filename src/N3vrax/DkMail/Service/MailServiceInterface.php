@@ -9,6 +9,8 @@
 namespace N3vrax\DkMail\Service;
 
 use N3vrax\DkMail\Result\ResultInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Zend\Mail\Message;
 use Zend\Mime\Part;
 
@@ -69,4 +71,12 @@ interface MailServiceInterface
      * @return mixed
      */
     public function setAttachments(array $paths);
+
+    public function setRequest(ServerRequestInterface $request);
+
+    public function getRequest();
+
+    public function setResponse(ResponseInterface $response);
+
+    public function getResponse();
 }

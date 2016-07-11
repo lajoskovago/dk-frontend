@@ -9,6 +9,8 @@ namespace N3vrax\DkUser\Service;
 
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Options\UserOptions;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Zend\Form\Form;
 
 interface UserServiceInterface
@@ -146,4 +148,26 @@ interface UserServiceInterface
      * @return mixed
      */
     public function setOptions(UserOptions $options);
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return mixed
+     */
+    public function setRequest(ServerRequestInterface $request);
+
+    /**
+     * @return ServerRequestInterface
+     */
+    public function getRequest();
+
+    /**
+     * @param ResponseInterface $response
+     * @return mixed
+     */
+    public function setResponse(ResponseInterface $response);
+
+    /**
+     * @return ResponseInterface
+     */
+    public function getResponse();
 }

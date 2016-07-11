@@ -9,9 +9,9 @@
 namespace N3vrax\DkMail\Event;
 
 
+use N3vrax\DkBase\Event\Event;
 use N3vrax\DkMail\Result\ResultInterface;
 use N3vrax\DkMail\Service\MailServiceInterface;
-use Zend\EventManager\Event;
 
 class MailEvent extends Event
 {
