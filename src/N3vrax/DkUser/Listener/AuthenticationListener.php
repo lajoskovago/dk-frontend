@@ -164,7 +164,7 @@ class AuthenticationListener extends AbstractListenerAggregate
                         $data = $form->getData();
                         $this->flashMessenger->addData('loginFormData', $data);
 
-                        $e->addError('Account is inactive or not confirmed');
+                        $e->addError('Account is inactive or it has not been confirmed');
                         $e->getAuthenticationService()->clearIdentity();
                         return;
                     }
