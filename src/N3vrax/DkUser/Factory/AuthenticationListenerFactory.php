@@ -12,8 +12,8 @@ use Interop\Container\ContainerInterface;
 use N3vrax\DkBase\Session\FlashMessenger;
 use N3vrax\DkUser\Form\LoginForm;
 use N3vrax\DkUser\Listener\AuthenticationListener;
-use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Options\UserOptions;
+use N3vrax\DkUser\Service\UserServiceInterface;
 
 class AuthenticationListenerFactory
 {
@@ -24,7 +24,7 @@ class AuthenticationListenerFactory
         return new AuthenticationListener(
             $container->get(LoginForm::class),
             $container->get(FlashMessenger::class),
-            $container->get(UserMapperInterface::class),
+            $container->get(UserServiceInterface::class),
             $options
         );
     }

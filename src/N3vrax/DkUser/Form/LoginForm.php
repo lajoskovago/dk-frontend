@@ -74,7 +74,7 @@ class LoginForm extends Form
                     'unchecked_value' => 'no',
                 ],
                 'attributes' => [
-                    'value' => 'no'
+                    'value' => 'yes'
                 ],
             ), ['priority' => -90]);
         }

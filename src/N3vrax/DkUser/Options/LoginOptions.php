@@ -16,9 +16,19 @@ class LoginOptions extends AbstractOptions
     const MESSAGE_LOGIN_EMPTY_IDENTITY = 1;
     const MESSAGE_LOGIN_EMPTY_PASSWORD = 2;
     const MESSAGE_LOGIN_PASSWORD_TOO_SHORT = 3;
+    const MESSAGE_LOGIN_ACCOUNT_INACTIVE = 4;
 
     /** @var bool  */
     protected $enableRememberMe = true;
+
+    /** @var string  */
+    protected $rememberMeCookieName = 'rememberMe';
+
+    /** @var int  */
+    protected $rememberMeCookieExpire = 60*60*24*30;
+
+    /** @var bool  */
+    protected $rememberMeCookieSecure = false;
 
     /** @var array  */
     protected $authIdentityFields = ['username', 'email'];
@@ -34,6 +44,7 @@ class LoginOptions extends AbstractOptions
         LoginOptions::MESSAGE_LOGIN_EMPTY_IDENTITY => 'Identity is required and cannot be empty',
         LoginOptions::MESSAGE_LOGIN_EMPTY_PASSWORD => 'Password is required and cannot be empty',
         LoginOptions::MESSAGE_LOGIN_PASSWORD_TOO_SHORT => 'Password must have at least 4 characters',
+        LoginOptions::MESSAGE_LOGIN_ACCOUNT_INACTIVE => 'Account is not active or it has not been confirmed',
     ];
 
     /**
@@ -134,4 +145,60 @@ class LoginOptions extends AbstractOptions
     {
         return isset($this->messages[$key]) ? $this->messages[$key] : 'Unknown message';
     }
+
+    /**
+     * @return string
+     */
+    public function getRememberMeCookieName()
+    {
+        return $this->rememberMeCookieName;
+    }
+
+    /**
+     * @param string $rememberMeCookieName
+     * @return LoginOptions
+     */
+    public function setRememberMeCookieName($rememberMeCookieName)
+    {
+        $this->rememberMeCookieName = $rememberMeCookieName;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRememberMeCookieExpire()
+    {
+        return $this->rememberMeCookieExpire;
+    }
+
+    /**
+     * @param int $rememberMeCookieExpire
+     * @return LoginOptions
+     */
+    public function setRememberMeCookieExpire($rememberMeCookieExpire)
+    {
+        $this->rememberMeCookieExpire = $rememberMeCookieExpire;
+        return $this;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isRememberMeCookieSecure()
+    {
+        return $this->rememberMeCookieSecure;
+    }
+
+    /**
+     * @param boolean $rememberMeCookieSecure
+     * @return LoginOptions
+     */
+    public function setRememberMeCookieSecure($rememberMeCookieSecure)
+    {
+        $this->rememberMeCookieSecure = $rememberMeCookieSecure;
+        return $this;
+    }
+
+
 }

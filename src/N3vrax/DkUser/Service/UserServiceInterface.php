@@ -106,6 +106,29 @@ interface UserServiceInterface
     public function register($data);
 
     /**
+     * @param mixed $userId
+     * @return mixed
+     */
+    public function generateRememberToken($userId);
+
+    /**
+     * Validates the remember me cookie data
+     *
+     * @param $selector
+     * @param $token
+     * @return mixed
+     */
+    public function checkRememberToken($selector, $token);
+
+    /**
+     * Removes all remember tokens for a given user
+     *
+     * @param $userId
+     * @return mixed
+     */
+    public function removeRememberToken($userId);
+
+    /**
      * @return Form
      */
     public function getRegisterForm();

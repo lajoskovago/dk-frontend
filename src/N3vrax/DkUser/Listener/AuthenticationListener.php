@@ -8,12 +8,15 @@
 
 namespace N3vrax\DkUser\Listener;
 
+use N3vrax\DkAuthentication\AuthenticationInterface;
 use N3vrax\DkAuthentication\AuthenticationResult;
 use N3vrax\DkBase\Session\FlashMessenger;
 use N3vrax\DkUser\Entity\UserEntityInterface;
-use N3vrax\DkUser\Mapper\UserMapperInterface;
+use N3vrax\DkUser\Options\LoginOptions;
 use N3vrax\DkUser\Options\UserOptions;
+use N3vrax\DkUser\Service\UserServiceInterface;
 use N3vrax\DkWebAuthentication\Action\LoginAction;
+use N3vrax\DkWebAuthentication\Action\LogoutAction;
 use N3vrax\DkWebAuthentication\Event\AuthenticationEvent;
 use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManagerInterface;
@@ -27,8 +30,8 @@ class AuthenticationListener extends AbstractListenerAggregate
     /** @var  FlashMessenger */
     protected $flashMessenger;
 
-    /** @var  UserMapperInterface */
-    protected $userMapper;
+    /** @var  UserServiceInterface */
+    protected $userService;
 
     /** @var  UserOptions */
     protected $options;
@@ -36,13 +39,13 @@ class AuthenticationListener extends AbstractListenerAggregate
     public function __construct(
         Form $form,
         FlashMessenger $flashMessenger,
-        UserMapperInterface $userMapper,
+        UserServiceInterface $userService,
         UserOptions $options
     )
     {
         $this->loginForm = $form;
         $this->flashMessenger = $flashMessenger;
-        $this->userMapper = $userMapper;
+        $this->userService = $userService;
         $this->options = $options;
     }
 
@@ -69,6 +72,13 @@ class AuthenticationListener extends AbstractListenerAggregate
             AuthenticationEvent::EVENT_AUTHENTICATE,
             [$this, 'postAuthentication'],
             -50
+        );
+
+        $this->listeners[] = $sharedEvents->attach(
+            LogoutAction::class,
+            AuthenticationEvent::EVENT_LOGOUT,
+            [$this, 'onLogout'],
+            100
         );
     }
 
@@ -144,33 +154,58 @@ class AuthenticationListener extends AbstractListenerAggregate
                 $this->flashMessenger->addData('loginFormData', $data);
             }
             elseif($result && $result->isValid()) {
-                //check account status and interrupt login process if not active
-                if($this->options->isEnableUserStatus())
-                {
-                    $status = null;
-                    $identity = $result->getIdentity();
-                    if($identity instanceof UserEntityInterface) {
-                        $status = $identity->getStatus();
-                    }
-                    else {
-                        /** @var UserEntityInterface $user */
-                        $user = $this->userMapper->findUser($identity->getId());
-                        if($user) {
-                            $status = $user->getStatus();
-                        }
-                    }
+                $user = $result->getIdentity();
+                if(!$user instanceof UserEntityInterface) {
+                    /** @var UserEntityInterface $user */
+                    $user = $this->userService->findUser($user->getId());
+                }
+
+                //validate account status
+                if($this->options->isEnableUserStatus()) {
+                    $status = $user->getStatus();
 
                     if($status && !in_array($status, $this->options->getLoginOptions()->getAllowedLoginStatuses())) {
                         $data = $form->getData();
                         $this->flashMessenger->addData('loginFormData', $data);
 
-                        $e->addError('Account is inactive or it has not been confirmed');
+                        $e->addError($this->options->getLoginOptions()
+                            ->getMessage(LoginOptions::MESSAGE_LOGIN_ACCOUNT_INACTIVE));
+
+                        //clear identity <=> logout
                         $e->getAuthenticationService()->clearIdentity();
                         return;
                     }
                 }
+                
+                //if remember me is checked, generate a token
+                if($this->options->getLoginOptions()->isEnableRememberMe()) {
+                    $data = $form->getData();
+                    if(isset($data['remember']) && $data['remember'] == 'yes') {
+                        try {
+                            //generate and save token to backend storage
+                            $this->userService->generateRememberToken($user->getId());
+                        }
+                        catch(\Exception $e) {
+                            error_log("Remember me token error: " . $e->getMessage(), E_USER_ERROR);
+                            //we don't interrupt the login for this kinds of error
+                            //remember me will not work, but at least we have a happy user that is logged in
+                            //it's not a must have feature, of course we'll log the error for reviews, as it should not happen
+                        }
+                    }
+                }
             }
         }
+    }
+
+    public function onLogout(AuthenticationEvent $e)
+    {
+        //clear any remember tokens for this user
+        /** @var AuthenticationInterface $authentication */
+        $authentication = $e->getAuthenticationService();
+        $identity = $authentication->getIdentity();
+        
+        $this->userService->removeRememberToken($identity->getId());
+
     }
 
     /**

@@ -12,9 +12,7 @@ use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Options\DbOptions;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\ResultSet\HydratingResultSet;
-use Zend\Db\Sql\Insert;
 use Zend\Db\Sql\Sql;
-use Zend\Db\TableGateway\TableGateway;
 
 class UserDbMapper extends AbstractDbMapper implements UserMapperInterface
 {
@@ -125,4 +123,33 @@ class UserDbMapper extends AbstractDbMapper implements UserMapperInterface
         $stmt = $sql->prepareStatementForSqlObject($update);
         return $stmt->execute();
     }
+
+    public function saveRememberToken($data)
+    {
+        $sql = new Sql($this->getAdapter(), $this->dbOptions->getUserRememberTokenTable());
+        $insert = $sql->insert();
+        $insert->columns(array_keys($data))->values($data);
+
+        $stmt = $sql->prepareStatementForSqlObject($insert);
+        return $stmt->execute();
+    }
+    
+    public function findRememberToken($selector)
+    {
+        $sql = new Sql($this->getAdapter(), $this->dbOptions->getUserRememberTokenTable());
+        $select = $sql->select()->where(['selector' => $selector]);
+
+        $stmt = $sql->prepareStatementForSqlObject($select);
+        return $stmt->execute()->current();
+    }
+
+    public function removeRememberToken($userId)
+    {
+        $sql = new Sql($this->getAdapter(), $this->dbOptions->getUserRememberTokenTable());
+        $delete = $sql->delete()->where(['userId' => $userId]);
+
+        $stmt = $sql->prepareStatementForSqlObject($delete);
+        return $stmt->execute();
+    }
+
 }

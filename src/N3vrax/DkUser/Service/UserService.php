@@ -160,6 +160,45 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
         return $this->userMapper->lastInsertValue();
     }
 
+    public function generateRememberToken($userId)
+    {
+        $selector = Rand::getString(32);
+        $token = Rand::getString(32);
+
+        $data = new \stdClass();
+        $data->selector = $selector;
+        $data->token = $token;
+
+        $this->userMapper->saveRememberToken(['userId' => $userId, 'selector' => $selector, 'token' => md5($token)]);
+
+        $cookieData = base64_encode(serialize(['selector' => $selector, 'token' => $token]));
+
+        $name = $this->options->getLoginOptions()->getRememberMeCookieName();
+        $expire = $this->options->getLoginOptions()->getRememberMeCookieExpire();
+        $secure = $this->options->getLoginOptions()->isRememberMeCookieSecure();
+
+        setcookie($name, $cookieData, time() + $expire, "/", "", $secure, true);
+
+        return $data;
+    }
+
+    public function checkRememberToken($selector, $token)
+    {
+        
+    }
+    
+    public function removeRememberToken($userId)
+    {
+        $this->userMapper->removeRememberToken($userId);
+
+        //clear cookies
+        if(isset($_COOKIE[$this->options->getLoginOptions()->getRememberMeCookieName()])) {
+            unset($_COOKIE[$this->options->getLoginOptions()->getRememberMeCookieName()]);
+            setcookie($this->options->getLoginOptions()->getRememberMeCookieName(), '', time() - 3600, '/');
+        }
+    }
+
+
     /**
      * Change user status from unconfirmed to active based on an email and valid confirmation token
      *

@@ -30,4 +30,10 @@ interface UserMapperInterface extends MapperInterface
     public function findConfirmToken($userId, $token);
 
     public function disableConfirmToken($userId, $token);
+
+    public function saveRememberToken($data);
+
+    public function findRememberToken($selector);
+
+    public function removeRememberToken($userId);
 }
