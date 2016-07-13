@@ -49,9 +49,9 @@ class PasswordResetEvent extends Event
      */
     public function __construct(
         UserServiceInterface $userService,
+        $name = self::EVENT_PASSWORD_RESET_PRE,
         UserEntityInterface $user = null,
         $data = null,
-        $name = self::EVENT_PASSWORD_RESET_PRE,
         ResultInterface $result = null)
     {
         parent::__construct($name);

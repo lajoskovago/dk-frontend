@@ -181,15 +181,10 @@ class AuthenticationListener extends AbstractListenerAggregate
                 if($this->options->getLoginOptions()->isEnableRememberMe()) {
                     $data = $form->getData();
                     if(isset($data['remember']) && $data['remember'] == 'yes') {
-                        try {
-                            //generate and save token to backend storage
-                            $this->userService->generateRememberToken($user->getId());
-                        }
-                        catch(\Exception $e) {
-                            error_log("Remember me token error: " . $e->getMessage(), E_USER_ERROR);
-                            //we don't interrupt the login for this kinds of error
-                            //remember me will not work, but at least we have a happy user that is logged in
-                            //it's not a must have feature, of course we'll log the error for reviews, as it should not happen
+                        //generate and save token to backend storage
+                        $result = $this->userService->generateRememberToken($user);
+                        if(!$result->isValid()) {
+                            $this->flashMessenger->addWarning($result->getMessage());
                         }
                     }
                 }
@@ -202,10 +197,13 @@ class AuthenticationListener extends AbstractListenerAggregate
         //clear any remember tokens for this user
         /** @var AuthenticationInterface $authentication */
         $authentication = $e->getAuthenticationService();
-        $identity = $authentication->getIdentity();
+        $user = $authentication->getIdentity();
+        if(!$user instanceof UserEntityInterface) {
+            /** @var UserEntityInterface $user */
+            $user = $this->userService->findUser($user->getId());
+        }
         
-        $this->userService->removeRememberToken($identity->getId());
-
+        $this->userService->removeRememberToken($user);
     }
 
     /**

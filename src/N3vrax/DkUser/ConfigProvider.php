@@ -16,12 +16,9 @@ use N3vrax\DkUser\Factory\BootstrapFactory;
 use N3vrax\DkUser\Factory\Form\LoginFormFactory;
 use N3vrax\DkUser\Factory\Form\RegisterFormFactory;
 use N3vrax\DkUser\Factory\Form\ResetPasswordFormFactory;
-use N3vrax\DkUser\Factory\Options\LoginOptionsFactory;
-use N3vrax\DkUser\Factory\Options\ModuleOptionsFactory;
-use N3vrax\DkUser\Factory\Options\RegisterOptionsFactory;
-use N3vrax\DkUser\Factory\Options\TableOptionsFactory;
 use N3vrax\DkUser\Factory\Options\UserOptionsFactory;
 use N3vrax\DkUser\Factory\PasswordDefaultFactory;
+use N3vrax\DkUser\Factory\AutoLoginFactory;
 use N3vrax\DkUser\Factory\UserControllerFactory;
 use N3vrax\DkUser\Factory\UserDbMapperFactory;
 use N3vrax\DkUser\Factory\UserServiceFactory;
@@ -31,13 +28,9 @@ use N3vrax\DkUser\Form\ResetPasswordForm;
 use N3vrax\DkUser\Listener\AuthenticationListener;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Middleware\Bootstrap;
-use N3vrax\DkUser\Options\LoginOptions;
-use N3vrax\DkUser\Options\ModuleOptions;
-use N3vrax\DkUser\Options\RegisterOptions;
-use N3vrax\DkUser\Options\TableOptions;
+use N3vrax\DkUser\Middleware\AutoLogin;
 use N3vrax\DkUser\Options\UserOptions;
 use N3vrax\DkUser\Service\PasswordInterface;
-use N3vrax\DkUser\Service\UserService;
 use N3vrax\DkUser\Service\UserServiceInterface;
 use N3vrax\DkUser\Twig\FormElementExtension;
 use Zend\ServiceManager\Factory\InvokableFactory;
@@ -67,6 +60,8 @@ class ConfigProvider
                     AuthenticationListener::class => AuthenticationListenerFactory::class,
 
                     Bootstrap::class => BootstrapFactory::class,
+                    AutoLogin::class => AutoLoginFactory::class,
+
                     FormElementExtension::class => InvokableFactory::class,
 
                     PasswordInterface::class => PasswordDefaultFactory::class,
@@ -79,7 +74,10 @@ class ConfigProvider
 
             'middleware_pipeline' => [
                 [
-                    'middleware' => Bootstrap::class,
+                    'middleware' => [
+                        Bootstrap::class,
+                        AutoLogin::class,
+                    ],
                     'priority' => PHP_INT_MAX,
                 ]
             ],

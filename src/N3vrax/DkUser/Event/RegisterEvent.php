@@ -40,8 +40,9 @@ class RegisterEvent extends Event
      */
     public function __construct(
         UserServiceInterface $userService,
-        UserEntityInterface $user = null,
-        $name = self::EVENT_REGISTER_PRE)
+        $name = self::EVENT_REGISTER_PRE,
+        UserEntityInterface $user = null
+        )
     {
         parent::__construct($name);
         $this->userService = $userService;

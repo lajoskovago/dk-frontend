@@ -106,10 +106,10 @@ interface UserServiceInterface
     public function register($data);
 
     /**
-     * @param mixed $userId
+     * @param UserEntityInterface $user
      * @return mixed
      */
-    public function generateRememberToken($userId);
+    public function generateRememberToken(UserEntityInterface $user);
 
     /**
      * Validates the remember me cookie data
@@ -123,10 +123,10 @@ interface UserServiceInterface
     /**
      * Removes all remember tokens for a given user
      *
-     * @param $userId
+     * @param UserEntityInterface $user
      * @return mixed
      */
-    public function removeRememberToken($userId);
+    public function removeRememberToken(UserEntityInterface $user);
 
     /**
      * @return Form

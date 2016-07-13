@@ -254,7 +254,7 @@ class UserController extends AbstractActionController
         /** @var ServerRequestInterface $request */
         $request = $this->getRequest();
         $response = $this->getResponse();
-        
+
         $form = $this->loginForm;
         $form->init();
         $csrf = ['name' => '', 'value' => ''];

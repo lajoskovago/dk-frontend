@@ -36,8 +36,9 @@ class ConfirmAccountEvent extends Event
      */
     public function __construct(
         UserServiceInterface $userService,
-        UserEntityInterface $userEntity = null,
-        $name = self::EVENT_CONFIRM_ACCOUNT_PRE)
+        $name = self::EVENT_CONFIRM_ACCOUNT_PRE,
+        UserEntityInterface $userEntity = null
+        )
     {
         parent::__construct($name);
         $this->userService = $userService;

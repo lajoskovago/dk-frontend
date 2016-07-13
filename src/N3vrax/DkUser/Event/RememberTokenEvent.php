@@ -2,21 +2,26 @@
 /**
  * Created by PhpStorm.
  * User: n3vrax
- * Date: 7/7/2016
- * Time: 7:24 PM
+ * Date: 7/13/2016
+ * Time: 8:04 PM
  */
 
 namespace N3vrax\DkUser\Event;
 
 use N3vrax\DkBase\Event\Event;
 use N3vrax\DkUser\Entity\UserEntityInterface;
+use N3vrax\DkUser\Result\ResultInterface;
 use N3vrax\DkUser\Service\UserServiceInterface;
 
-class ConfirmTokenGenerateEvent extends Event
+class RememberTokenEvent extends Event
 {
-    const EVENT_GENERATE_CONFIRM_TOKEN_PRE = 'event.user.generate_confirm_token.pre';
-    const EVENT_GENERATE_CONFIRM_TOKEN_POST = 'event.user.generate_confirm_token.post';
-    const EVENT_GENERATE_CONFIRM_TOKEN_ERROR = 'event.user.generate_confirm_token.error';
+    const EVENT_TOKEN_GENERATE_PRE = 'event.user.remember_token.generate.pre';
+    const EVENT_TOKEN_GENERATE_POST = 'event.user.remember_token.generate.post';
+    const EVENT_TOKEN_GENERATE_ERROR = 'event.user.remember_token.generate.error';
+
+    const EVENT_TOKEN_REMOVE_PRE = 'event.user.remember_token.remove.pre';
+    const EVENT_TOKEN_REMOVE_POST = 'event.user.remember_token.remove.post';
+    const EVENT_TOKEN_REMOVE_ERROR = 'event.user.remember_token.remove.error';
 
     /** @var  UserServiceInterface */
     protected $userService;
@@ -24,20 +29,25 @@ class ConfirmTokenGenerateEvent extends Event
     /** @var  UserEntityInterface */
     protected $user;
 
-    /** @var  object */
+    /** @var  mixed */
     protected $data;
+
+    /** @var  ResultInterface */
+    protected $result;
 
     public function __construct(
         UserServiceInterface $userService,
-        $name = self::EVENT_GENERATE_CONFIRM_TOKEN_PRE,
+        $name,
         UserEntityInterface $user = null,
-        $data = null
-        )
+        $data = null,
+        ResultInterface $result = null
+    )
     {
-        parent::__construct($name);
         $this->userService = $userService;
         $this->user = $user;
         $this->data = $data;
+        $this->result = $result;
+        parent::__construct($name);
     }
 
     /**
@@ -50,7 +60,7 @@ class ConfirmTokenGenerateEvent extends Event
 
     /**
      * @param UserServiceInterface $userService
-     * @return ConfirmTokenGenerateEvent
+     * @return RememberTokenEvent
      */
     public function setUserService($userService)
     {
@@ -68,7 +78,7 @@ class ConfirmTokenGenerateEvent extends Event
 
     /**
      * @param UserEntityInterface $user
-     * @return ConfirmTokenGenerateEvent
+     * @return RememberTokenEvent
      */
     public function setUser($user)
     {
@@ -77,7 +87,7 @@ class ConfirmTokenGenerateEvent extends Event
     }
 
     /**
-     * @return object
+     * @return mixed
      */
     public function getData()
     {
@@ -85,8 +95,8 @@ class ConfirmTokenGenerateEvent extends Event
     }
 
     /**
-     * @param object $data
-     * @return ConfirmTokenGenerateEvent
+     * @param mixed $data
+     * @return RememberTokenEvent
      */
     public function setData($data)
     {
@@ -94,6 +104,23 @@ class ConfirmTokenGenerateEvent extends Event
         return $this;
     }
 
+    /**
+     * @return ResultInterface
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
+
+    /**
+     * @param ResultInterface $result
+     * @return RememberTokenEvent
+     */
+    public function setResult($result)
+    {
+        $this->result = $result;
+        return $this;
+    }
 
 
 }

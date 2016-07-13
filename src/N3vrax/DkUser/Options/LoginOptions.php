@@ -17,6 +17,9 @@ class LoginOptions extends AbstractOptions
     const MESSAGE_LOGIN_EMPTY_PASSWORD = 2;
     const MESSAGE_LOGIN_PASSWORD_TOO_SHORT = 3;
     const MESSAGE_LOGIN_ACCOUNT_INACTIVE = 4;
+    const MESSAGE_REMEMBER_TOKEN_GENERATE_ERROR = 5;
+    const MESSAGE_REMEMBER_TOKEN_REMOVE_ERROR = 6;
+    const MESSAGE_AUTO_LOGIN_ERROR = 7;
 
     /** @var bool  */
     protected $enableRememberMe = true;
@@ -45,6 +48,11 @@ class LoginOptions extends AbstractOptions
         LoginOptions::MESSAGE_LOGIN_EMPTY_PASSWORD => 'Password is required and cannot be empty',
         LoginOptions::MESSAGE_LOGIN_PASSWORD_TOO_SHORT => 'Password must have at least 4 characters',
         LoginOptions::MESSAGE_LOGIN_ACCOUNT_INACTIVE => 'Account is not active or it has not been confirmed',
+        LoginOptions::MESSAGE_REMEMBER_TOKEN_GENERATE_ERROR => ['Remember me feature encountered an error.',
+            'This will not affect the general usability of the website'
+        ],
+        LoginOptions::MESSAGE_REMEMBER_TOKEN_REMOVE_ERROR => 'Remember me token remove error',
+        LoginOptions::MESSAGE_AUTO_LOGIN_ERROR => 'Could not use remember me feature. Please login again',
     ];
 
     /**

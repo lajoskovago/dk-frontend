@@ -15,14 +15,17 @@ use N3vrax\DkUser\Event\Listener\UserListenerAwareInterface;
 use N3vrax\DkUser\Event\Listener\UserListenerAwareTrait;
 use N3vrax\DkUser\Event\PasswordResetEvent;
 use N3vrax\DkUser\Event\RegisterEvent;
+use N3vrax\DkUser\Event\RememberTokenEvent;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Options\ConfirmAccountOptions;
+use N3vrax\DkUser\Options\LoginOptions;
 use N3vrax\DkUser\Options\PasswordRecoveryOptions;
 use N3vrax\DkUser\Options\RegisterOptions;
 use N3vrax\DkUser\Options\UserOptions;
 use N3vrax\DkUser\Result\ConfirmAccountResult;
 use N3vrax\DkUser\Result\PasswordResetResult;
 use N3vrax\DkUser\Result\RegisterResult;
+use N3vrax\DkUser\Result\RememberTokenResult;
 use N3vrax\DkUser\Result\ResultInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -160,42 +163,140 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
         return $this->userMapper->lastInsertValue();
     }
 
-    public function generateRememberToken($userId)
+    /**
+     * Generates an auto-login token for the user, stores it in the backend and sets a login cookie
+     *
+     * @param UserEntityInterface $user
+     * @return RememberTokenResult
+     */
+    public function generateRememberToken(UserEntityInterface $user)
     {
-        $selector = Rand::getString(32);
-        $token = Rand::getString(32);
+        $result = new RememberTokenResult(true);
+        $data = null;
 
-        $data = new \stdClass();
-        $data->selector = $selector;
-        $data->token = $token;
+        try{
+            $selector = Rand::getString(32);
+            $token = Rand::getString(32);
 
-        $this->userMapper->saveRememberToken(['userId' => $userId, 'selector' => $selector, 'token' => md5($token)]);
+            $data = new \stdClass();
+            $data->userId = $user->getId();
+            $data->selector = $selector;
+            $data->token = $token;
 
-        $cookieData = base64_encode(serialize(['selector' => $selector, 'token' => $token]));
+            $this->getEventManager()->triggerEvent($this->createRememberTokenEvent(
+                RememberTokenEvent::EVENT_TOKEN_GENERATE_PRE,
+                $user,
+                $data
+            ));
 
-        $name = $this->options->getLoginOptions()->getRememberMeCookieName();
-        $expire = $this->options->getLoginOptions()->getRememberMeCookieExpire();
-        $secure = $this->options->getLoginOptions()->isRememberMeCookieSecure();
+            //hash the token
+            $dbData = (array) $data;
+            $dbData['token'] = md5($dbData['token']);
 
-        setcookie($name, $cookieData, time() + $expire, "/", "", $secure, true);
+            $this->userMapper->saveRememberToken($dbData);
 
-        return $data;
+            $cookieData = base64_encode(serialize(['selector' => $selector, 'token' => $token]));
+
+            $name = $this->options->getLoginOptions()->getRememberMeCookieName();
+            $expire = $this->options->getLoginOptions()->getRememberMeCookieExpire();
+            $secure = $this->options->getLoginOptions()->isRememberMeCookieSecure();
+
+            setcookie($name, $cookieData, time() + $expire, "/", "", $secure, true);
+
+            $this->getEventManager()->triggerEvent($this->createRememberTokenEvent(
+                RememberTokenEvent::EVENT_TOKEN_GENERATE_POST,
+                $user,
+                $data
+            ));
+        }
+        catch (\Exception $e) {
+            error_log("Remember token generate error: " . $e->getMessage());
+            $result = $this->createRememberTokenResultGenerateWithException($e);
+
+            $this->getEventManager()->triggerEvent($this->createRememberTokenEvent(
+                RememberTokenEvent::EVENT_TOKEN_GENERATE_ERROR,
+                $user,
+                $data,
+                $result
+            ));
+        }
+
+        return $result;
     }
 
+    /**
+     * Validates a remember token coming from cookie
+     *
+     * @param $selector
+     * @param $token
+     * @return bool
+     */
     public function checkRememberToken($selector, $token)
     {
-        
-    }
-    
-    public function removeRememberToken($userId)
-    {
-        $this->userMapper->removeRememberToken($userId);
-
-        //clear cookies
-        if(isset($_COOKIE[$this->options->getLoginOptions()->getRememberMeCookieName()])) {
-            unset($_COOKIE[$this->options->getLoginOptions()->getRememberMeCookieName()]);
-            setcookie($this->options->getLoginOptions()->getRememberMeCookieName(), '', time() - 3600, '/');
+        try{
+            $r = $this->userMapper->findRememberToken($selector);
+            if($r) {
+                if($r['token'] == md5($token)) {
+                    return $r;
+                }
+                else {
+                    //clear any tokens for this user as security measure
+                    $user = $this->findUser($r['userId']);
+                    if($user) {
+                        $this->removeRememberToken($user);
+                    }
+                }
+            }
         }
+        catch(\Exception $e) {
+            error_log("Check remember token error: " . $e->getMessage());
+            return false;
+        }
+
+        return false;
+    }
+
+    /**
+     * Removes all remember tokens for a given user and also unset the corresponding cookie
+     *
+     * @param UserEntityInterface $user
+     * @return RememberTokenResult
+     */
+    public function removeRememberToken(UserEntityInterface $user)
+    {
+        $result = new RememberTokenResult(true);
+        try{
+            $this->getEventManager()->triggerEvent($this->createRememberTokenEvent(
+                RememberTokenEvent::EVENT_TOKEN_REMOVE_PRE,
+                $user
+            ));
+
+            $this->userMapper->removeRememberToken($user->getId());
+
+            //clear cookies
+            if(isset($_COOKIE[$this->options->getLoginOptions()->getRememberMeCookieName()])) {
+                unset($_COOKIE[$this->options->getLoginOptions()->getRememberMeCookieName()]);
+                setcookie($this->options->getLoginOptions()->getRememberMeCookieName(), '', time() - 3600, '/');
+            }
+
+            $this->getEventManager()->triggerEvent($this->createRememberTokenEvent(
+                RememberTokenEvent::EVENT_TOKEN_REMOVE_POST,
+                $user
+            ));
+        }
+        catch(\Exception $e) {
+            error_log("Remove remember token error for user " . $user->getId() . " with message: " . $e->getMessage());
+            $result = $this->createRememberTokenResultRemoveWithException($e);
+            
+            $this->getEventManager()->triggerEvent($this->createRememberTokenEvent(
+                RememberTokenEvent::EVENT_TOKEN_REMOVE_ERROR,
+                $user,
+                null,
+                $result
+            ));
+        }
+
+        return $result;
     }
 
 
@@ -228,7 +329,7 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
                     if ($r) {
                         //trigger pre event
                         $this->getEventManager()->triggerEvent(
-                            $this->createConfirmAccountEvent($user, ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_PRE));
+                            $this->createConfirmAccountEvent(ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_PRE, $user));
 
                         $this->userMapper->beginTransaction();
 
@@ -241,27 +342,30 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
 
                         //post confirm event
                         $this->getEventManager()->triggerEvent(
-                            $this->createConfirmAccountEvent($user, ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_POST));
-                    } else {
+                            $this->createConfirmAccountEvent(ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_POST, $user));
+                    }
+                    else {
                         $result = $this->createConfirmAccountResultWithMessages(
                             $this->options->getConfirmAccountOptions()
                                 ->getMessage(ConfirmAccountOptions::MESSAGE_CONFIRM_ACCOUNT_INVALID_TOKEN)
                         );
                     }
-                } else {
+                }
+                else {
                     $result = $this->createConfirmAccountResultWithMessages(
                         $this->options->getConfirmAccountOptions()
                             ->getMessage(ConfirmAccountOptions::MESSAGE_CONFIRM_ACCOUNT_INVALID_EMAIL)
                     );
                 }
             }
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             error_log("Confirm account error: " . $e->getMessage(), E_USER_ERROR);
 
             $result = $this->createConfirmAccountResultWithException($e);
             //trigger error event
             $this->getEventManager()->triggerEvent(
-                $this->createConfirmAccountEvent($user, ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_ERROR, $result));
+                $this->createConfirmAccountEvent(ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_ERROR, $user, $result));
 
             $this->userMapper->rollback();
             return $result;
@@ -269,7 +373,7 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
 
         if (!$result->isValid()) {
             $this->getEventManager()->triggerEvent(
-                $this->createConfirmAccountEvent($user, ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_ERROR, $result));
+                $this->createConfirmAccountEvent(ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_ERROR, $user, $result));
         }
 
         return $result;
@@ -308,16 +412,16 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
 
                     $this->getEventManager()->triggerEvent(
                         $this->createPasswordResetEvent(
-                            $user,
                             PasswordResetEvent::EVENT_PASSWORD_RESET_TOKEN_PRE,
+                            $user,
                             $data
                         ));
 
                     $this->userMapper->saveResetToken((array)$data);
 
                     $this->getEventManager()->triggerEvent($this->createPasswordResetEvent(
-                        $user,
                         PasswordResetEvent::EVENT_PASSWORD_RESET_TOKEN_POST,
+                        $user,
                         $data
                     ));
                 }
@@ -327,8 +431,8 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
 
                 $this->getEventManager()->triggerEvent(
                     $this->createPasswordResetEvent(
-                        $user,
                         PasswordResetEvent::EVENT_PASSWORD_RESET_TOKEN_ERROR,
+                        $user,
                         $data,
                         null,
                         $result
@@ -342,8 +446,8 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
         if (!$result->isValid()) {
             $this->getEventManager()->triggerEvent(
                 $this->createPasswordResetEvent(
-                    $user,
                     PasswordResetEvent::EVENT_PASSWORD_RESET_TOKEN_ERROR,
+                    $user,
                     $data,
                     null,
                     $result
@@ -395,8 +499,8 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
                                 $user->setPassword($this->passwordService->create($data['newPassword']));
 
                                 $this->getEventManager()->triggerEvent($this->createPasswordResetEvent(
-                                    $user,
                                     PasswordResetEvent::EVENT_PASSWORD_RESET_PRE,
+                                    $user,
                                     $data,
                                     $form
                                 ));
@@ -404,8 +508,8 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
                                 $this->saveUser($user);
 
                                 $this->getEventManager()->triggerEvent($this->createPasswordResetEvent(
-                                    $user,
                                     PasswordResetEvent::EVENT_PASSWORD_RESET_POST,
+                                    $user,
                                     $data,
                                     $form
                                 ));
@@ -438,8 +542,8 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
 
                 $this->getEventManager()->triggerEvent(
                     $this->createPasswordResetEvent(
-                        $user,
                         PasswordResetEvent::EVENT_PASSWORD_RESET_ERROR,
+                        $user,
                         $data,
                         $form,
                         $result
@@ -451,8 +555,8 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
         if (!$result->isValid()) {
             $this->getEventManager()->triggerEvent(
                 $this->createPasswordResetEvent(
-                    $user,
                     PasswordResetEvent::EVENT_PASSWORD_RESET_ERROR,
+                    $user,
                     $data,
                     $form,
                     $result
@@ -505,7 +609,7 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
 
                 //trigger pre register event
                 $this->getEventManager()->triggerEvent(
-                    $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_PRE));
+                    $this->createRegisterEvent(RegisterEvent::EVENT_REGISTER_PRE, $user, $form));
 
                 $this->saveUser($user);
 
@@ -524,7 +628,7 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
 
                 //trigger post register event
                 $this->getEventManager()->triggerEvent(
-                    $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_POST));
+                    $this->createRegisterEvent(RegisterEvent::EVENT_REGISTER_POST, $user, $form));
 
                 $this->userMapper->commit();
             }
@@ -534,7 +638,7 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
                 $result = $this->createRegisterResultWithException($e);
                 //trigger error event
                 $this->getEventManager()->triggerEvent(
-                    $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_ERROR, $result));
+                    $this->createRegisterEvent(RegisterEvent::EVENT_REGISTER_ERROR, $user, $form, $result));
 
                 $this->userMapper->rollback();
                 return $result;
@@ -544,11 +648,10 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
         //if no exception but still some validation errors, trigger the error event
         if (!$result->isValid()) {
             $this->getEventManager()->triggerEvent(
-                $this->createRegisterEvent($user, $form, RegisterEvent::EVENT_REGISTER_ERROR, $result));
+                $this->createRegisterEvent(RegisterEvent::EVENT_REGISTER_ERROR, $user, $form, $result));
         }
 
         return $result;
-
     }
 
     /**
@@ -564,29 +667,29 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
 
             $this->getEventManager()->triggerEvent(
                 $this->createConfirmTokenGenerateEvent(
+                    ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_PRE,
                     $user,
-                    $data,
-                    ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_PRE));
+                    $data
+                ));
 
             $this->userMapper->saveConfirmToken((array)$data);
 
             $this->getEventManager()->triggerEvent(
                 $this->createConfirmTokenGenerateEvent(
+                    ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_POST,
                     $user,
-                    $data,
-                    ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_POST
-                )
-            );
+                    $data
+                ));
+
         } catch (\Exception $e) {
             error_log("Confirm token generation error: " . $e->getMessage());
 
             $this->getEventManager()->triggerEvent(
                 $this->createConfirmTokenGenerateEvent(
+                    ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_ERROR,
                     $user,
-                    null,
-                    ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_ERROR
-                )
-            );
+                    null
+                ));
 
             throw $e;
         }
@@ -739,52 +842,115 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
         return $this;
     }
 
+    /**
+     * @param $messages
+     * @return ConfirmAccountResult
+     */
     protected function createConfirmAccountResultWithMessages($messages)
     {
         return new ConfirmAccountResult(false, $messages);
     }
 
+    /**
+     * @param \Exception $e
+     * @return ConfirmAccountResult
+     */
     protected function createConfirmAccountResultWithException(\Exception $e)
     {
         return new ConfirmAccountResult(false, $this->options->getConfirmAccountOptions()
             ->getMessage(ConfirmAccountOptions::MESSAGE_CONFIRM_ACCOUNT_ERROR), $e);
     }
 
+    /**
+     * @param $messages
+     * @return RegisterResult
+     */
     protected function createRegisterResultWithMessages($messages)
     {
         return new RegisterResult(false, $messages);
     }
 
+    /**
+     * @param \Exception $e
+     * @return RegisterResult
+     */
     protected function createRegisterResultWithException(\Exception $e)
     {
         return new RegisterResult(false, $this->options->getRegisterOptions()
             ->getMessage(RegisterOptions::MESSAGE_REGISTER_ERROR), $e);
     }
 
+    /**
+     * @param $messages
+     * @return PasswordResetResult
+     */
     protected function createPasswordResetResultWithMessages($messages)
     {
         return new PasswordResetResult(false, $messages);
     }
 
+    /**
+     * @param \Exception $e
+     * @return PasswordResetResult
+     */
     protected function createPasswordResetResultTokenWithException(\Exception $e)
     {
         return new PasswordResetResult(false, $this->options->getPasswordRecoveryOptions()
             ->getMessage(PasswordRecoveryOptions::MESSAGE_FORGOT_PASSWORD_ERROR), $e);
     }
 
+    /**
+     * @param \Exception $e
+     * @return PasswordResetResult
+     */
     protected function createPasswordResetResultWithException(\Exception $e)
     {
         return new PasswordResetResult(false, $this->options->getPasswordRecoveryOptions()
             ->getMessage(PasswordRecoveryOptions::MESSAGE_RESET_PASSWORD_ERROR), $e);
     }
 
+    /**
+     * @param $messages
+     * @return RememberTokenResult
+     */
+    protected function createRememberTokenResultWithMessages($messages)
+    {
+        return new RememberTokenResult(false, $messages);
+    }
+
+    /**
+     * @param \Exception $e
+     * @return RememberTokenResult
+     */
+    protected function createRememberTokenResultGenerateWithException(\Exception $e)
+    {
+        return new RememberTokenResult(false, $this->options->getLoginOptions()
+            ->getMessage(LoginOptions::MESSAGE_REMEMBER_TOKEN_GENERATE_ERROR), $e);
+    }
+
+    /**
+     * @param \Exception $e
+     * @return RememberTokenResult
+     */
+    protected function createRememberTokenResultRemoveWithException(\Exception $e)
+    {
+        return new RememberTokenResult(false, $this->options->getLoginOptions()
+            ->getMessage(LoginOptions::MESSAGE_REMEMBER_TOKEN_REMOVE_ERROR), $e);
+    }
+
+    /**
+     * @param string $name
+     * @param UserEntityInterface|null $user
+     * @param ResultInterface|null $result
+     * @return ConfirmAccountEvent
+     */
     protected function createConfirmAccountEvent(
-        UserEntityInterface $user = null,
         $name = ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_PRE,
+        UserEntityInterface $user = null,
         ResultInterface $result = null
     )
     {
-        $event = new ConfirmAccountEvent($this, $user, $name);
+        $event = new ConfirmAccountEvent($this, $name, $user);
         if($this->request) {
             $event->setRequest($this->request);
         }
@@ -798,14 +964,21 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
         return $event;
     }
 
+    /**
+     * @param string $name
+     * @param UserEntityInterface|null $user
+     * @param Form|null $registerForm
+     * @param ResultInterface|null $result
+     * @return RegisterEvent
+     */
     protected function createRegisterEvent(
+        $name = RegisterEvent::EVENT_REGISTER_PRE,
         UserEntityInterface $user = null,
         Form $registerForm = null,
-        $name = RegisterEvent::EVENT_REGISTER_PRE,
         ResultInterface $result = null
     )
     {
-        $event = new RegisterEvent($this, $user, $name);
+        $event = new RegisterEvent($this, $name, $user);
         if ($registerForm) {
             $event->setRegisterForm($registerForm);
         }
@@ -822,13 +995,19 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
         return $event;
     }
 
+    /**
+     * @param string $name
+     * @param UserEntityInterface|null $user
+     * @param null $data
+     * @return ConfirmTokenGenerateEvent
+     */
     protected function createConfirmTokenGenerateEvent(
+        $name = ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_PRE,
         UserEntityInterface $user = null,
-        $data = null,
-        $name = ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_PRE
+        $data = null
     )
     {
-        $event = new ConfirmTokenGenerateEvent($this, $user, $data, $name);
+        $event = new ConfirmTokenGenerateEvent($this, $name, $user, $data);
         if($this->request) {
             $event->setRequest($this->request);
         }
@@ -838,26 +1017,60 @@ class UserService implements UserServiceInterface, UserListenerAwareInterface
         return $event;
     }
 
+    /**
+     * @param string $name
+     * @param UserEntityInterface|null $user
+     * @param null $data
+     * @param Form|null $resetPasswordForm
+     * @param ResultInterface|null $result
+     * @return PasswordResetEvent
+     */
     protected function createPasswordResetEvent(
-        UserEntityInterface $user = null,
         $name = PasswordResetEvent::EVENT_PASSWORD_RESET_PRE,
+        UserEntityInterface $user = null,
         $data = null,
         Form $resetPasswordForm = null,
         ResultInterface $result = null
     )
     {
-        $event = new PasswordResetEvent($this, $user, $data, $name);
+        $event = new PasswordResetEvent($this, $name, $user, $data);
+
+        if($resetPasswordForm) {
+            $event->setResetPasswordForm($resetPasswordForm);
+        }
         if($this->request) {
             $event->setRequest($this->request);
         }
         if($this->response) {
             $event->setResponse($this->response);
         }
-        if($resetPasswordForm) {
-            $event->setResetPasswordForm($resetPasswordForm);
-        }
         if ($result) {
             $event->setResult($result);
+        }
+
+        return $event;
+    }
+
+    /**
+     * @param string $name
+     * @param UserEntityInterface|null $user
+     * @param null $data
+     * @param ResultInterface|null $result
+     * @return RememberTokenEvent
+     */
+    protected function createRememberTokenEvent(
+        $name = RememberTokenEvent::EVENT_TOKEN_GENERATE_PRE,
+        UserEntityInterface $user = null,
+        $data = null,
+        ResultInterface $result = null
+    )
+    {
+        $event = new RememberTokenEvent($this, $name, $user, $data, $result);
+        if($this->request) {
+            $event->setRequest($this->request);
+        }
+        if($this->response) {
+            $event->setResponse($this->response);
         }
 
         return $event;
