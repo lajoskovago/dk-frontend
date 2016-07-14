@@ -54,7 +54,8 @@
         "n3vrax/dk-web-authentication": "dev-master",
         "n3vrax/dk-rbac": "dev-master",
         "n3vrax/dk-rbac-guard": "dev-master",
-        "n3vrax/dk-navigation": "dev-master"
+        "n3vrax/dk-navigation": "dev-master",
+        "n3vrax/dk-user": "dev-master"
 
     },
     "require-dev": {
@@ -65,7 +66,6 @@
     "autoload": {
         "psr-4": {
             "Frontend\\": "src/Frontend/",
-            "N3vrax\\DkUser\\": "src/N3vrax/DkUser/",
             "N3vrax\\DkMail\\": "src/N3vrax/DkMail/"
         }
     },
