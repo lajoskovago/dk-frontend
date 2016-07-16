@@ -55,7 +55,8 @@
         "n3vrax/dk-rbac": "dev-master",
         "n3vrax/dk-rbac-guard": "dev-master",
         "n3vrax/dk-navigation": "dev-master",
-        "n3vrax/dk-user": "dev-master"
+        "n3vrax/dk-user": "dev-master",
+        "n3vrax/dk-mail": "dev-master"
 
     },
     "require-dev": {
@@ -98,6 +99,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/n3vrax/dk-user"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/n3vrax/dk-mail"
         },
         {
             "type": "vcs",
