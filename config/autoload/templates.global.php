@@ -8,20 +8,8 @@ return [
 
             //we replaced the default renderer factory with ours to inject the zend view helpers
             Zend\Expressive\Template\TemplateRendererInterface::class =>
-                \Frontend\Twig\Renderer\TwigRendererFactory::class,
-
-            \Zend\View\HelperPluginManager::class =>
-                \Frontend\Zend\View\HelperPluginManagerFactory::class,
-
-            \Frontend\Twig\AuthenticationExtension::class =>
-                \Frontend\Twig\Factory\AuthenticationExtensionFactory::class,
-
-            \Frontend\Twig\AuthorizationExtension::class =>
-                \Frontend\Twig\Factory\AuthorizationExtensionFactory::class,
+                \N3vrax\DkBase\Twig\Renderer\TwigRendererFactory::class,
         ],
-        'aliases' => [
-            'ViewHelperManager' => \Zend\View\HelperPluginManager::class,
-        ]
     ],
 
     'templates' => [
@@ -41,8 +29,6 @@ return [
         'assets_version' => null,
         'extensions'     => [
             // extension service names or instances
-            \Frontend\Twig\AuthenticationExtension::class,
-            \Frontend\Twig\AuthorizationExtension::class,
         ],
         'globals' => [
             //global variables passed to twig templates

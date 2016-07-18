@@ -11,6 +11,6 @@ $eventManager = $container->get(\Zend\EventManager\EventManagerInterface::class)
 /**
  * Register event listeners
  */
-/** @var \Frontend\Authentication\AuthenticationEventListener $authenticationListeners */
-$authenticationListeners = $container->get(\Frontend\Authentication\AuthenticationEventListener::class);
+/** @var \Frontend\Authentication\AuthenticationListener $authenticationListeners */
+$authenticationListeners = $container->get(\Frontend\Authentication\AuthenticationListener::class);
 $authenticationListeners->attach($eventManager);

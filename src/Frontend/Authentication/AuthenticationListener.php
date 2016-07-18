@@ -14,7 +14,7 @@ use N3vrax\DkZendAuthentication\Adapter\CallbackCheck\DbCredentials;
 use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManagerInterface;
 
-class AuthenticationEventListener extends AbstractListenerAggregate
+class AuthenticationListener extends AbstractListenerAggregate
 {
     public function attach(EventManagerInterface $events, $priority = 1)
     {

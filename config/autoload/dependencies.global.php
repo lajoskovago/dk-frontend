@@ -14,18 +14,11 @@ return [
         'invokables' => [
             // Fully\Qualified\InterfaceName::class => Fully\Qualified\ClassName::class,
             Helper\ServerUrlHelper::class => Helper\ServerUrlHelper::class,
-            \Zend\EventManager\SharedEventManagerInterface::class => \Zend\EventManager\SharedEventManager::class,
         ],
         // Use 'factories' for services provided by callbacks/factory classes.
         'factories' => [
             Application::class => ApplicationFactory::class,
             Helper\UrlHelper::class => Helper\UrlHelperFactory::class,
-            
-            \Zend\EventManager\EventManagerInterface::class => \Frontend\Event\EventManagerFactory::class,
         ],
-
-        'shared' => [
-            \Zend\EventManager\EventManagerInterface::class => false,
-        ]
     ],
 ];

@@ -8,13 +8,13 @@
 
 namespace Frontend\Authentication\Factory;
 
-use Frontend\Authentication\AuthenticationEventListener;
+use Frontend\Authentication\AuthenticationListener;
 use Interop\Container\ContainerInterface;
 
-class AuthenticationEventListenerFactory
+class AuthenticationListenerFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        return new AuthenticationEventListener();
+        return new AuthenticationListener();
     }
 }

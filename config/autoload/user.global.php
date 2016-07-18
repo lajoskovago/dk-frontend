@@ -5,8 +5,8 @@ return [
     'dependencies' => [
         //whatever dependencies you need additionally
         'factories' => [
-            \Frontend\Authentication\AuthenticationEventListener::class =>
-                \Frontend\Authentication\Factory\AuthenticationEventListenerFactory::class,
+            \Frontend\Authentication\AuthenticationListener::class =>
+                \Frontend\Authentication\Factory\AuthenticationListenerFactory::class,
 
             \Frontend\User\Listener\UserEventsListener::class =>
                 \Frontend\User\Listener\Factory\UserEventsListenerFactory::class,
