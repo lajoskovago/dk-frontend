@@ -17,5 +17,12 @@ return [
             'middleware' => Frontend\Action\HomePageAction::class,
             'allowed_methods' => ['GET'],
         ],
+
+        'user_route' => [
+            'middleware' => [
+                //we are adding our controller here, for additional user actions
+                \Frontend\User\Controller\UserController::class,
+            ]
+        ],
     ],
 ];
