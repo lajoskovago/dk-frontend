@@ -10,7 +10,7 @@ namespace Frontend\User\Listener;
 
 use N3vrax\DkMail\Service\MailServiceInterface;
 use N3vrax\DkUser\Entity\UserEntityInterface;
-use N3vrax\DkUser\Event\ConfirmTokenGenerateEvent;
+use N3vrax\DkUser\Event\ConfirmAccountEvent;
 use N3vrax\DkUser\Event\PasswordResetEvent;
 use N3vrax\DkUser\Event\RegisterEvent;
 use N3vrax\DkUser\Options\UserOptions;
@@ -57,14 +57,14 @@ class UserEventsListener extends AbstractListenerAggregate
     {
         $this->listeners[] = $events->attach(RegisterEvent::EVENT_REGISTER_POST, [$this, 'onPostRegister'], $priority);
 
-        $this->listeners[] = $events->attach(ConfirmTokenGenerateEvent::EVENT_GENERATE_CONFIRM_TOKEN_POST,
+        $this->listeners[] = $events->attach(ConfirmAccountEvent::EVENT_CONFIRM_ACCOUNT_TOKEN_POST,
             [$this, 'onConfirmTokenGenerated'], $priority);
 
         $this->listeners[] = $events->attach(PasswordResetEvent::EVENT_PASSWORD_RESET_TOKEN_POST,
             [$this, 'onResetPasswordTokenGenerated'], $priority);
     }
 
-    public function onConfirmTokenGenerated(ConfirmTokenGenerateEvent $e)
+    public function onConfirmTokenGenerated(ConfirmAccountEvent $e)
     {
         $data = $e->getData();
         $this->confirmToken = $data->token;

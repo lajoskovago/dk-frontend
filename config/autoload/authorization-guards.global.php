@@ -41,6 +41,11 @@ return [
 
             \N3vrax\DkRbacGuard\Controller\ControllerPermissionGuard::class => [
                 [
+                    'route' => 'user',
+                    'actions' => ['change-password'],
+                    'permissions' => ['authenticated']
+                ],
+                [
                     'route' => 'pages',
                     'actions' => ['about-us'],
                     'permissions' => ['authenticated']
