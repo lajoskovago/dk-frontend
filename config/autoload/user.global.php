@@ -10,6 +10,12 @@ return [
 
             \Frontend\User\Listener\UserEventsListener::class =>
                 \Frontend\User\Listener\Factory\UserEventsListenerFactory::class,
+
+            \Frontend\User\Entity\UserEntity::class =>
+                \Zend\ServiceManager\Factory\InvokableFactory::class,
+
+            \Frontend\User\Entity\UserEntityHydrator::class =>
+                \Zend\ServiceManager\Factory\InvokableFactory::class,
         ]
     ],
 
@@ -19,8 +25,8 @@ return [
             \Frontend\User\Listener\UserEventsListener::class,
         ],
 
-        //'user_entity_class' => \N3vrax\DkUser\Entity\UserEntity::class,
-        //'user_entity_hydrator' => \N3vrax\DkUser\Entity\UserEntityHydrator::class,
+        'user_entity_class' => \Frontend\User\Entity\UserEntity::class,
+        'user_entity_hydrator' => \Frontend\User\Entity\UserEntityHydrator::class,
 
         //'password_cost' => 11,
 

@@ -10,11 +10,32 @@ namespace Frontend\User\Entity;
 
 class UserDetailsEntity
 {
+    /** @var  int */
+    protected $userId;
+
     /** @var  string */
     protected $firstName;
 
     /** @var  string */
     protected $lastName;
+
+    /**
+     * @return int
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param int $userId
+     * @return UserDetailsEntity
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
+        return $this;
+    }
 
     /**
      * @return string

@@ -25,7 +25,7 @@ class UserEntity extends \N3vrax\DkUser\Entity\UserEntity
      * @param UserDetailsEntity $details
      * @return UserEntity
      */
-    public function setDetails($details)
+    public function setDetails(UserDetailsEntity $details = null)
     {
         $this->details = $details;
         return $this;
