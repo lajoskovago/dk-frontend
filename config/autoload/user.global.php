@@ -16,6 +16,12 @@ return [
 
             \Frontend\User\Entity\UserEntityHydrator::class =>
                 \Zend\ServiceManager\Factory\InvokableFactory::class,
+
+            \Frontend\User\Mapper\UserDetailsMapperInterface::class =>
+                \Frontend\User\Factory\UserDetailsDbMapperFactory::class,
+
+            \N3vrax\DkUser\Service\UserServiceInterface::class =>
+                \Frontend\User\Factory\UserServiceFactory::class,
         ]
     ],
 

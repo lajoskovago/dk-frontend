@@ -23,11 +23,18 @@ class UserDetailsHydratorStrategy implements StrategyInterface
 
     public function extract($details)
     {
+        if(!$details) {
+            return [];
+        }
         return $this->userDetailsHydrator->extract($details);
     }
 
     public function hydrate($value)
     {
+        if($value === null) {
+            $value = [];
+        }
+
         $details = new UserDetailsEntity();
         $this->userDetailsHydrator->hydrate($value, $details);
 

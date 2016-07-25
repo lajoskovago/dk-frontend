@@ -12,9 +12,12 @@ use N3vrax\DkBase\Mapper\AbstractDbMapper;
 
 class UserDetailsDbMapper extends AbstractDbMapper implements UserDetailsMapperInterface
 {
+    /** @var string  */
+    protected $idColumn = 'userId';
+
     public function getUserDetails($userId)
     {
-        return $this->select(['userId' => $userId])->current();
+        return $this->select([$this->idColumn => $userId])->current();
     }
 
     public function insertUserDetails($data)
@@ -26,6 +29,6 @@ class UserDetailsDbMapper extends AbstractDbMapper implements UserDetailsMapperI
     public function updateUserDetails($userId, $data)
     {
         $data = $this->entityToArray($data);
-        return $this->update($data, ['userId' => $userId]);
+        return $this->update($data, [$this->idColumn => $userId]);
     }
 }

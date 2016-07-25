@@ -19,22 +19,6 @@ class UserService extends \N3vrax\DkUser\Service\UserService
     protected $userDetailsMapper;
 
     /**
-     * @param $id
-     * @return UserEntity
-     */
-    public function findUser($id)
-    {
-        /** @var UserEntity $user */
-        $user = parent::findUser($id);
-        if($user) {
-            $details = $this->userDetailsMapper->getUserDetails($user->getId());
-            $user->setDetails($details);
-        }
-
-        return $user;
-    }
-
-    /**
      * @param $field
      * @param $value
      * @return mixed
