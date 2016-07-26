@@ -19,10 +19,13 @@ return [
 
             \Frontend\User\Mapper\UserDetailsMapperInterface::class =>
                 \Frontend\User\Factory\UserDetailsDbMapperFactory::class,
+        ],
 
-            \N3vrax\DkUser\Service\UserServiceInterface::class =>
-                \Frontend\User\Factory\UserServiceFactory::class,
-        ]
+        'delegators' => [
+            \N3vrax\DkUser\Service\UserServiceInterface::class => [
+                \Frontend\User\Factory\UserServiceDelegatorFactory::class,
+            ]
+        ],
     ],
 
     'dk_user' => [
@@ -33,6 +36,7 @@ return [
 
         'user_entity_class' => \Frontend\User\Entity\UserEntity::class,
         'user_entity_hydrator' => \Frontend\User\Entity\UserEntityHydrator::class,
+        'user_service_class' => \Frontend\User\Service\UserService::class,
 
         //'password_cost' => 11,
 

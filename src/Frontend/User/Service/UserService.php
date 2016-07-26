@@ -46,6 +46,7 @@ class UserService extends \N3vrax\DkUser\Service\UserService
             $details = $user->getDetails();
             $user->setDetails(null);
         }
+
         parent::saveUser($user);
 
         $userId = $user->getId();
