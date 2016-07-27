@@ -23,9 +23,13 @@ return [
 
         'delegators' => [
             \N3vrax\DkUser\Service\UserServiceInterface::class => [
-                \Frontend\User\Factory\UserServiceDelegatorFactory::class,
+                \Frontend\User\Factory\UserServiceFactory::class,
             ]
         ],
+
+        'shared' => [
+            \Frontend\User\Entity\UserEntity::class => false,
+        ]
     ],
 
     'dk_user' => [
@@ -36,7 +40,6 @@ return [
 
         'user_entity_class' => \Frontend\User\Entity\UserEntity::class,
         'user_entity_hydrator' => \Frontend\User\Entity\UserEntityHydrator::class,
-        'user_service_class' => \Frontend\User\Service\UserService::class,
 
         //'password_cost' => 11,
 

@@ -14,6 +14,6 @@ class UserController extends AbstractActionController
 {
     public function accountAction()
     {
-        var_dump('aaa');exit;
+        var_dump($this->authentication()->getIdentity());exit;
     }
 }

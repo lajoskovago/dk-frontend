@@ -28,7 +28,9 @@ class UserService extends \N3vrax\DkUser\Service\UserService
         $user = parent::findUserBy($field, $value);
         if($user) {
             $details = $this->userDetailsMapper->getUserDetails($user->getId());
-            $user->setDetails($details);
+            if($details) {
+                $user->setDetails($details);
+            }
         }
 
         return $user;
@@ -42,26 +44,35 @@ class UserService extends \N3vrax\DkUser\Service\UserService
     {
         /** @var UserDetailsEntity $details */
         $details = null;
+        //take the details object from user entity
         if($user instanceof UserEntity) {
             $details = $user->getDetails();
-            $user->setDetails(null);
         }
 
+        //save only the user entity to user table
         parent::saveUser($user);
 
+        //store the generated user id, is it wasn't an update
         $userId = $user->getId();
         if(!$userId) {
             $userId = $this->userMapper->lastInsertValue();
         }
 
-        if($details) {
-            if(!$user->getId()) {
-                $details->setUserId($userId);
-                $this->userDetailsMapper->insertUserDetails($details);
-            }
-            else {
-                $this->userDetailsMapper->updateUserDetails($userId, $details);
-            }
+        //we make sure we insert details row even if empty data
+        if(!$details) {
+            $details = new UserDetailsEntity();
+        }
+
+        //decide if it is an insert or update
+        if(!$user->getId()) {
+            //make sure we have the user id in the object, only on insert
+            $details->setUserId($userId);
+            $user->setId($userId);
+
+            $this->userDetailsMapper->insertUserDetails($details);
+        }
+        else {
+            $this->userDetailsMapper->updateUserDetails($userId, $details);
         }
     }
 

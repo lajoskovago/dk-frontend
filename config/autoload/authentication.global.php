@@ -10,8 +10,8 @@ return [
     'dk_authentication' => [
         //required by the auth adapters, it may be optional for your custom adapters
         //specify the identity entity to use and its hydrator
-        'identity_prototype' => \N3vrax\DkUser\Entity\UserEntity::class,
-        'identity_hydrator' => \N3vrax\DkUser\Entity\UserEntityHydrator::class,
+        'identity_prototype' => \Frontend\User\Entity\UserEntity::class,
+        'identity_hydrator' => \Frontend\User\Entity\UserEntityHydrator::class,
 
         //this is adapter specific
         //currently we support HTTP basic and digest

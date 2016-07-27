@@ -29,6 +29,10 @@ class UserDetailsDbMapper extends AbstractDbMapper implements UserDetailsMapperI
     public function updateUserDetails($userId, $data)
     {
         $data = $this->entityToArray($data);
+        //make sure we remove the userId field in case of an update
+        if(isset($data['userId'])) {
+            unset($data['userId']);
+        }
         return $this->update($data, [$this->idColumn => $userId]);
     }
 }

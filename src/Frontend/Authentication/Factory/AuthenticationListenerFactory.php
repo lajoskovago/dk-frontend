@@ -9,12 +9,13 @@
 namespace Frontend\Authentication\Factory;
 
 use Frontend\Authentication\AuthenticationListener;
+use Frontend\User\Mapper\UserDetailsMapperInterface;
 use Interop\Container\ContainerInterface;
 
 class AuthenticationListenerFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        return new AuthenticationListener();
+        return new AuthenticationListener($container->get(UserDetailsMapperInterface::class));
     }
 }

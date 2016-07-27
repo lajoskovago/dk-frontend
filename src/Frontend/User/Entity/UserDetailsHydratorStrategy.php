@@ -32,7 +32,7 @@ class UserDetailsHydratorStrategy implements StrategyInterface
     public function hydrate($value)
     {
         if($value === null) {
-            $value = [];
+            return $value;
         }
 
         $details = new UserDetailsEntity();
