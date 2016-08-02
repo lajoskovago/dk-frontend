@@ -14,3 +14,10 @@ $eventManager = $container->get(\Zend\EventManager\EventManagerInterface::class)
 /** @var \Frontend\Authentication\AuthenticationListener $authenticationListeners */
 $authenticationListeners = $container->get(\Frontend\Authentication\AuthenticationListener::class);
 $authenticationListeners->attach($eventManager);
+
+$eventManager->getSharedManager()->attach(
+    \N3vrax\DkUser\Form\RegisterForm::class,
+    'init',
+    function(\Zend\EventManager\Event $e) {
+        var_dump('aaa');exit;
+    });

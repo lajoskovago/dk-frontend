@@ -19,12 +19,9 @@ return [
 
             \Frontend\User\Mapper\UserDetailsMapperInterface::class =>
                 \Frontend\User\Factory\UserDetailsDbMapperFactory::class,
-        ],
 
-        'delegators' => [
-            \N3vrax\DkUser\Service\UserServiceInterface::class => [
-                \Frontend\User\Factory\UserServiceFactory::class,
-            ]
+            \N3vrax\DkUser\Mapper\UserMapperInterface::class =>
+                \Frontend\User\Factory\UserDbMapperFactory::class,
         ],
 
         'shared' => [
