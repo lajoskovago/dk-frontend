@@ -18,6 +18,4 @@ $authenticationListeners->attach($eventManager);
 $eventManager->getSharedManager()->attach(
     \N3vrax\DkUser\Form\RegisterForm::class,
     'init',
-    function(\Zend\EventManager\Event $e) {
-        var_dump('aaa');exit;
-    });
+    new \Frontend\User\Listener\RegisterFormListener());

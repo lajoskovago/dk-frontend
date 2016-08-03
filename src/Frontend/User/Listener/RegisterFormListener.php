@@ -8,23 +8,32 @@
 
 namespace Frontend\User\Listener;
 
+use Frontend\User\Form\InputFilter\UserDetailsInputFilter;
 use Frontend\User\Form\UserDetailsFieldset;
 use Zend\EventManager\Event;
 use Zend\Form\Form;
 
 class RegisterFormListener
 {
+    /**
+     * Listens for RegisterForm init event to add more elements to the original form
+     *
+     * @param Event $e
+     */
     public function __invoke(Event $e)
     {
-        var_dump('aaa');exit;
         /** @var Form $form */
         $form = $e->getTarget();
 
         $detailsFieldset = new UserDetailsFieldset();
         $detailsFieldset->setName('details');
+
+        $detailsFilter = new UserDetailsInputFilter();
+        $detailsFilter->init();
         //remove some elements from the fieldset that you don't want in the register form
         //this is not the case right now, as this fieldset contains only lastName and firstName
 
         $form->add($detailsFieldset);
+        $form->getInputFilter()->add($detailsFilter, 'details');
     }
 }
