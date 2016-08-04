@@ -21,31 +21,46 @@ class UserDetailsInputFilter extends InputFilter
     {
         $this->add([
             'name' => 'firstName',
-            'required' => true,
             'filters' => [
                 ['name' => 'StringTrim']
             ],
             'validators' => [
                 [
+                    'name' => 'NotEmpty',
+                    'break_chain_on_failure' => true,
+                    'options' => [
+                        'message' => 'First name is required and cannot be empty'
+                    ]
+                ],
+                [
                     'name' => 'StringLength',
                     'options' => [
-                        'max' => 255
+                        'max' => 255,
+                        'message' => 'First name character limit exceeded'
                     ]
                 ]
             ],
         ]);
 
         $this->add([
-            'name' => 'firstName',
-            'required' => true,
+            'name' => 'lastName',
             'filters' => [
                 ['name' => 'StringTrim']
             ],
             'validators' => [
                 [
+                    'name' => 'NotEmpty',
+                    'break_chain_on_failure' => true,
+                    'options' => [
+                        'message' => 'Last name is required and cannot be empty'
+                    ]
+                ],
+                [
                     'name' => 'StringLength',
                     'options' => [
-                        'max' => 255
+                        'min' => 3,
+                        'max' => 255,
+                        'message' => 'Last name character limit exceeded'
                     ]
                 ]
             ],

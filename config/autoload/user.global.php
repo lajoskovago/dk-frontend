@@ -35,7 +35,7 @@ return [
             \Frontend\User\Listener\UserEventsListener::class,
         ],
 
-        'user_entity_class' => \Frontend\User\Entity\UserEntity::class,
+        'user_entity' => \Frontend\User\Entity\UserEntity::class,
         'user_entity_hydrator' => \Frontend\User\Entity\UserEntityHydrator::class,
 
         //'password_cost' => 11,

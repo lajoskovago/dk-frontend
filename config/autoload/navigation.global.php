@@ -95,7 +95,8 @@ return [
                         [
                             'options' => [
                                 'label' => 'Settings',
-                                'uri' => '#',
+                                'route' => 'user',
+                                'params' => ['action' => 'account'],
                                 'icon' => 'fa fa-wrench',
                             ]
                         ],

@@ -71,9 +71,9 @@ class UserDbMapper extends \N3vrax\DkUser\Mapper\UserDbMapper
 
         if(!$details) {
             $details = new UserDetailsEntity();
-            $details->setUserId($userId);
         }
 
+        $details->setUserId($userId);
         return $this->userDetailsMapper->insertUserDetails($details);
     }
 

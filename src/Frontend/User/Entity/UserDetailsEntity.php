@@ -19,6 +19,9 @@ class UserDetailsEntity
     /** @var  string */
     protected $lastName;
 
+    /** @var  string */
+    protected $phone;
+
     /**
      * @return int
      */
@@ -72,5 +75,25 @@ class UserDetailsEntity
         $this->lastName = $lastName;
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param string $phone
+     * @return UserDetailsEntity
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    
 
 }

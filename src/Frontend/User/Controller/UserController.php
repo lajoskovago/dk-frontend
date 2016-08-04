@@ -9,11 +9,13 @@
 namespace Frontend\User\Controller;
 
 use N3vrax\DkBase\Controller\AbstractActionController;
+use Zend\Diactoros\Response\HtmlResponse;
 
 class UserController extends AbstractActionController
 {
+    
     public function accountAction()
     {
-        var_dump($this->authentication()->getIdentity());exit;
+        return new HtmlResponse($this->template()->render('app::account'));
     }
 }
