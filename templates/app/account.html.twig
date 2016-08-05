@@ -4,14 +4,30 @@
 
 {% block content %}
 
-    <div class="row">
-        <div class="col-sm-6 col-md-5 col-md-offset-3">
-            <h3>Account settings</h3>
+    <style>
+        /* compensate for the hidden input, to align forms*/
+        #change_password > h3 {
+            margin-bottom: 15px;
+        }
+    </style>
 
+    <div class="row">
+        <div class="col-sm-6 col-md-5">
+            <h3>Update account info</h3>
             {{ flashMessagesPartial('partial::alerts') }}
 
+            {{ form().openTag(userForm) | raw }}
+            {% include '@dk-user/_form.html.twig' with {'form' : userForm} only %}
+            {{ form().closeTag() | raw }}
 
+        </div>
+        <div class="col-sm-6 col-md-5" id="change_password">
+            <h3>Change password</h3>
+            {{ flashMessagesPartial('partial::alerts') }}
 
+            {{ form().openTag(changePasswordForm) | raw }}
+            {% include '@dk-user/_form.html.twig' with {'form' : changePasswordForm} only %}
+            {{ form().closeTag() | raw }}
         </div>
     </div>
 

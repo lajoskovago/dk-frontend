@@ -8,6 +8,7 @@
 
 namespace Frontend\User\Form;
 
+use Zend\Form\Element\Csrf;
 use Zend\Form\Form;
 
 class UserForm extends Form
@@ -19,6 +20,35 @@ class UserForm extends Form
 
     public function init()
     {
-        
+        $this->add([
+            'name' => 'id',
+            'type' => 'hidden',
+        ]);
+
+        $this->add([
+            'name' => 'username',
+            'type' => 'text',
+            'options' => [
+                'label' => 'Username'
+            ],
+            'attributes' => [
+                'placeholder' => 'Username'
+            ]
+        ]);
+
+        $detailsFieldset = new UserDetailsFieldset();
+        $detailsFieldset->setName('details');
+
+        $this->add($detailsFieldset);
+
+        $this->add(new Csrf('update_user_csrf'));
+
+        $this->add([
+            'name' => 'submit',
+            'type' => 'submit',
+            'attributes' => [
+                'value' => 'Update account'
+            ], ['priority' => -100]
+        ]);
     }
 }

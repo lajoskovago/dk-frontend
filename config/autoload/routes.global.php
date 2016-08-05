@@ -4,10 +4,10 @@ return [
     'dependencies' => [
         'invokables' => [
             Zend\Expressive\Router\RouterInterface::class => Zend\Expressive\Router\FastRouteRouter::class,
-            \Frontend\User\Controller\UserController::class => \Frontend\User\Controller\UserController::class,
         ],
         'factories' => [
             Frontend\Action\HomePageAction::class => Frontend\Action\HomePageFactory::class,
+            \Frontend\User\Controller\UserController::class => \Frontend\User\Factory\UserControllerFactory::class,
         ],
     ],
 

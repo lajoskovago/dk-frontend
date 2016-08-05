@@ -5,28 +5,36 @@ return [
     'dependencies' => [
         //whatever dependencies you need additionally
         'factories' => [
+            //event listeners for authentication and user events
             \Frontend\Authentication\AuthenticationListener::class =>
                 \Frontend\Authentication\Factory\AuthenticationListenerFactory::class,
 
             \Frontend\User\Listener\UserEventsListener::class =>
                 \Frontend\User\Listener\Factory\UserEventsListenerFactory::class,
 
+            //****************************
+            //we overwrite the default user entity with this ones, to include details field
             \Frontend\User\Entity\UserEntity::class =>
                 \Zend\ServiceManager\Factory\InvokableFactory::class,
 
             \Frontend\User\Entity\UserEntityHydrator::class =>
                 \Zend\ServiceManager\Factory\InvokableFactory::class,
 
+            //********************************
+            //extended user mapper and user details mapper
             \Frontend\User\Mapper\UserDetailsMapperInterface::class =>
                 \Frontend\User\Factory\UserDetailsDbMapperFactory::class,
 
             \N3vrax\DkUser\Mapper\UserMapperInterface::class =>
                 \Frontend\User\Factory\UserDbMapperFactory::class,
+
+            \N3vrax\DkUser\Service\UserServiceInterface::class =>
+                \Frontend\User\Factory\UserServiceFactory::class,
         ],
 
         'shared' => [
             \Frontend\User\Entity\UserEntity::class => false,
-        ]
+        ],
     ],
 
     'dk_user' => [
@@ -98,6 +106,12 @@ return [
             'enable_account_confirmation' => true,
 
             'active_user_status' => 'active'
+        ],
+
+        'form_manager' => [
+            'factories' => [
+                \Frontend\User\Form\UserForm::class => \Frontend\User\Factory\Form\UserFormFactory::class,
+            ]
         ],
     ],
 
