@@ -16,6 +16,11 @@
             <h3>Update account info</h3>
             {{ flashMessagesPartial('partial::alerts') }}
 
+            {% set dummy = userForm.setAttribute('method', 'post') %}
+            {% set dummy = userForm.prepare() %}
+
+            {% set dummy = userForm.get('submit').setName('userFormSubmit') %}
+
             {{ form().openTag(userForm) | raw }}
             {% include '@dk-user/_form.html.twig' with {'form' : userForm} only %}
             {{ form().closeTag() | raw }}
@@ -24,6 +29,11 @@
         <div class="col-sm-6 col-md-5" id="change_password">
             <h3>Change password</h3>
             {{ flashMessagesPartial('partial::alerts') }}
+
+            {% set dummy = changePasswordForm.setAttribute('method', 'post') %}
+            {% set dummy = changePasswordForm.prepare() %}
+
+            {% set dummy = changePasswordForm.get('submit').setName('changePasswordSubmit') %}
 
             {{ form().openTag(changePasswordForm) | raw }}
             {% include '@dk-user/_form.html.twig' with {'form' : changePasswordForm} only %}
