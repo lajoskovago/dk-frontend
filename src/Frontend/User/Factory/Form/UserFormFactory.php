@@ -24,13 +24,12 @@ class UserFormFactory
         $form = new UserForm();
         $form->init();
 
+        $userDetailsInputFilter = new UserDetailsInputFilter();
+        $userDetailsInputFilter->init();
+
         $userFilter = new UserInputFilter(
             $container->get(UserOptions::class),
-            new NoRecordsExists([
-                'mapper' => $container->get(UserMapperInterface::class),
-                'key' => 'username',
-            ]),
-            new UserDetailsInputFilter()
+            $userDetailsInputFilter
         );
         $userFilter->init();
 

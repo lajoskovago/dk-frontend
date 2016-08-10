@@ -3,18 +3,13 @@
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
-
-    <style>
-        /* compensate for the hidden input, to align forms*/
-        #change_password > h3 {
-            margin-bottom: 15px;
-        }
-    </style>
-
     <div class="row">
         <div class="col-sm-6 col-md-5">
             <h3>Update account info</h3>
-            {{ flashMessagesPartial('partial::alerts') }}
+
+            {% if submittedForm == 'userForm' %}
+                {{ flashMessagesPartial('partial::alerts') }}
+            {% endif %}
 
             {% set dummy = userForm.setAttribute('method', 'post') %}
             {% set dummy = userForm.prepare() %}
@@ -22,13 +17,16 @@
             {% set dummy = userForm.get('submit').setName('userFormSubmit') %}
 
             {{ form().openTag(userForm) | raw }}
-            {% include '@dk-user/_form.html.twig' with {'form' : userForm} only %}
+            {% include '@dk-user/_form.html.twig' with {'form' : userForm, 'showLabels' : true} only %}
             {{ form().closeTag() | raw }}
 
         </div>
         <div class="col-sm-6 col-md-5" id="change_password">
             <h3>Change password</h3>
-            {{ flashMessagesPartial('partial::alerts') }}
+
+            {% if submittedForm == 'changePasswordForm' %}
+                {{ flashMessagesPartial('partial::alerts') }}
+            {% endif %}
 
             {% set dummy = changePasswordForm.setAttribute('method', 'post') %}
             {% set dummy = changePasswordForm.prepare() %}

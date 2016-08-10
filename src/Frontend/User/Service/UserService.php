@@ -8,7 +8,7 @@
 
 namespace Frontend\User\Service;
 
-use Frontend\User\Event\UpdateEvent;
+use Frontend\User\Event\UserUpdateEvent;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\Result\ResultInterface;
 use N3vrax\DkUser\Result\UserOperationResult;
@@ -19,7 +19,7 @@ class UserService extends \N3vrax\DkUser\Service\UserService implements UserServ
      * @param UserEntityInterface $user
      * @return UserOperationResult
      */
-    public function updateUser(UserEntityInterface $user)
+    public function updateAccountInfo(UserEntityInterface $user)
     {
         $result = new UserOperationResult(true, 'Account successfully updated');
 
@@ -27,16 +27,14 @@ class UserService extends \N3vrax\DkUser\Service\UserService implements UserServ
             $this->userMapper->beginTransaction();
 
             $this->getEventManager()->triggerEvent(
-                $this->createUpdateEvent(UpdateEvent::EVENT_UPDATE_PRE, $user));
-
-            //make sure we don't include the password in the update, we have separate method for that
-            $user->setPassword(null);
+                $this->createUpdateEvent(UserUpdateEvent::EVENT_UPDATE_PRE, $user));
+            
             $this->saveUser($user);
             
             $result->setUser($user);
 
             $this->getEventManager()->triggerEvent(
-                $this->createUpdateEvent(UpdateEvent::EVENT_UPDATE_POST, $user));
+                $this->createUpdateEvent(UserUpdateEvent::EVENT_UPDATE_POST, $user));
 
             $this->userMapper->commit();
         }
@@ -46,7 +44,7 @@ class UserService extends \N3vrax\DkUser\Service\UserService implements UserServ
                 $e, 'Account update failed. Please try again', $user);
 
             $this->getEventManager()->triggerEvent(
-                $this->createUpdateEvent(UpdateEvent::EVENT_UPDATE_ERROR, $user, $result));
+                $this->createUpdateEvent(UserUpdateEvent::EVENT_UPDATE_ERROR, $user, $result));
 
             $this->userMapper->rollback();
         }
@@ -55,11 +53,11 @@ class UserService extends \N3vrax\DkUser\Service\UserService implements UserServ
     }
 
     protected function createUpdateEvent(
-        $name = UpdateEvent::EVENT_UPDATE_PRE,
+        $name = UserUpdateEvent::EVENT_UPDATE_PRE,
         UserEntityInterface $user = null,
         ResultInterface $result = null)
     {
-        $event = new UpdateEvent($this, $name, $user, $result);
+        $event = new UserUpdateEvent($this, $name, $user, $result);
         return $this->setupEventPsr7Messages($event);
     }
 }

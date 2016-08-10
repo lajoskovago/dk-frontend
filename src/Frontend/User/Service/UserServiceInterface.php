@@ -12,5 +12,5 @@ use N3vrax\DkUser\Entity\UserEntityInterface;
 
 interface UserServiceInterface extends \N3vrax\DkUser\Service\UserServiceInterface
 {
-    public function updateUser(UserEntityInterface $user);
+    public function updateAccountInfo(UserEntityInterface $user);
 }

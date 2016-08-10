@@ -10,6 +10,7 @@ namespace Frontend\User\Factory;
 
 use Frontend\User\Service\UserService;
 use Interop\Container\ContainerInterface;
+use N3vrax\DkAuthentication\AuthenticationInterface;
 use N3vrax\DkUser\Mapper\UserMapperInterface;
 use N3vrax\DkUser\Options\UserOptions;
 use N3vrax\DkUser\Service\PasswordInterface;
@@ -35,7 +36,8 @@ class UserServiceFactory extends \N3vrax\DkUser\Factory\UserServiceFactory
         $service = new UserService(
             $container->get(UserMapperInterface::class),
             $options,
-            $container->get(PasswordInterface::class)
+            $container->get(PasswordInterface::class),
+            $container->get(AuthenticationInterface::class)
         );
 
         $service->setUserEntityPrototype($container->get($options->getUserEntity()));

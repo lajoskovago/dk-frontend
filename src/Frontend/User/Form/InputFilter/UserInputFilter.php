@@ -16,25 +16,20 @@ class UserInputFilter extends InputFilter
     /** @var  UserOptions */
     protected $userOptions;
 
-    protected $usernameValidator;
-
     /** @var  InputFilter */
     protected $userDetailsInputFilter;
 
     /**
      * UserInputFilter constructor.
      * @param UserOptions $userOptions
-     * @param $usernameValidator
      * @param InputFilter $userDetailsInputFilter
      */
     public function __construct(
         UserOptions $userOptions,
-        $usernameValidator,
         InputFilter $userDetailsInputFilter
     )
     {
         $this->userOptions = $userOptions;
-        $this->usernameValidator = $usernameValidator;
         $this->userDetailsInputFilter = $userDetailsInputFilter;
     }
 
@@ -69,7 +64,6 @@ class UserInputFilter extends InputFilter
                             'message' => 'Username invalid characters - only digits, letters and underscore allowed'
                         ]
                     ],
-                    $this->usernameValidator,
                 ],
             ]);
         }
