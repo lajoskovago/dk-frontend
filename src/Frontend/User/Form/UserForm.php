@@ -36,7 +36,16 @@ class UserForm extends Form
 
         $this->add($detailsFieldset);
 
-        $this->add(new Csrf('update_user_csrf'));
+        $this->add([
+            'type' => 'Csrf',
+            'name' => 'update_account_csrf',
+            'options' => [
+                'csrf_options' => [
+                    'timeout' => 1800,
+                    'message' => 'This form has expired. Please refresh page and try again'
+                ]
+            ]
+        ]);
 
         $this->add([
             'name' => 'submit',

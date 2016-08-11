@@ -53,7 +53,6 @@ class UserController extends AbstractActionController
 
         /** @var UserEntity $identity */
         $identity = $this->authentication()->getIdentity();
-        $userForm->setBindOnValidate(FormInterface::BIND_MANUAL);
         $userForm->bind($identity);
 
         $userFormData = $this->flashMessenger()->getData('userFormData') ?: [];
@@ -96,6 +95,8 @@ class UserController extends AbstractActionController
         $userForm = $this->formManager->get(UserForm::class);
 
         $data = $request->getParsedBody();
+        //in case username is changed we need to check its uniqueness
+        //but only in case username was actually changed from the previous one
         if($data['username'] !== $identity->getUsername()) {
             //consider we want to change username
             $userForm->getInputFilter()->get('username')
@@ -110,12 +111,11 @@ class UserController extends AbstractActionController
         if($userForm->isValid()) {
             /** @var UserEntityInterface $user */
             $user = $userForm->getData();
-            //var_dump($user);exit;
+
             /** @var UserOperationResult $result */
             $result = $this->userService->updateAccountInfo($user);
-            if($result->isValid()) {
-                $userForm->bindValues();
 
+            if($result->isValid()) {
                 $this->addSuccess('Account successfully updated', $this->flashMessenger());
                 return new RedirectResponse($request->getUri());
             }
