@@ -14,15 +14,12 @@ use Frontend\User\Service\UserServiceInterface;
 use N3vrax\DkBase\Controller\AbstractActionController;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\FlashMessagesTrait;
-use N3vrax\DkUser\Form\ChangePasswordForm;
 use N3vrax\DkUser\Form\FormManager;
 use N3vrax\DkUser\Result\UserOperationResult;
 use N3vrax\DkUser\Validator\NoRecordsExists;
-use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\RedirectResponse;
 use Zend\Form\Form;
-use Zend\Form\FormInterface;
 
 class UserController extends AbstractActionController
 {
@@ -43,102 +40,64 @@ class UserController extends AbstractActionController
     public function accountAction()
     {
         $request = $this->getRequest();
-
-        //var_dump($this->authentication()->getIdentity());
         
         /** @var Form $form */
-        $userForm = $this->formManager->get(UserForm::class);
-        /** @var Form $changePasswordForm */
-        $changePasswordForm = $this->formManager->get(ChangePasswordForm::class);
+        $form = $this->formManager->get(UserForm::class);
 
         /** @var UserEntity $identity */
         $identity = $this->authentication()->getIdentity();
-        $userForm->bind($identity);
+        $form->bind($identity);
 
         $userFormData = $this->flashMessenger()->getData('userFormData') ?: [];
         $userFormMessages = $this->flashMessenger()->getData('userFormMessages') ?: [];
 
-        $userForm->setData($userFormData);
-        $userForm->setMessages($userFormMessages);
+        $form->setData($userFormData);
+        $form->setMessages($userFormMessages);
         
         if($request->getMethod() === 'POST') {
             $data = $request->getParsedBody();
 
-            if(isset($data['userFormSubmit'])) {
-                //we add this flag into the session to be available next request, for PRG form
-                $this->flashMessenger()->addData('submittedForm', 'userForm');
-                return $this->handleUpdateAccountInfo($request);
+            //in case username is changed we need to check its uniqueness
+            //but only in case username was actually changed from the previous one
+            if($data['username'] !== $identity->getUsername()) {
+                //consider we want to change username
+                $form->getInputFilter()->get('username')
+                    ->getValidatorChain()
+                    ->attach(new NoRecordsExists([
+                        'mapper' => $this->userService->getUserMapper(),
+                        'key' => 'username',
+                    ]));
             }
-            elseif(isset($data['changePasswordSubmit'])) {
-                $this->flashMessenger()->addData('submittedForm', 'changePasswordForm');
-                return $this->handleChangePassword($request);
-            }
-            else {
-                $this->flashMessenger()->addError('Invalid form submitted');
-                return new RedirectResponse($request->getUri(), 303);
-            }
-        }
+            $form->setData($data);
 
-        //read the previously flag indicating the form that was submitted
-        //we'll make some UI decisions based on this is multiple forms are displayed on the same page
-        $submittedForm = $this->flashMessenger()->getData('submittedForm') ?: 'none';
-        
-        return new HtmlResponse($this->template()->render('app::account',
-            ['userForm' => $userForm, 'changePasswordForm' => $changePasswordForm, 'submittedForm' => $submittedForm]));
-    }
+            $isValid = $form->isValid();
 
-    protected function handleUpdateAccountInfo(ServerRequestInterface $request)
-    {
-        /** @var UserEntity $identity */
-        $identity = $this->authentication()->getIdentity();
-        /** @var Form $form */
-        $userForm = $this->formManager->get(UserForm::class);
-
-        $data = $request->getParsedBody();
-        //in case username is changed we need to check its uniqueness
-        //but only in case username was actually changed from the previous one
-        if($data['username'] !== $identity->getUsername()) {
-            //consider we want to change username
-            $userForm->getInputFilter()->get('username')
-                ->getValidatorChain()
-                ->attach(new NoRecordsExists([
-                    'mapper' => $this->userService->getUserMapper(),
-                    'key' => 'username',
-                ]));
-        }
-        $userForm->setData($data);
-
-        if($userForm->isValid()) {
-            /** @var UserEntityInterface $user */
-            $user = $userForm->getData();
-
-            /** @var UserOperationResult $result */
-            $result = $this->userService->updateAccountInfo($user);
-
-            if($result->isValid()) {
-                $this->addSuccess('Account successfully updated', $this->flashMessenger());
-                return new RedirectResponse($request->getUri());
-            }
-            else {
-                $this->flashMessenger()->addData('userFormData', $data);
-                $this->flashMessenger()->addData('userFormMessages', $userForm->getMessages());
-
-                $this->addError($result->getMessages(), $this->flashMessenger());
-                return new RedirectResponse($request->getUri(), 303);
-            }
-        }
-        else {
             $this->flashMessenger()->addData('userFormData', $data);
-            $this->flashMessenger()->addData('userFormMessages', $userForm->getMessages());
+            $this->flashMessenger()->addData('userFormMessages', $form->getMessages());
 
-            $this->addError($this->getFormMessages($userForm->getMessages()), $this->flashMessenger());
-            return new RedirectResponse($request->getUri(), 303);
+            if($isValid) {
+                /** @var UserEntityInterface $user */
+                $user = $form->getData();
+
+                /** @var UserOperationResult $result */
+                $result = $this->userService->updateAccountInfo($user);
+
+                if($result->isValid()) {
+                    $this->addSuccess('Account successfully updated', $this->flashMessenger());
+                    return new RedirectResponse($request->getUri());
+                }
+                else {
+                    $this->addError($result->getMessages(), $this->flashMessenger());
+                    return new RedirectResponse($request->getUri(), 303);
+                }
+            }
+            else {
+                $this->addError($this->getFormMessages($form->getMessages()), $this->flashMessenger());
+                return new RedirectResponse($request->getUri(), 303);
+            }
         }
-    }
-
-    protected function handleChangePassword(ServerRequestInterface $request)
-    {
-        var_dump('update password');exit;
+        
+        return new HtmlResponse($this->template()->render('app::account', ['form' => $form,]));
     }
 
     /**

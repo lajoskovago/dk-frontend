@@ -20,6 +20,7 @@ return [
             'partial'   => [__DIR__ . '/../../templates/partial'],
             'layout'    => [__DIR__ . '/../../templates/layout'],
             'error'     => [__DIR__ . '/../../templates/error'],
+            'dk-user'   => [1 => __DIR__ . '/../../templates/dk-user'],
         ],
     ],
 

@@ -2,41 +2,27 @@
 
 {% block title %}Sign Up{% endblock %}
 
+{% block side_panel %}
+    <div class="col-md-3">
+        {{ navigationPartial('account_side_menu', 'partial::account_side_menu') }}
+    </div>
+{% endblock %}
+
 {% block content %}
-    <div class="row">
-        <div class="col-sm-6 col-md-5">
-            <h3>Update account info</h3>
+    <div class="col-md-9">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-1">
+                <h2>Update personal information</h2>
 
-            {% if submittedForm == 'userForm' %}
                 {{ flashMessagesPartial('partial::alerts') }}
-            {% endif %}
 
-            {% set dummy = userForm.setAttribute('method', 'post') %}
-            {% set dummy = userForm.prepare() %}
+                {% set dummy = form.setAttribute('method', 'post') %}
+                {% set dummy = form.prepare() %}
 
-            {% set dummy = userForm.get('submit').setName('userFormSubmit') %}
-
-            {{ form().openTag(userForm) | raw }}
-            {% include '@dk-user/_form.html.twig' with {'form' : userForm, 'showLabels' : true} only %}
-            {{ form().closeTag() | raw }}
-
-        </div>
-        <div class="col-sm-6 col-md-5" id="change_password">
-            <h3>Change password</h3>
-
-            {% if submittedForm == 'changePasswordForm' %}
-                {{ flashMessagesPartial('partial::alerts') }}
-            {% endif %}
-
-            {% set dummy = changePasswordForm.setAttribute('method', 'post') %}
-            {% set dummy = changePasswordForm.prepare() %}
-
-            {% set dummy = changePasswordForm.get('submit').setName('changePasswordSubmit') %}
-
-            {{ form().openTag(changePasswordForm) | raw }}
-            {% include '@dk-user/_form.html.twig' with {'form' : changePasswordForm} only %}
-            {{ form().closeTag() | raw }}
+                {{ form().openTag(form) | raw }}
+                {% include '@dk-user/_form.html.twig' with {'form' : form, 'showLabels' : true} only %}
+                {{ form().closeTag() | raw }}
+            </div>
         </div>
     </div>
-
 {% endblock %}

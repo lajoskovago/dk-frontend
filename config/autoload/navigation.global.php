@@ -16,11 +16,46 @@ return [
         'providers_map' => [
             'main_menu' => \N3vrax\DkNavigation\Provider\ArrayProvider::class,
             'account_menu' => \N3vrax\DkNavigation\Provider\ArrayProvider::class,
+            'account_side_menu' => \N3vrax\DkNavigation\Provider\ArrayProvider::class,
         ],
 
         //map a provider name to its config
         //this is for bootstrap navbar - even if we support multi-level menus, bootstrap is limited to one level
         'containers' => [
+            'account_side_menu' => [
+                [
+                    'options' => [
+                        'label' => 'Personal Information',
+                        'route' => 'user',
+                        'params' => ['action' => 'account'],
+                    ],
+                ],
+                [
+                    'options' => [
+                        'label' => 'Change password',
+                        'route' => 'user',
+                        'params' => ['action' => 'change-password'],
+                    ],
+                ],
+                [
+                    'options' => [
+                        'label' => 'Change email',
+                        'route' => 'user',
+                        'params' => ['action' => 'change-email'],
+                    ],
+                ],
+                [
+                    'options' => [
+                        'label' => 'Delete account',
+                        'route' => 'user',
+                        'params' => ['action' => 'delete-account'],
+                    ],
+                    'attributes' => [
+                        'style' => 'color: red'
+                    ]
+                ],
+            ],
+
             'main_menu' => [
                 [
                     'options' => [

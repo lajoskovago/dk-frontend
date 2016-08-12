@@ -46,7 +46,13 @@
 
     <div class="app-content">
         <main class="container">
-            {% block content %}{% endblock %}
+            <div class="row">
+
+                {% block side_panel %}{% endblock %}
+
+                {% block content %}{% endblock %}
+
+            </div>
         </main>
     </div>
 

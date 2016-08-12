@@ -51,7 +51,7 @@ class UserForm extends Form
             'name' => 'submit',
             'type' => 'submit',
             'attributes' => [
-                'value' => 'Update account'
+                'value' => 'Save'
             ], ['priority' => -100]
         ]);
     }
