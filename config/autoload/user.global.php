@@ -128,11 +128,4 @@ return [
         ]
     ],
 
-    'templates' => [
-        'paths' => [
-            //if you want to override templates path for module
-            //'dk-user' => __DIR__ . '/../templates/dk-user',
-        ]
-    ]
-
 ];

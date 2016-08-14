@@ -17,7 +17,6 @@ class UserControllerFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        var_dump($container->get('config')['templates']);exit;
         $controller = new UserController(
             $container->get(UserServiceInterface::class),
             $container->get(FormManager::class));

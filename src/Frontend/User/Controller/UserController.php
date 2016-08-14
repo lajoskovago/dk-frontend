@@ -20,6 +20,7 @@ use N3vrax\DkUser\Validator\NoRecordsExists;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\RedirectResponse;
 use Zend\Form\Form;
+use Zend\Validator\AbstractValidator;
 
 class UserController extends AbstractActionController
 {
@@ -60,13 +61,17 @@ class UserController extends AbstractActionController
             //in case username is changed we need to check its uniqueness
             //but only in case username was actually changed from the previous one
             if($data['username'] !== $identity->getUsername()) {
+                /** @var AbstractValidator $usernameValidator */
+                $usernameValidator = new NoRecordsExists([
+                    'mapper' => $this->userService->getUserMapper(),
+                    'key' => 'username',
+                ]);
+                $usernameValidator->setMessage('Username is already registered and cannot be used');
+
                 //consider we want to change username
                 $form->getInputFilter()->get('username')
                     ->getValidatorChain()
-                    ->attach(new NoRecordsExists([
-                        'mapper' => $this->userService->getUserMapper(),
-                        'key' => 'username',
-                    ]));
+                    ->attach($usernameValidator);
             }
             $form->setData($data);
 
