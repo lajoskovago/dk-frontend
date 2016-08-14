@@ -4,6 +4,9 @@ return [
 
     'dependencies' => [
         'factories' => [
+            \Frontend\User\Controller\UserController::class =>
+                \Frontend\User\Factory\UserControllerFactory::class,
+
             \Frontend\Controller\PageController::class =>
                 \Frontend\Controller\Factory\PageControllerFactory::class,
         ]
@@ -14,12 +17,4 @@ return [
         'plugin_manager' => []
 
     ],
-
-    'routes' => [
-        [
-            'name' => 'pages',
-            'path' => '/page[/{action}]',
-            'middleware' => \Frontend\Controller\PageController::class,
-        ],
-    ]
 ];

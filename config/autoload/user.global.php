@@ -38,18 +38,26 @@ return [
     ],
 
     'dk_user' => [
-
+        //listeners for various user related events
         'user_listeners' => [
             \Frontend\User\Listener\UserEventsListener::class,
         ],
 
+        //user entity and its hydrator to use for user transactions
         'user_entity' => \Frontend\User\Entity\UserEntity::class,
         'user_entity_hydrator' => \Frontend\User\Entity\UserEntityHydrator::class,
 
+        //bcrypt cost, default to 11
         //'password_cost' => 11,
 
         //'enable_user_status' => true,
 
+        //enable user form labes display
+        'show_form_input_labels' => true,
+
+        /**
+         * Db options in case we use PDO/Mysql
+         */
         'db_options' => [
             'db_adapter' => 'database',
 
@@ -58,6 +66,9 @@ return [
             //'user_confirm_token_table' => 'user_confirm_token',
         ],
 
+        /**
+         * These are options related to user registrations
+         */
         'register_options' => [
             'enable_registration' => true,
 

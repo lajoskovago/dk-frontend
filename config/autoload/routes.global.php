@@ -7,7 +7,6 @@ return [
         ],
         'factories' => [
             Frontend\Action\HomePageAction::class => Frontend\Action\HomePageFactory::class,
-            \Frontend\User\Controller\UserController::class => \Frontend\User\Factory\UserControllerFactory::class,
         ],
     ],
 
@@ -23,6 +22,11 @@ return [
                 //we are adding our controller here, for additional user actions
                 \Frontend\User\Controller\UserController::class,
             ]
+        ],
+        [
+            'name' => 'pages',
+            'path' => '/page[/{action}]',
+            'middleware' => \Frontend\Controller\PageController::class,
         ],
     ],
 ];
