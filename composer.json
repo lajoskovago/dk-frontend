@@ -50,6 +50,7 @@
         "mtymek/expressive-config-manager": "^0.4",
 
         "n3vrax/dk-base": "dev-master",
+        "n3vrax/dk-controller": "dev-master",
         "n3vrax/dk-zend-authentication": "dev-master",
         "n3vrax/dk-web-authentication": "dev-master",
         "n3vrax/dk-rbac": "dev-master",
@@ -79,6 +80,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/n3vrax/dk-base"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/n3vrax/dk-controller"
         },
         {
             "type": "vcs",

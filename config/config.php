@@ -14,6 +14,7 @@ if(!is_dir(__DIR__ . '/../data/cache')) {
 $configManager = new ConfigManager([
     //dk modules config providers, these are required
     \N3vrax\DkBase\ConfigProvider::class,
+    \N3vrax\DkController\ConfigProvider::class,
     \N3vrax\DkZendAuthentication\ConfigProvider::class,
     \N3vrax\DkWebAuthentication\ConfigProvider::class,
     \N3vrax\DkRbac\ConfigProvider::class,

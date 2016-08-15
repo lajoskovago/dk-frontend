@@ -9,7 +9,6 @@
 namespace Frontend\Controller\Factory;
 
 use Frontend\Controller\PageController;
-use Frontend\User\UserMapperInterface;
 use Interop\Container\ContainerInterface;
 
 class PageControllerFactory

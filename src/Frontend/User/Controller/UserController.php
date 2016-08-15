@@ -11,7 +11,7 @@ namespace Frontend\User\Controller;
 use Frontend\User\Entity\UserEntity;
 use Frontend\User\Form\UserForm;
 use Frontend\User\Service\UserServiceInterface;
-use N3vrax\DkBase\Controller\AbstractActionController;
+use N3vrax\DkController\AbstractActionController;
 use N3vrax\DkUser\Entity\UserEntityInterface;
 use N3vrax\DkUser\FlashMessagesTrait;
 use N3vrax\DkUser\Form\FormManager;
@@ -103,6 +103,16 @@ class UserController extends AbstractActionController
         }
         
         return new HtmlResponse($this->template()->render('app::account', ['form' => $form,]));
+    }
+
+    public function changeEmailAction()
+    {
+        return new HtmlResponse($this->template()->render('app::change-email'));
+    }
+
+    public function removeAccountAction()
+    {
+        return new HtmlResponse($this->template()->render('app::remove-account'));
     }
 
     /**

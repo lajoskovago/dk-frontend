@@ -42,7 +42,7 @@ return [
             \N3vrax\DkRbacGuard\Controller\ControllerPermissionGuard::class => [
                 [
                     'route' => 'user',
-                    'actions' => ['change-password'],
+                    'actions' => ['change-password', 'account', 'change-email', 'remove-account'],
                     'permissions' => ['authenticated']
                 ],
                 [

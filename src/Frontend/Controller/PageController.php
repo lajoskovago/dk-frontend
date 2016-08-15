@@ -8,10 +8,7 @@
 
 namespace Frontend\Controller;
 
-use Frontend\User\UserEntity;
-use Frontend\User\UserMapperInterface;
-use N3vrax\DkBase\Controller\AbstractActionController;
-use Zend\Db\ResultSet\HydratingResultSet;
+use N3vrax\DkController\AbstractActionController;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\RedirectResponse;
 
